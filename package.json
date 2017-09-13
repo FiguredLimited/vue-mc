@@ -1,11 +1,9 @@
 {
     "name": "vue-mc",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "",
     "license": "MIT",
-    "main": "dist/vue-mc.js",
-    "module": "dist/vue-mc.es.js",
-    "browser": "dist/vue-mc.umd.js",
+    "main": "dist/index.js",
     "keywords": [
         "vue",
         "collection",
@@ -64,10 +62,8 @@
     "peerDependencies": {},
     "scripts": {
         "build": "rollup -c",
-        "watch": "rollup -c -w",
         "test": "nyc mocha --compilers js:babel-register --reporter dot ./test/**/*.spec.js",
-        "docs": "cd docs && jekyll build && cd ..",
-        "docs-watch": "cd docs && jekyll serve"
+        "docs": "cd docs && jekyll serve"
     },
     "nyc": {
         "require": [
