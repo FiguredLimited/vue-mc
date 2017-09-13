@@ -1,0 +1,33 @@
+$vw-small: 640px;
+$vw-medium: 960px;
+$vw-large: 1280px;
+
+@mixin responsive-when-small {
+  @media (max-width: $vw-small) {
+    @content;
+  }
+}
+
+@mixin responsive-when-small-or-medium {
+  @media (max-width: $vw-medium) {
+    @content;
+  }
+}
+
+@mixin responsive-when-medium {
+  @media (min-width: $vw-small + 1) and (max-width: $vw-medium) {
+    @content;
+  }
+}
+
+@mixin responsive-when-medium-or-large {
+  @media (min-width: $vw-medium + 1) {
+    @content;
+  }
+}
+
+@mixin responsive-when-large {
+  @media (min-width: $vw-large + 1) {
+    @content;
+  }
+}

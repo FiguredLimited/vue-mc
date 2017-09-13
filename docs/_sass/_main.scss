@@ -1,0 +1,14 @@
+main {
+  position: relative;
+  background: $clr-white;
+
+  padding-top: 0;//$header-height;
+  padding-left: $menu-width;
+
+  @include responsive-when-small-or-medium {
+    padding-left: 0px;
+    padding-top: $header-height-small;
+  }
+
+  @import "article";
+}

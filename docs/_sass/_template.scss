@@ -1,0 +1,84 @@
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    background-color: $clr-blue-grey-50;
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: $clr-blue-grey-100;
+    border-radius: 3px;
+}
+
+body {
+}
+
+p,
+a,
+li,
+div,
+ul,
+body {
+  font-family: $font-sans;
+  font-size: 1rem;
+}
+
+pre,
+code {
+  font-family: $font-mono;
+}
+
+html {
+  font-size: 1em;
+  background-color: $clr-white;
+
+  @include responsive-when-small {
+    overflow-x: hidden;
+  }
+}
+
+table {
+  border-collapse: collapse;
+  border-left: 2px solid $clr-border;
+  border-right: 2px solid $clr-border;
+
+
+  thead {
+    background-color: $clr-border;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.1);
+  }
+
+  th, td {
+    border-bottom: 2px solid $clr-border;
+    padding: 10px;
+    vertical-align: top;
+    font-size: 1rem;
+    a, p, span {
+      font-size: 1rem;
+    }
+    code {
+      font-size: 0.8rem;
+    }
+
+    @include responsive-when-small {
+       font-size: 0.8rem;
+        a, p, span, code {
+          font-size: 0.8rem;
+        }
+    }
+  }
+
+  th {
+    padding: 5px 10px;
+  }
+}
+
+@import "header";
+@import "menu";
+@import "main";
+@import "footer";

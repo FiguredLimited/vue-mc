@@ -1,0 +1,110 @@
+header {
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 0px 0px 10px 0 rgba(0,0,0,0.2);
+  width: 100%;
+  background-color: $clr-white;
+  z-index: 5;
+  padding: 10px 10px 10px 30px;
+  display: none;
+
+  @include responsive-when-small-or-medium {
+    display: block;
+  }
+}
+
+.titles {
+
+  img.logo {
+      height: 40px;
+      display: inline-block;
+      margin-top: 12px;
+      vertical-align: bottom;
+      transition: opacity 0.1s ease-out;
+      &:hover {
+        opacity: 0.9;
+      }
+  }
+
+  .title {
+    position: relative;
+    left: 0;
+    top: -2px;
+    width: 100%;
+
+    display: inline-block;
+    text-decoration: none;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+
+    .name,
+    .tagline {
+      line-height: 100%;
+      display: block;
+      color: $clr-blue-grey-900;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .name {
+      color: $clr-blue-grey-900;
+      font-size: 2.0rem;
+      font-family: $font-head;
+    }
+
+    .tagline {
+      padding-top: 7px;
+      padding-left: 0px;
+      // letter-spacing: 0.02rem;
+      // text-transform: uppercase;
+      font-family: $font-sans;
+      text-overflow: ellipsis;
+    }
+
+    .name {
+      font-size: 1.5rem;
+    }
+
+    .tagline {
+      font-size: 0.75rem;
+    }
+
+    @include responsive-when-small-or-medium {
+      padding-left: 50px;
+    }
+  }
+
+  .github {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 16px;
+    img {
+      height: 40px;
+    }
+    transition: opacity 0.1s ease-out;
+    &:hover {
+      opacity: 0.8;
+    }
+
+    @include responsive-when-medium {
+      padding: 17px;
+      img {
+        height: 30px;
+      }
+    }
+
+    @include responsive-when-small {
+      padding: 17px;
+      img {
+        height: 30px;
+      }
+    }
+  }
+}
