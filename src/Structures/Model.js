@@ -56,13 +56,14 @@ class Model extends Abstract {
     constructor(attributes = {}, collection = null, options = {}) {
         super(options);
 
+        this.boot();
+
         Vue.set(this, '_collections', {});  // Collections that contain this model.
         Vue.set(this, '_reference',   {});  // Saved attribute state.
         Vue.set(this, '_attributes',  {});  // Active attribute state.
         Vue.set(this, '_mutators',    {});  // Mutator cache.
         Vue.set(this, '_errors',      {});  // Validation errors.
 
-        // Start with initial state.
         this.clearState();
 
         // Cache certain methods that don't need to be evaluated more than once.
@@ -80,8 +81,6 @@ class Model extends Abstract {
         if (collection) {
             this.registerCollection(collection);
         }
-
-        this.boot();
     }
 
     /**

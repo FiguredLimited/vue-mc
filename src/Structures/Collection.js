@@ -45,8 +45,10 @@ class Collection extends Abstract {
     constructor(models = [], options = {}) {
         super(options);
 
-        Vue.set(this, 'models',    []);  // Model store.
-        Vue.set(this, '_registry', {});  // Model registry.
+        this.boot();
+
+        Vue.set(this, 'models',     []);  // Model store.
+        Vue.set(this, '_registry',  {});  // Model registry.
         Vue.set(this, '_page', NO_PAGE);
 
         this.clearState();
@@ -56,8 +58,6 @@ class Collection extends Abstract {
         if (models) {
             this.add(_.values(models));
         }
-
-        this.boot();
     }
 
     /**
@@ -454,7 +454,7 @@ class Collection extends Abstract {
     }
 
     /**
-     * Iterates through all models, calling a given callback for each.
+     * Iterates through all models, calling a given callback for each one.
      *
      * @see {@link https://lodash.com/docs/#each}
      *
