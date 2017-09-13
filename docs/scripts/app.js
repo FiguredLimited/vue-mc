@@ -40,7 +40,7 @@ setTimeout(function() {
 
 // "Redirect" to the first menu item if none are currently active.
 if (window.location.hash == false) {
-    window.location.hash = menuItems[0].href.split('#')[1];
+    window.location.hash = "introduction";
 }
 
 hideMobileMenu();
