@@ -2,7 +2,6 @@ import _                from 'lodash';
 import {autobind}       from 'core-decorators';
 import axios            from 'axios';
 import Vue              from 'vue';
-import ValidationError  from '../Errors/ValidationError.js'
 
 /**
  * Reserved keywords that can't be used for attribute or option names.
@@ -29,7 +28,15 @@ const RESERVED = _.invert([
 /**
  * Base class for all things common between Model and Collection.
  */
+@autobind
 class Abstract {
+
+    /**
+     * @returns {string} The class name of this instance.
+     */
+    get $class() {
+        return (Object.getPrototypeOf(this)).constructor.name;
+    }
 
     constructor(options) {
 
@@ -46,13 +53,15 @@ class Abstract {
         Vue.set(this, '_options',   {});  // Internal option store
 
         this.setOptions(options);
+        this.boot();
     }
 
     /**
-     * @returns {string} The class name of this instance.
+     * Called after construction, this hook allows you to add some extra setup
+     * logic without having to override the constructor.
      */
-    get $class() {
-        return (Object.getPrototypeOf(this)).constructor.name;
+    boot() {
+
     }
 
     /**

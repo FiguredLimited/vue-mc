@@ -2,17 +2,17 @@ import {assert, expect} from 'chai'
 import * as $ from '../../src/Validation/Rules.js'
 import permutation from 'array-permutation'
 
-describe('Rule', function() {
-    describe('format', function() {
-        it('should allow overriding the default string format', function() {
+describe('Rule', () => {
+    describe('format', () => {
+        it('should allow overriding the default string format', () => {
             expect($.email.format('nope!')('@email.com')).to.equal('nope!');
         })
 
-        it('should interpolate "value"', function() {
+        it('should interpolate "value"', () => {
             expect($.email.format('<%= value %>')('@email.com')).to.equal('@email.com');
         })
 
-        it('should not affect the rule it is called on', function() {
+        it('should not affect the rule it is called on', () => {
             let rule1 = $.email;
             let rule2 = $.email.format('A');
             let rule3 = rule2.format('B');
@@ -28,8 +28,8 @@ describe('Rule', function() {
         })
     })
 
-    describe('and', function() {
-        it('should cause a rule to only pass if its dependants also pass', function() {
+    describe('and', () => {
+        it('should cause a rule to only pass if its dependants also pass', () => {
             let A = $.numeric;
             let B = $.min(5);
             let C = $.max(8);
@@ -46,7 +46,7 @@ describe('Rule', function() {
             }
         })
 
-        it('should support recursive nesting', function() {
+        it('should support recursive nesting', () => {
             let rule = $.numeric.and($.min(5).and($.max(9).and($.not(7))));
 
             expect(rule(5)).to.not.be.a('string');
@@ -57,7 +57,7 @@ describe('Rule', function() {
             expect(rule(10)).to.equal('Must be less than or equal to 9');
         })
 
-        it('should not affect the rule it is called on', function() {
+        it('should not affect the rule it is called on', () => {
             let rule1 = $.numeric;
             let rule2 = $.numeric.and($.min(5));
             let rule3 = rule2.and($.max(10));
@@ -73,8 +73,8 @@ describe('Rule', function() {
         })
     })
 
-    describe('or', function() {
-        it('should cause a rule to pass if any of its dependants pass', function() {
+    describe('or', () => {
+        it('should cause a rule to pass if any of its dependants pass', () => {
             let A = $.numeric;
             let B = $.email;
             let C = $.isnull;
@@ -94,7 +94,7 @@ describe('Rule', function() {
             }
         })
 
-        it('should support recursive nesting', function() {
+        it('should support recursive nesting', () => {
             let rule = $.email.or($.numeric.or($.isnull));
 
             expect(rule('email@domain.com')).to.not.be.a('string');
@@ -103,7 +103,7 @@ describe('Rule', function() {
             expect(rule('')).to.equal('Must be a valid email address');
         })
 
-        it('should not affect the rule it is called on', function() {
+        it('should not affect the rule it is called on', () => {
             let rule1 = $.numeric;
             let rule2 = $.numeric.or($.email);
             let rule3 = rule2.or($.isnull);
@@ -119,8 +119,8 @@ describe('Rule', function() {
         })
     })
 
-    describe('and/or', function() {
-        it('should support combined recursive nesting', function() {
+    describe('and/or', () => {
+        it('should support combined recursive nesting', () => {
             let rule = $.email.or($.numeric.and($.max(5).or($.equals(8))));
 
             expect(rule('email@domain.com')).to.not.be.a('string');

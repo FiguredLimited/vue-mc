@@ -2,21 +2,21 @@ import {assert, expect} from 'chai'
 import messages from '../../src/Validation/Messages.js'
 import { pt_br } from '../../src/Validation/Locales.js'
 
-describe('Messages', function() {
-    describe('get', function() {
-        it('should return a formatted message for a valid name', function() {
+describe('Messages', () => {
+    describe('get', () => {
+        it('should return a formatted message for a valid name', () => {
             expect(messages.get('email')).to.equal('Must be a valid email address');
         })
 
-        it('should return a formatted message with context', function() {
+        it('should return a formatted message with context', () => {
             expect(messages.get('equals', {other: 5})).to.equal('Must be equal to 5');
         })
 
-        it('should return a blank string for an invalid name', function() {
+        it('should return a blank string for an invalid name', () => {
             expect(messages.get('invalid!')).to.equal('');
         })
 
-        it('should throw if data is missing', function() {
+        it('should throw if data is missing', () => {
             try {
                 messages.get('equals');
             } catch (e) {
@@ -25,7 +25,7 @@ describe('Messages', function() {
             assert.fail();
         })
 
-        it('should fall back to a parent locale', function() {
+        it('should fall back to a parent locale', () => {
             messages.set('testing', 'TESTING', 'aa');
             expect(messages.get('testing')).to.equal('');
 
@@ -36,20 +36,20 @@ describe('Messages', function() {
         })
     })
 
-    describe('set', function() {
-        it('should add a new message', function() {
+    describe('set', () => {
+        it('should add a new message', () => {
             messages.set('testing', 'Are we testing? ${testing}');
             expect(messages.get('testing', {testing: true})).to.equal('Are we testing? true');
         })
 
-        it('should overwrite an existing message', function() {
+        it('should overwrite an existing message', () => {
             expect(messages.get('email')).to.equal('Must be a valid email address');
             messages.set('email', 'NOT VALID');
             expect(messages.get('email')).to.equal('NOT VALID');
             messages.set('email', 'Must be a valid email address'); // Reset
         })
 
-        it('should set a message for a specific locale', function() {
+        it('should set a message for a specific locale', () => {
             messages.set('email', 'NOT VALID', 'aa-zz');
             expect(messages.get('email')).to.equal('Must be a valid email address');
             messages.locale('aa-zz');
@@ -58,8 +58,8 @@ describe('Messages', function() {
         })
     })
 
-    describe('locale', function() {
-        it('should set a message for a specific locale', function() {
+    describe('locale', () => {
+        it('should set a message for a specific locale', () => {
             messages.set('email', 'bleep bloop', 'robot');
             expect(messages.get('email')).to.equal('Must be a valid email address');
 
@@ -71,8 +71,8 @@ describe('Messages', function() {
         })
     })
 
-    describe('register', function() {
-        it('should allow registering an imported locale', function() {
+    describe('register', () => {
+        it('should allow registering an imported locale', () => {
             messages.locale('pt-br');
             expect(messages.get('email')).to.equal('Must be a valid email address');
 
@@ -84,7 +84,7 @@ describe('Messages', function() {
         })
     })
 
-    describe('messages', function() {
+    describe('messages', () => {
         it('after',             () => expect(messages.get('after', {date: 'DATE'})).to.equal('Must be after DATE'));
         it('alpha',             () => expect(messages.get('alpha', {})).to.equal('Can only use letters'));
         it('alphanumeric',      () => expect(messages.get('alphanumeric', {})).to.equal('Must be alphanumeric'));

@@ -22,10 +22,10 @@ moxios.delay = 0;
 /**
  * Unit tests for Model.js
  */
-describe('Model', function() {
+describe('Model', () => {
 
-    describe('_uid', function() {
-        it('should automatically generate unique incrementing ids', function() {
+    describe('_uid', () => {
+        it('should automatically generate unique incrementing ids', () => {
             let base = (new Model())._uid;
 
             expect((new Model())._uid).to.equal(_.toString(_.toSafeInteger(base) + 1));
@@ -34,24 +34,24 @@ describe('Model', function() {
         });
     })
 
-    describe('$', function() {
-        it('should return saved values', function() {
+    describe('$', () => {
+        it('should return saved values', () => {
             let m = new Model({a: 1});
             m.a = 2;
             expect(m.$.a).to.equal(1);
         })
     })
 
-    describe('errors', function() {
-        it('should return errors', function() {
+    describe('errors', () => {
+        it('should return errors', () => {
             let m = new Model();
             m.setErrors({a: 1});
             expect(m.errors).to.deep.equal({a: 1});
         })
     })
 
-    describe('setOptions', function() {
-        it('should merge recursively', function() {
+    describe('setOptions', () => {
+        it('should merge recursively', () => {
             let m = new Model({}, null, {
                 methods: {
                     patch: 'TEST',
@@ -62,7 +62,7 @@ describe('Model', function() {
             expect(m.option('methods.fetch')).to.equal('GET');
         })
 
-        it('should should merge with instance options', function() {
+        it('should should merge with instance options', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -84,8 +84,8 @@ describe('Model', function() {
         })
     })
 
-    describe('getClass', function() {
-        it('should return the class name', function() {
+    describe('getClass', () => {
+        it('should return the class name', () => {
             let A = Model;
             let B = class extends A {};
             let C = class extends B {};
@@ -98,8 +98,8 @@ describe('Model', function() {
         })
     })
 
-    describe('on', function() {
-        it('should register event listener', function() {
+    describe('on', () => {
+        it('should register event listener', () => {
             let m = new Model();
             let f = () => {}
             m.on('test', f)
@@ -108,8 +108,8 @@ describe('Model', function() {
         })
     })
 
-    describe('emit', function() {
-        it('should emit event to all listeners', function() {
+    describe('emit', () => {
+        it('should emit event to all listeners', () => {
             let m = new Model();
 
             let count = 0;
@@ -133,12 +133,12 @@ describe('Model', function() {
             expect(calls.c).to.equal(true);
         })
 
-        it('should not mind if we emit when no listeners exist', function() {
+        it('should not mind if we emit when no listeners exist', () => {
             let m = new Model();
             expect(m.emit('test')).to.equal(true);
         })
 
-        it('should emit all events even if some are rejected', function() {
+        it('should emit all events even if some are rejected', () => {
             let m = new Model();
 
             let count = 0;
@@ -163,16 +163,16 @@ describe('Model', function() {
         })
     })
 
-    describe('saved', function() {
-        it('should return saved values', function() {
+    describe('saved', () => {
+        it('should return saved values', () => {
             let m = new Model({a: 1});
             m.a = 2;
             expect(m.saved('a')).to.equal(1);
         })
     })
 
-    describe('routes', function() {
-        it('should fail when accessing a non-existing route', function() {
+    describe('routes', () => {
+        it('should fail when accessing a non-existing route', () => {
             try {
                 (new Model()).save();
             } catch (e) {
@@ -184,8 +184,8 @@ describe('Model', function() {
         })
     })
 
-    describe('changed', function() {
-        it('should return top-level changed fields', function() {
+    describe('changed', () => {
+        it('should return top-level changed fields', () => {
             let m = new Model({a: 1, b: 2, c: 3});
 
             m.a = 6;
@@ -198,18 +198,18 @@ describe('Model', function() {
             expect(m.changed()).to.deep.equal(['a', 'b', 'c']);
         })
 
-        it('should return nested changed fields', function() {
+        it('should return nested changed fields', () => {
             let m = new Model({a: {b: 2, c: 3}});
             m.a.b = 5;
             expect(m.changed()).to.deep.equal(['a']);
         })
 
-        it('should return false when there are no changed fields', function() {
+        it('should return false when there are no changed fields', () => {
             let m = new Model();
             expect(m.changed()).to.equal(false);
         })
 
-        it('should return false after reset', function() {
+        it('should return false after reset', () => {
             let m = new Model({a: 1});
             m.a = 2;
             m.reset();
@@ -217,8 +217,8 @@ describe('Model', function() {
         })
     })
 
-    describe('clear', function() {
-        it('should revert attributes back to defaults', function() {
+    describe('clear', () => {
+        it('should revert attributes back to defaults', () => {
             let M = class extends Model {defaults() { return {a: 1} }}
             let m = new M({a: 1, b: 2, c: 3});
 
@@ -237,8 +237,8 @@ describe('Model', function() {
         })
     })
 
-    describe('clearErrors', function() {
-        it('should clear all existing errors', function() {
+    describe('clearErrors', () => {
+        it('should clear all existing errors', () => {
             let m = new Model();
             m._errors = {a: 'error!'};
             m.clearErrors();
@@ -246,58 +246,58 @@ describe('Model', function() {
         })
     })
 
-    describe('constructor', function() {
-        it('should support no params', function() {
+    describe('constructor', () => {
+        it('should support no params', () => {
             let m = new Model();
             expect(m.$).to.deep.equal({});
         })
 
-        it('should support initial attributes', function() {
+        it('should support initial attributes', () => {
             let m = new Model({a: 1});
             expect(m.$).to.deep.equal({a: 1});
         })
 
-        it('should support undefined initial attributes', function() {
+        it('should support undefined initial attributes', () => {
             let m = new Model(undefined);
             expect(m.$).to.deep.equal({});
         })
 
-        it('should support undefined initial attributes', function() {
+        it('should support undefined initial attributes', () => {
             let m = new Model(null);
             expect(m.$).to.deep.equal({});
         })
 
-        it('should support collection as initial register', function() {
+        it('should support collection as initial register', () => {
             let c = new Collection();
             let m = new Model({}, c);
             expect(m.collections).to.deep.equal([c]);
         })
 
-        it('should support an array of collections as initial register', function() {
+        it('should support an array of collections as initial register', () => {
             let c1 = new Collection();
             let c2 = new Collection();
             let m  = new Model({}, [c1, c2]);
             expect(m.collections).to.deep.equal([c1, c2]);
         })
 
-        it('should support undefined collection as initial register', function() {
+        it('should support undefined collection as initial register', () => {
             let m = new Model({}, undefined);
             expect(m.collections).to.deep.equal([]);
         })
 
-        it('should support null collection as initial register', function() {
+        it('should support null collection as initial register', () => {
             let m = new Model({}, null);
             expect(m.collections).to.deep.equal([]);
         })
 
-        it('should support setting options', function() {
+        it('should support setting options', () => {
             let m = new Model(null, null, {loading: 5});
             expect(m.attributes).to.deep.equal({});
             expect(m.loading).to.equal(false);
             expect(m.option('loading')).to.equal(5);
         })
 
-        it('should honour default options', function() {
+        it('should honour default options', () => {
             let m = new class extends Model {
                 options() {
                     return {loading: 5}
@@ -307,7 +307,7 @@ describe('Model', function() {
             expect(m.option('loading')).to.equal(5);
         })
 
-        it('should override default options', function() {
+        it('should override default options', () => {
             let M = class extends Model {
                 options() {
                     return {loading: 5}
@@ -319,64 +319,64 @@ describe('Model', function() {
             expect(m.option('loading')).to.equal(10);
         })
 
-        it('should allow arbitrary options', function() {
+        it('should allow arbitrary options', () => {
             let m = new Model(null, null, {a: 1});
             expect(m.option('a')).to.equal(1);
         })
     })
 
-    describe('defaults', function() {
-        it('should support default object', function() {
+    describe('defaults', () => {
+        it('should support default object', () => {
             let M = class extends Model { defaults() { return {a: 1, b: 2} }}
             let m = new M();
             expect(m.$).to.deep.equal({a: 1, b: 2});
         })
 
-        it('should support undefined', function() {
+        it('should support undefined', () => {
             let M = class extends Model { defaults() {  }}
             let m = new M();
             expect(m.$).to.deep.equal({});
         })
     })
 
-    describe('get', function() {
-        it('should return undefined if attribute not found', function() {
+    describe('get', () => {
+        it('should return undefined if attribute not found', () => {
             expect((new Model()).get('attr')).to.be.undefined;
         })
 
-        it('should return value of attribute if found', function() {
+        it('should return value of attribute if found', () => {
             expect((new Model({a: 1})).get('a')).to.equal(1);
         })
 
-        it('should return default if attribute not found', function() {
+        it('should return default if attribute not found', () => {
             expect((new Model()).get('b', 5)).to.equal(5);
         })
 
-        it('should not return default if attribute was found', function() {
+        it('should not return default if attribute was found', () => {
             expect((new Model({a: 1})).get('a', 5)).to.equal(1);
         })
     })
 
-    describe('has', function() {
-        it('should return true if a model has an attribute', function() {
+    describe('has', () => {
+        it('should return true if a model has an attribute', () => {
             let m = new Model({a: 1});
             expect(m.has('a')).to.equal(true);
         })
 
-        it('should return true if a model has an attribute that is undefined', function() {
+        it('should return true if a model has an attribute that is undefined', () => {
             let m = new Model({a: undefined});
             expect(m.has('a')).to.equal(true);
         })
 
-        it('should return false if a model does not have an attribute', function() {
+        it('should return false if a model does not have an attribute', () => {
             let m = new Model({a: 1});
             expect(m.has('b')).to.equal(false);
         })
     })
 
-    describe('validate', function() {
+    describe('validate', () => {
 
-        it('should validate a nested model', function() {
+        it('should validate a nested model', () => {
             let validated = false;
 
             let n = new class extends Model {
@@ -406,7 +406,7 @@ describe('Model', function() {
            ]});
         })
 
-        it('should fail if a nested model fails its validation', function() {
+        it('should fail if a nested model fails its validation', () => {
             let A = class extends Model {
                 validation() {
                     return {a: email}
@@ -424,7 +424,7 @@ describe('Model', function() {
             expect(m.validate()).to.equal(false);
         })
 
-        it('should not validate a nested model if option is disabled', function() {
+        it('should not validate a nested model if option is disabled', () => {
             let validated = false;
 
             let n = new class extends Model {
@@ -453,7 +453,7 @@ describe('Model', function() {
             expect(n.errors).to.be.empty;
         })
 
-        it('should validate a single attribute', function() {
+        it('should validate a single attribute', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -473,7 +473,7 @@ describe('Model', function() {
             expect(m.errors).to.deep.equal({a: ['Must be a valid email address']});
         })
 
-        it('should validate a single attribute that passes', function() {
+        it('should validate a single attribute that passes', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -493,7 +493,7 @@ describe('Model', function() {
             expect(m.errors).to.deep.equal({});
         })
 
-        it('should return true when validating an attribute that does not exist', function() {
+        it('should return true when validating an attribute that does not exist', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -513,7 +513,7 @@ describe('Model', function() {
             expect(m.errors).to.deep.equal({});
         })
 
-        it('should validate an array of attributes', function() {
+        it('should validate an array of attributes', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -536,7 +536,7 @@ describe('Model', function() {
             });
         })
 
-        it('should validate all attributes if none given', function() {
+        it('should validate all attributes if none given', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -559,7 +559,7 @@ describe('Model', function() {
             });
         })
 
-        it('should validate the docuementation example', function() {
+        it('should validate the docuementation example', () => {
             let Task = class extends Model {
                 defaults() {
                     return {
@@ -592,7 +592,7 @@ describe('Model', function() {
             expect(task.errors).to.be.empty;
         })
 
-        it('should pass the attribute name to the message context', function() {
+        it('should pass the attribute name to the message context', () => {
             let m = new class extends Model {
                 defaults() {
                     return {
@@ -616,8 +616,8 @@ describe('Model', function() {
         })
     })
 
-    describe('mutators', function() {
-        it('should support an array of mutators', function() {
+    describe('mutators', () => {
+        it('should support an array of mutators', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -633,22 +633,22 @@ describe('Model', function() {
         })
     })
 
-    describe('set', function() {
-        it('should set attribute if it does not already exist', function() {
+    describe('set', () => {
+        it('should set attribute if it does not already exist', () => {
             let m = new Model();
             m.set('a', 1);
             expect(m.a).to.equal(1);
             expect(m.$.a).to.be.undefined;
         })
 
-        it('should overwrite attribute if it already exists', function() {
+        it('should overwrite attribute if it already exists', () => {
             let m = new Model({a: 1});
             m.set('a', 2);
             expect(m.a).to.equal(2);
             expect(m.$.a).to.equal(1);
         })
 
-        it('should fail when trying to set reserved attribute name', function() {
+        it('should fail when trying to set reserved attribute name', () => {
             try {
                 (new Model()).set('loading', 1);
             } catch (e) {
@@ -657,7 +657,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should not mutate values if `mutateOnChange` is false', function() {
+        it('should not mutate values if `mutateOnChange` is false', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -670,7 +670,7 @@ describe('Model', function() {
             expect(m.a).to.equal(5);
         })
 
-        it('should mutate values if a mutator is set', function() {
+        it('should mutate values if a mutator is set', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -683,7 +683,7 @@ describe('Model', function() {
             expect(m.a).to.equal('5');
         })
 
-        it('should mutate values if multiple mutators are set', function() {
+        it('should mutate values if multiple mutators are set', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -733,7 +733,7 @@ describe('Model', function() {
             m.set('a', 5);
         })
 
-        it('should not emit a change event when a value has not changed', function() {
+        it('should not emit a change event when a value has not changed', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -765,7 +765,7 @@ describe('Model', function() {
             }({a: 1});
 
             m.on('change', function(e) {
-                setTimeout(function() {
+                setTimeout(() => {
                     expect(m.errors.a).to.deep.equal(['Must be a valid email address']);
                     done();
                 }, 1);
@@ -790,7 +790,7 @@ describe('Model', function() {
             }({a: 1});
 
             m.on('change', function(e) {
-                setTimeout(function() {
+                setTimeout(() => {
                     expect(m.a).to.equal(5);
                     expect(m.errors).to.be.empty;
                     done();
@@ -801,8 +801,8 @@ describe('Model', function() {
         })
     })
 
-    describe('unset', function() {
-        it('should revert a value to its default value', function() {
+    describe('unset', () => {
+        it('should revert a value to its default value', () => {
             let M = class extends Model {
                 defaults() {
                     return {a: 1};
@@ -816,12 +816,12 @@ describe('Model', function() {
             expect(m.a).to.equal(1);
         })
 
-        it('should not fail if the attribute does not exist', function() {
+        it('should not fail if the attribute does not exist', () => {
             let m = new Model();
             m.unset('a');
         })
 
-        it('should revert a value to undefined if it does not have a default', function() {
+        it('should revert a value to undefined if it does not have a default', () => {
             let m = new Model({a: 1});
 
             expect(m.a).to.equal(1);
@@ -829,7 +829,7 @@ describe('Model', function() {
             expect(m.a).to.be.undefined;
         })
 
-        it('should support unsetting a specific property', function() {
+        it('should support unsetting a specific property', () => {
             let m = new Model({a: 1, b: 2});
 
             m.unset('a');
@@ -837,7 +837,7 @@ describe('Model', function() {
             expect(m.b).to.equal(2);
         })
 
-        it('should support unsetting an array of properties', function() {
+        it('should support unsetting an array of properties', () => {
             let m = new Model({a: 1, b: 2, c: 3});
 
             m.unset(['b', 'c']);
@@ -846,7 +846,7 @@ describe('Model', function() {
             expect(m.c).to.be.undefined;
         })
 
-        it('should revert all values to their default values', function() {
+        it('should revert all values to their default values', () => {
             let m = new class extends Model {
                 defaults() {
                     return {a: 1, b: 2, c: 3};
@@ -865,8 +865,8 @@ describe('Model', function() {
         })
     })
 
-    describe('reset', function() {
-        it('should reset attributes to the reference', function() {
+    describe('reset', () => {
+        it('should reset attributes to the reference', () => {
             let m = new Model({a: 1, b: 2});
 
             expect(m.a).to.equal(1);
@@ -890,12 +890,12 @@ describe('Model', function() {
             expect(m.$.b).to.equal(2);
         })
 
-        it('should not mind if there are no attributes', function() {
+        it('should not mind if there are no attributes', () => {
             let m = new Model();
             m.reset();
         })
 
-        it('should not mind if already reset', function() {
+        it('should not mind if already reset', () => {
             let m = new Model({a: 1, b: 2});
             m.a = 5;
 
@@ -912,7 +912,7 @@ describe('Model', function() {
             m.reset();
         })
 
-        it('should support resetting a specific property', function() {
+        it('should support resetting a specific property', () => {
             let m = new Model({a: 1, b: 2});
             m.a = 10;
             m.b = 20;
@@ -922,7 +922,7 @@ describe('Model', function() {
             expect(m.b).to.equal(20);
         })
 
-        it('should support resetting an array of properties', function() {
+        it('should support resetting an array of properties', () => {
             let m = new Model({a: 1, b: 2, c: 3});
             m.a = 10;
             m.b = 20;
@@ -935,8 +935,8 @@ describe('Model', function() {
         })
     })
 
-    describe('sync', function() {
-        it('should sync attributes to the reference', function() {
+    describe('sync', () => {
+        it('should sync attributes to the reference', () => {
             let m = new Model({a: 1, b: 2});
 
             expect(m.a).to.equal(1);
@@ -960,7 +960,7 @@ describe('Model', function() {
             expect(m.$.b).to.equal(6);
         })
 
-        it('should sync a specific attribute', function() {
+        it('should sync a specific attribute', () => {
             let m = new Model({a: 1, b: 2});
 
             expect(m.a).to.equal(1);
@@ -984,7 +984,7 @@ describe('Model', function() {
             expect(m.$.b).to.equal(2);
         })
 
-        it('should sync a an array of specific attributes', function() {
+        it('should sync a an array of specific attributes', () => {
             let m = new Model({a: 1, b: 2, c: 3});
 
             expect(m.a).to.equal(1);
@@ -1024,7 +1024,7 @@ describe('Model', function() {
             m.sync();
         })
 
-        it('should mutate attributes before sync if option is enabled', function() {
+        it('should mutate attributes before sync if option is enabled', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -1056,7 +1056,7 @@ describe('Model', function() {
             expect(m.$.b).to.equal(5);
         })
 
-        it('should mutate specific attributes before sync if option is enabled', function() {
+        it('should mutate specific attributes before sync if option is enabled', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -1089,7 +1089,7 @@ describe('Model', function() {
             expect(m.$.b).to.equal(50);
         })
 
-        it('should not mutate attributes before sync if option is disabled', function() {
+        it('should not mutate attributes before sync if option is disabled', () => {
             let m = new class extends Model {
                 mutators() {
                     return {
@@ -1123,24 +1123,24 @@ describe('Model', function() {
         })
     })
 
-    describe('get errors', function() {
-        it('should return errors', function() {
+    describe('get errors', () => {
+        it('should return errors', () => {
             let m = new Model();
             m._errors = {a: 1}
             expect(m.errors).to.deep.equal({a: 1});
         })
     })
 
-    describe('set errors', function() {
-        it('should set errors', function() {
+    describe('set errors', () => {
+        it('should set errors', () => {
             let m = new Model();
             m._errors = {a: 1};
             expect(m.errors).to.deep.equal({a: 1});
         })
     })
 
-    describe('getURL', function() {
-        it('should return basic route', function() {
+    describe('getURL', () => {
+        it('should return basic route', () => {
             let M = class extends Model {
                 routes() { return {'fetch': 'http://domain.com/path'} }
             }
@@ -1149,7 +1149,7 @@ describe('Model', function() {
             expect(m.getFetchURL()).to.equal('http://domain.com/path');
         })
 
-        it('should return route with replaced parameters', function() {
+        it('should return route with replaced parameters', () => {
             let M = class extends Model {
                 routes() { return {'fetch': 'http://domain.com/{path}'} }
             }
@@ -1158,7 +1158,7 @@ describe('Model', function() {
             expect(m.getFetchURL()).to.equal('http://domain.com/test');
         })
 
-        it('should use the route resolver', function() {
+        it('should use the route resolver', () => {
             let M = class extends Model {
                 routes() {
                     return {
@@ -1178,7 +1178,7 @@ describe('Model', function() {
             expect(m.getFetchURL()).to.equal('http://domain.com/test');
         })
 
-        it('should fail when a route key is not defined', function() {
+        it('should fail when a route key is not defined', () => {
             let m = new class extends Model {
                 routes() { return {} }
             }
@@ -1192,7 +1192,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should replace missing parameters with undefined', function() {
+        it('should replace missing parameters with undefined', () => {
             let M = class extends Model {
                 routes() { return {'fetch': 'http://domain.com/{path}'} }
             }
@@ -1201,7 +1201,7 @@ describe('Model', function() {
             expect(m.getFetchURL()).to.equal('http://domain.com/undefined');
         })
 
-        it('should render undefined parameters', function() {
+        it('should render undefined parameters', () => {
             let M = class extends Model {
                 routes() { return {'fetch': 'http://domain.com/{path}'} }
             }
@@ -1210,7 +1210,7 @@ describe('Model', function() {
             expect(m.getFetchURL()).to.equal('http://domain.com/undefined');
         })
 
-        it('should render null parameters', function() {
+        it('should render null parameters', () => {
             let M = class extends Model {
                 routes() { return {'fetch': 'http://domain.com/{path}'} }
             }
@@ -1220,21 +1220,21 @@ describe('Model', function() {
         })
     })
 
-    describe('toJSON', function() {
-        it('should convert attributes to json', function() {
+    describe('toJSON', () => {
+        it('should convert attributes to json', () => {
             let m = new Model({a: 1});
             expect(JSON.stringify(m)).to.equal('{"a":1}');
         })
 
-        it('should honour override', function() {
+        it('should honour override', () => {
             let M = class extends Model { toJSON() { return {b: 2} }}
             let m = new M({a: 1});
             expect(JSON.stringify(m)).to.equal('{"b":2}');
         })
     })
 
-    describe('registerCollection', function() {
-        it('should register a collection', function() {
+    describe('registerCollection', () => {
+        it('should register a collection', () => {
             let c = new Collection();
             let m = new Model();
             m.registerCollection(c);
@@ -1242,7 +1242,7 @@ describe('Model', function() {
             expect(m.collections).to.deep.equal([c]);
         })
 
-        it('should register an array of collections', function() {
+        it('should register an array of collections', () => {
             let c1 = new Collection();
             let c2 = new Collection();
             let m  = new Model();
@@ -1252,7 +1252,7 @@ describe('Model', function() {
             expect(m.collections).to.deep.equal([c1, c2]);
         })
 
-        it('should quietly not allow registering the same collection twice', function() {
+        it('should quietly not allow registering the same collection twice', () => {
             let c = new Collection();
             let m = new Model();
 
@@ -1262,7 +1262,7 @@ describe('Model', function() {
             expect(m.collections).to.deep.equal([c]);
         })
 
-        it('should fail if we pass a null collection', function() {
+        it('should fail if we pass a null collection', () => {
             let m = new Model();
             try {
                 m.registerCollection(null);
@@ -1272,7 +1272,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should fail if we pass an undefined collection', function() {
+        it('should fail if we pass an undefined collection', () => {
             let m = new Model();
             try {
                 m.registerCollection(undefined);
@@ -1282,7 +1282,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should fail when passing an object that is not a collection', function() {
+        it('should fail when passing an object that is not a collection', () => {
             try {
                 (new Model()).registerCollection({a: 1});
             } catch (e) {
@@ -1291,7 +1291,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should fail when passing a non-object', function() {
+        it('should fail when passing a non-object', () => {
             try {
                 (new Model()).registerCollection(5);
             } catch (e) {
@@ -1301,8 +1301,8 @@ describe('Model', function() {
         })
     })
 
-    describe('unregisterCollection', function() {
-        it('should not mind if a collection is not registered', function() {
+    describe('unregisterCollection', () => {
+        it('should not mind if a collection is not registered', () => {
             let c = new Collection();
             let m = new Model();
 
@@ -1310,7 +1310,7 @@ describe('Model', function() {
             expect(m.collections).to.deep.equal([]);
         })
 
-        it('should fail if we pass a null collection', function() {
+        it('should fail if we pass a null collection', () => {
             let m = new Model();
             try {
                 m.unregisterCollection(null);
@@ -1320,7 +1320,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should fail if we pass an undefined collection', function() {
+        it('should fail if we pass an undefined collection', () => {
             let m = new Model();
             try {
                 m.unregisterCollection(undefined);
@@ -1330,7 +1330,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should support unregistering many of the same collection', function() {
+        it('should support unregistering many of the same collection', () => {
             let c = new Collection();
             let m = new Model({}, c);
 
@@ -1340,7 +1340,7 @@ describe('Model', function() {
             expect(m.collections).to.deep.equal([]);
         })
 
-        it('should unregister an array of collections', function() {
+        it('should unregister an array of collections', () => {
             let c1 = new Collection();
             let c2 = new Collection();
             let m  = new Model({}, [c1, c2]);
@@ -1350,7 +1350,7 @@ describe('Model', function() {
             expect(m.collections).to.deep.equal([]);
         })
 
-        it('should fail when passing an object that is not a collection', function() {
+        it('should fail when passing an object that is not a collection', () => {
             try {
                 (new Model()).unregisterCollection({a: 1});
             } catch (e) {
@@ -1359,7 +1359,7 @@ describe('Model', function() {
             assert.fail();
         })
 
-        it('should fail when passing a non-object', function() {
+        it('should fail when passing a non-object', () => {
             try {
                 (new Model()).unregisterCollection(5);
             } catch (e) {
@@ -1369,7 +1369,7 @@ describe('Model', function() {
         })
     })
 
-    describe('fetch', function() {
+    describe('fetch', () => {
 
         it('should handle successful fetch with attributes return', function(done) {
             let M = class extends Model {
@@ -1980,7 +1980,7 @@ describe('Model', function() {
         })
     })
 
-    describe('save', function() {
+    describe('save', () => {
         it('should handle successful save with empty return', function(done) {
             let M = class extends Model {
                 defaults() { return {a: 1, b: 2}}
@@ -3087,7 +3087,7 @@ describe('Model', function() {
             });
         })
 
-        it('should pass if no validation rules are configured', function() {
+        it('should pass if no validation rules are configured', () => {
             let m = new Model();
             expect(m.validate()).to.equal(true);
             expect(m.errors).to.be.empty;
@@ -3176,7 +3176,7 @@ describe('Model', function() {
             m.save();
         })
 
-        it('should not mutate on save if option is disabled', function() {
+        it('should not mutate on save if option is disabled', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -3208,7 +3208,7 @@ describe('Model', function() {
         })
     })
 
-    describe('delete', function() {
+    describe('delete', () => {
         it('should handle successful delete with empty return', function(done) {
             let m = new class extends Model {
                 defaults() { return {id: 1}}

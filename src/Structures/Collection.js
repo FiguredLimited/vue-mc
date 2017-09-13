@@ -45,8 +45,6 @@ class Collection extends Abstract {
     constructor(models = [], options = {}) {
         super(options);
 
-        this.boot();
-
         Vue.set(this, 'models',     []);  // Model store.
         Vue.set(this, '_registry',  {});  // Model registry.
         Vue.set(this, '_page', NO_PAGE);
@@ -58,14 +56,6 @@ class Collection extends Abstract {
         if (models) {
             this.add(_.values(models));
         }
-    }
-
-    /**
-     * Called after construction, this hook allows you to add some extra setup
-     * logic without having to override the constructor.
-     */
-    boot() {
-
     }
 
     /**

@@ -56,8 +56,6 @@ class Model extends Abstract {
     constructor(attributes = {}, collection = null, options = {}) {
         super(options);
 
-        this.boot();
-
         Vue.set(this, '_collections', {});  // Collections that contain this model.
         Vue.set(this, '_reference',   {});  // Saved attribute state.
         Vue.set(this, '_attributes',  {});  // Active attribute state.
@@ -82,12 +80,6 @@ class Model extends Abstract {
             this.registerCollection(collection);
         }
     }
-
-    /**
-     * Called after construction, this hook allows you to add some extra setup
-     * logic without having to override the constructor.
-     */
-    boot() {}
 
     /**
      * Prepare certain methods to only be called once. These are methods that

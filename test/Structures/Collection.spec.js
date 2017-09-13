@@ -11,8 +11,8 @@ import {email, string} from '../../src/Validation/Rules.js'
  */
 describe('Collection', () => {
 
-    describe('_uid', function() {
-        it('should automatically generate unique incrementing ids', function() {
+    describe('_uid', () => {
+        it('should automatically generate unique incrementing ids', () => {
             let base = (new Collection())._uid;
 
             expect((new Collection())._uid).to.equal(_.toString(_.toSafeInteger(base) + 1));
@@ -21,8 +21,8 @@ describe('Collection', () => {
         });
     })
 
-    describe('setOptions', function() {
-        it('should merge recursively', function() {
+    describe('setOptions', () => {
+        it('should merge recursively', () => {
             let m = new Model({}, null, {
                 methods: {
                     patch: 'CONSTRUCTOR',
@@ -33,7 +33,7 @@ describe('Collection', () => {
             expect(m.option('methods.fetch')).to.equal('GET');
         })
 
-        it('should should merge with instance options', function() {
+        it('should should merge with instance options', () => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -55,8 +55,8 @@ describe('Collection', () => {
         })
     })
 
-    describe('errors', function() {
-        it('should collect errors from all models', function() {
+    describe('errors', () => {
+        it('should collect errors from all models', () => {
             let c  = new Collection();
             let m1 = c.add(new Model());
             let m2 = c.add(new Model());
@@ -70,7 +70,7 @@ describe('Collection', () => {
             ]);
         })
 
-        it('should yield an empty element for models with no errors', function() {
+        it('should yield an empty element for models with no errors', () => {
             let c  = new Collection();
             let m1 = c.add(new Model());
             let m2 = c.add(new Model());
@@ -88,8 +88,8 @@ describe('Collection', () => {
         })
     })
 
-    describe('on', function() {
-        it('should register event listener', function() {
+    describe('on', () => {
+        it('should register event listener', () => {
             let c = new Collection();
             let f = () => {}
             c.on('test', f)
@@ -98,8 +98,8 @@ describe('Collection', () => {
         })
     })
 
-    describe('emit', function() {
-        it('should emit event to all listeners', function() {
+    describe('emit', () => {
+        it('should emit event to all listeners', () => {
             let c = new Collection();
 
             let count = 0;
@@ -123,12 +123,12 @@ describe('Collection', () => {
             expect(calls.c).to.equal(true);
         })
 
-        it('should not mind if we emit when no listeners exist', function() {
+        it('should not mind if we emit when no listeners exist', () => {
             let c = new Collection();
             expect(c.emit('test')).to.equal(true);
         })
 
-        it('should emit all events even if some are rejected', function() {
+        it('should emit all events even if some are rejected', () => {
             let c = new Collection();
 
             let count = 0;
@@ -154,8 +154,8 @@ describe('Collection', () => {
     })
 
 
-    describe('getURL', function() {
-        it('should return basic route', function() {
+    describe('getURL', () => {
+        it('should return basic route', () => {
             let C = class extends Collection {
                 routes() { return {'fetch': 'http://domain.com/path'} }
             }
@@ -164,7 +164,7 @@ describe('Collection', () => {
             expect(c.getFetchURL()).to.equal('http://domain.com/path');
         })
 
-        it('should return route with replaced parameters', function() {
+        it('should return route with replaced parameters', () => {
             let c = new class extends Collection {
                 routes() { return {'fetch': 'http://domain.com/{page}'} }
             }
@@ -173,7 +173,7 @@ describe('Collection', () => {
             expect(c.getFetchURL()).to.equal('http://domain.com/5');
         })
 
-        it('should use the route resolver', function() {
+        it('should use the route resolver', () => {
             let c = new class extends Collection {
                 routes() {
                     return {
@@ -193,7 +193,7 @@ describe('Collection', () => {
             expect(c.getFetchURL()).to.equal('http://domain.com/5');
         })
 
-        it('should fail when a route key is not defined', function() {
+        it('should fail when a route key is not defined', () => {
             let c = new class extends Collection {
                 routes() { return {} }
             }
@@ -207,7 +207,7 @@ describe('Collection', () => {
             assert.fail();
         })
 
-        it('should render undefined parameters', function() {
+        it('should render undefined parameters', () => {
             let C = class extends Collection {
                 routes() { return {'fetch': 'http://domain.com/{opt}'} }
             }
@@ -216,7 +216,7 @@ describe('Collection', () => {
             expect(c.getFetchURL()).to.equal('http://domain.com/undefined');
         })
 
-        it('should render null parameters', function() {
+        it('should render null parameters', () => {
             let C = class extends Collection {
                 routes() { return {'fetch': 'http://domain.com/{page}'} }
             }
@@ -407,8 +407,8 @@ describe('Collection', () => {
         })
     })
 
-    describe('validate', function() {
-        it('should validate all models', function() {
+    describe('validate', () => {
+        it('should validate all models', () => {
             let c  = new Collection();
 
             let M1 = class extends Model {
@@ -438,12 +438,12 @@ describe('Collection', () => {
             expect(m2.errors).to.to.have.property('c');
         })
 
-        it('should pass with no models', function() {
+        it('should pass with no models', () => {
             let c  = new Collection();
             expect(c.validate()).to.equal(true);
         })
 
-        it('should pass with no models that have validation', function() {
+        it('should pass with no models that have validation', () => {
             let c = new Collection([{}, {}]);
             expect(c.validate()).to.equal(true);
         })
@@ -1302,20 +1302,20 @@ describe('Collection', () => {
         })
     })
 
-    describe('count', function() {
-        it ('should count by key', function() {
+    describe('count', () => {
+        it ('should count by key', () => {
             let c = new Collection([{a: 'X'}, {a: 'X'}, {a: 'Y'}]);
             expect(c.count('a')).to.deep.equal({'X': 2, 'Y': 1});
         })
 
-        it ('should count using a callback', function() {
+        it ('should count using a callback', () => {
             let c = new Collection([{a: 'X'}, {a: 'X'}, {a: 'Y'}]);
             expect(c.count((m) => m.a)).to.deep.equal({'X': 2, 'Y': 1});
         })
     })
 
-    describe('each', function() {
-        it ('should iterate through each model', function() {
+    describe('each', () => {
+        it ('should iterate through each model', () => {
             let c = new Collection([{a: 'X'}, {a: 'X'}, {a: 'Y'}]);
 
             let collected = [];
