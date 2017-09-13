@@ -1,6 +1,6 @@
 {
     "name": "vue-mc",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "",
     "license": "MIT",
     "main": "dist/vue-mc.js",
@@ -8,9 +8,13 @@
     "browser": "dist/vue-mc.umd.js",
     "keywords": [
         "vue",
-        "model",
         "collection",
-        "store"
+        "datastore",
+        "model",
+        "models",
+        "store",
+        "structures",
+        "validation"
     ],
     "files": [
         "dist"

@@ -1,7 +1,7 @@
 /**
  * Models and Collections for Vue.js
  *
- * @version 0.0.1
+ * @version 0.0.3
  *
  * @author Rudi Theunissen <rudi.theunissen@figured.com>
  */
