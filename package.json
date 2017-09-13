@@ -1,6 +1,6 @@
 {
     "name": "vue-mc",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "",
     "license": "MIT",
     "main": "dist/index.js",
@@ -63,7 +63,8 @@
     "scripts": {
         "build": "rollup -c",
         "test": "nyc mocha --compilers js:babel-register --reporter dot ./test/**/*.spec.js",
-        "docs": "cd docs && jekyll serve"
+        "docs": "cd docs && jekyll serve",
+        "prepublishOnly": "npm test && npm run build"
     },
     "browserify": {
         "transform": [["babelify", { "presets": ["es2015"] }]]
