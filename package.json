@@ -65,6 +65,9 @@
         "test": "nyc mocha --compilers js:babel-register --reporter dot ./test/**/*.spec.js",
         "docs": "cd docs && jekyll serve"
     },
+    "browserify": {
+        "transform": [["babelify", { "presets": ["es2015"] }]]
+    },
     "nyc": {
         "require": [
             "babel-register"
