@@ -30,8 +30,8 @@ class Task extends Model {
         }
     }
 
-    // Attribute transforms.
-    transforms() {
+    // Attribute mutators.
+    mutators() {
         return {
             id:   (id) => Number(id) || null,
             name: String,
