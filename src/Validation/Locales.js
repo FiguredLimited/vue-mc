@@ -57,6 +57,55 @@ const pt_br = {
     }
 }
 
+const es_ar = {
+    locale: 'es-ar',
+    messages: {
+        after: 'El campo debe ser una fecha después de ${date}',
+        alpha: 'El campo sólo puede contener letras.',
+        alphanumeric: 'El campo sólo puede contener letras y números.',
+        array: 'El campo debe ser un arreglo.',
+        ascii: 'El campo debe ser un código de la tabla ASCII.',
+        base64: 'El campo debe ser un Base64 válido.',
+        before: 'El campo debe ser una fecha antes de ${date}.',
+        between: 'El campo debe estar entre ${min} y ${max}.',
+        between_inclusive: 'El campo debe estar entre ${min} y ${max}, inclusive.',
+        boolean: 'El campo debe ser verdadero o falso.',
+        creditcard: 'El campo debe ser un número de tarjeta de crédito válido',
+        date: 'El campo ${date} no es una fecha válida.',
+        dateformat: 'El campo no corresponde con el formato "${format}".',
+        defined: 'El campo debe estar definido.',
+        email: 'El formato del Email no es válido.',
+        empty: 'El campo debe estar vacïo.',
+        equals: 'El campo debe ser igual a ${other}.',
+        gt: 'El campo debe ser mayor a ${min}.',
+        gte: 'El campo debe ser mayor o igual a ${min}.',
+        integer: 'El campo debe ser un entero.',
+        ip: 'El campo debe ser una dirección IP válida.',
+        isblank: 'El campo debe estar en blanco.',
+        isnil: 'El campo debe ser nulo o no definido.',
+        isnull: 'El campo debe ser nulo.',
+        iso8601: 'El campo debe ser una fecha ISO8601 válida.',
+        json: 'El campo debe ser debe ser una cadena JSON válida.',
+        length: 'El campo debe tener al menos ${min}.',
+        length_between: 'El campo debe tener un tamaño entre ${min} y ${max}.',
+        lt: 'El campo debe ser menor que ${max}.',
+        lte: 'El campo debe ser menor o igual a ${max}.',
+        match: 'El campo debe coincidir con el formato "${pattern}".',
+        negative: 'El campo debe ser un número negativo.',
+        not: 'El campo no puede ser ${value}',
+        number: 'El campo debe ser un número.',
+        numeric: 'El campo debe ser numérico',
+        object: 'El campo debe ser un objeto.',
+        positive: 'El campo debe ser un número positivo.',
+        required: 'El campo es obligatorio.',
+        same: 'El campo debe ser igual a "${other}".',
+        string: 'El campo debe ser una cadena de texto.',
+        url: 'El campo debe ser una URL válida.',
+        uuid: 'El campo debe ser un UUID válido.',
+    }
+}
+
 export {
     pt_br,
+    es_ar
 }
