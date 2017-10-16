@@ -13,8 +13,7 @@ global.Vue = Vue;
 
 // Fail if there's an unhandled promise rejection warning.
 process.on('unhandledRejection', (error, promise) => {
-    console.error('Unhandled promise rejection', {error, promise})
-    process.exit(1);
+    throw error;
 });
 
 // Structures
