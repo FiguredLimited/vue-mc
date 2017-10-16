@@ -1,4 +1,4 @@
-import { en_us }        from './Locale.js'
+import { en_us }        from './locale.js'
 import isAlpha          from 'validator/lib/isAlpha'
 import isAlphanumeric   from 'validator/lib/isAlphanumeric'
 import isBase64         from 'validator/lib/isBase64'
