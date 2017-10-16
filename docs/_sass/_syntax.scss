@@ -15,13 +15,15 @@ pre {
   -ms-hyphens: none;
   hyphens: none;
 
-  font-size: 0.9rem;
+  font-size: 0.9em;
   line-height: 160%;
-  font-weight: 400;
+  font-weight: 500;
+
+  -webkit-font-smoothing: initial;
 }
 
 pre {
-  padding: 2rem;
+  padding: 2em;
   overflow: auto;
   border: none;
   background-color: $clr-grey-100;

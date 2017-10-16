@@ -54,25 +54,25 @@ header {
 
     .name {
       color: $clr-blue-grey-900;
-      font-size: 2.0rem;
+      font-size: 2.0em;
       font-family: $font-head;
     }
 
     .tagline {
       padding-top: 7px;
       padding-left: 0px;
-      // letter-spacing: 0.02rem;
+      // letter-spacing: 0.02em;
       // text-transform: uppercase;
       font-family: $font-sans;
       text-overflow: ellipsis;
     }
 
     .name {
-      font-size: 1.5rem;
+      font-size: 1.5em;
     }
 
     .tagline {
-      font-size: 0.75rem;
+      font-size: 0.75em;
     }
 
     @include responsive-when-small-or-medium {

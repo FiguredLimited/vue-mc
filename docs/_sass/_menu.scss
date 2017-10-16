@@ -70,7 +70,7 @@ menu {
       text-decoration: none;
 
       h2,h3 {
-        margin: 2rem 0 0.5rem 0 !important;
+        margin: 2em 0 0.5em 0 !important;
       }
 
       &:first-child {
@@ -96,13 +96,8 @@ menu {
 
       li {
         a {
-          color: $clr-blue-grey-500;
+          color: $clr-blue-grey-700;
           font-weight: 400;
-          transition: color 0.1s ease-out;
-
-          &:hover {
-            color: $clr-blue-grey-700;
-          }
         }
 
         &:last-child {
@@ -120,7 +115,7 @@ menu {
         display: inline-block;
 
         text-decoration: none;
-        font-size: 1rem;
+        font-size: 1em;
         font-weight: 600;
 
         border-bottom: 2px solid transparent;
@@ -199,7 +194,7 @@ label[for="menu"] {
     top: 15px;
     text-align: center;
     width: 100%;
-    font-size: 2.0rem;
+    font-size: 2.0em;
     font-weight: 100;
     line-height: 100%;
     color: $clr-grey-800;

@@ -20,7 +20,7 @@ strong {
 }
 
 article {
-  line-height: 1.6rem;
+  line-height: 1.6em;
   padding: 60px 60px 60px 90px;
   z-index: 1;
   position: relative;
@@ -36,7 +36,7 @@ article {
   }
 
   hr {
-      padding: 1rem 0 1rem 0;
+      padding: 1em 0 1em 0;
       border: none;
   }
 
@@ -48,7 +48,7 @@ article {
     @include responsive-when-small-or-medium {
       display: none;
     }
-    font-size: 1.0rem;
+    font-size: 1.0em;
     line-height: 20px;
     margin: 0 0 10px 0;
     padding: 0;
@@ -112,7 +112,7 @@ article {
   }
 
   pre {
-    margin: 2rem 0 2rem 0;
+    margin: 2em 0 2em 0;
   }
 
   p > code,
@@ -128,9 +128,9 @@ article {
   }
 
   blockquote {
-    margin: 1rem 0 2rem 0;
+    margin: 1em 0 2em 0;
     display: inline-block;
-    padding: 1rem;
+    padding: 1em;
     background-color: $clr-grey-50;
     border: 1px solid $clr-blue-grey-50;
     border-radius: 3px;
@@ -155,14 +155,14 @@ article {
         }
 
         a {
-          font-size: 0.9rem;
+          font-size: 0.9em;
         }
 
         .name {
           margin-bottom: 0;
           color: $clr-indigo;
           font-family: $font-mono;
-          font-size: 0.9rem;
+          font-size: 0.9em;
           font-weight: 500;
           margin-bottom: 0;
           padding: 5px;
@@ -170,7 +170,7 @@ article {
         }
 
         .desc {
-          font-size: 0.9rem;
+          font-size: 0.9em;
           margin-bottom: 0;
           padding: 5px;
         }

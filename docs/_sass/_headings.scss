@@ -12,11 +12,11 @@ h5 {
   }
 }
 
-h1 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
-h2 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
-h3 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
-h4 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
-h5 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
+h1 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0em; }}
+h2 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0em; }}
+h3 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0em; }}
+h4 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0em; }}
+h5 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0em; }}
 
 hr {
     display: none;
@@ -24,58 +24,58 @@ hr {
 
 h1 {
   color: $clr-vue-blue;
-  margin: 4rem 0 1.5rem 0;
-  font-size: 2.2rem;
+  margin: 2em 0 1em 0;
+  font-size: 2.2em;
   font-weight: 600;
 }
 
 h2 {
   color: $clr-blue-grey-400;
-  margin: 3rem 0 1rem 0;
-  font-size: 1.6rem;
+  margin: 2em 0 0.5em 0;
+  font-size: 1.6em;
   font-weight: 600;
 }
 
 h3 {
   color: $clr-vue-blue;
-  margin: 2.25rem 0 0.5rem 0;
-  font-size: 1.1rem;
+  margin: 2em 0 0.5em 0;
+  font-size: 1.1em;
   font-weight: 600;
 }
 
 h4 {
   color: $clr-blue-grey-600;
-  margin: 1.8rem 0 0.5rem 0;
-  font-size: 1.0rem;
+  margin: 1em 0 0.5em 0;
+  font-size: 1.0em;
 }
 
 h5 {
   color: $clr-blue-grey-600;
-  margin: 1.8rem 0 0.5rem 0;
-  font-size: 0.9rem;
+  margin: 1em 0 0.5em 0;
+  font-size: 0.9em;
 }
 
 p,
 ul {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1em;
 }
 
 
 @include responsive-when-small-or-medium {
   h1 {
-    font-size: 1.8rem;
+    font-size: 1.8em;
   }
 
   h2 {
-    font-size: 1.4rem;
+    font-size: 1.4em;
   }
 
   h3 {
-    font-size: 1.2rem;
+    font-size: 1.2em;
   }
 
   h4 {
-    font-size: 1.0rem;
+    font-size: 1.0em;
   }
 }

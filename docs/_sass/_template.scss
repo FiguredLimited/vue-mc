@@ -24,7 +24,7 @@ div,
 ul,
 body {
   font-family: $font-sans;
-  font-size: 1rem;
+  font-size: 1em;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -58,18 +58,18 @@ table {
     border-bottom: 2px solid $clr-border;
     padding: 10px;
     vertical-align: top;
-    font-size: 1rem;
+    font-size: 1em;
     a, p, span {
-      font-size: 1rem;
+      font-size: 1em;
     }
     code {
-      font-size: 0.8rem;
+      font-size: 0.8em;
     }
 
     @include responsive-when-small {
-       font-size: 0.8rem;
+       font-size: 0.8em;
         a, p, span, code {
-          font-size: 0.8rem;
+          font-size: 0.8em;
         }
     }
   }
