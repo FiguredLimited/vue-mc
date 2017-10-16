@@ -59,9 +59,9 @@ class TaskList extends Collection {
 |-------------------------+------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------|
 | `methods`               | `Object`   |                   | HTTP request methods.                                                                                                              |
 |-------------------------+------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------|
-| `routeParameterPattern` | `Regex`    | `/\{([\w-.]*)\}/` | Route parameter group matching pattern.                                                                                            |
+| `routeParameterPattern` | `Regex`    | `/\{([^}]+)\}/`   | Route parameter group matching pattern.                                                                                            |
 |-------------------------+------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------|
-| `useDeleteBody`         | `Boolean`  | `false`           | Whether this collection should send model identifiers as JSON data in the body of a delete request, instead of a query parameter.  |
+| `useDeleteBody`         | `Boolean`  | `true`            | Whether this collection should send model identifiers as JSON data in the body of a delete request, instead of a query parameter.  |
 |-------------------------+------------+-------------------+------------------------------------------------------------------------------------------------------------------------------------|
 
 ##### Default request methods
@@ -223,55 +223,35 @@ When a model has been removed.
 - `model` -- The model that was removed.
 
 ### fetch {#collection-events-fetch}
-Before a collection's model data is fetched.
-The request will be cancelled if any of the listeners return `false`.
 
-Events will also be fired after the request has completed:
-- `fetch.success`
-- `fetch.failure`
-- `fetch.always`
+A `fetch` event will be emitted when a collection has fetched its model data, for
+successful and failed requests. The event context will have an `error` attribute,
+which is `null` if the request was successful and an `Error` if it failed.
 
 ### save {#collection-events-save}
-Before a collection's model data is saved.
-The request will be cancelled if any of the listeners return `false`.
 
-Events will also be fired after the request has completed:
-- `save.success`
-- `save.failure`
-- `save.always`
+A `save` event will be emitted when a collection has fetched its model data, for
+successful and failed requests. The event context will have an `error` attribute,
+which is `null` if the request was successful and an `Error` if it failed.
 
 ### delete {#collection-events-delete}
-Before a collection's models are deleted.
-The request will be cancelled if any of the listeners return `false`.
 
-Events will also be fired after the request has completed:
-- `delete.success`
-- `delete.failure`
-- `delete.always`
+A `delete` event will be emitted when a collection has fetched its model data, for
+successful and failed requests. The event context will have an `error` attribute,
+which is `null` if the request was successful and an `Error` if it failed.
 
 ## Requests {#collection-requests}
 
 Collections support three actions: `fetch`, `save` and `delete`. These are called
-directly on the collection, and accepts an object of callbacks for *sucess*, *failure* and *always*.
-If a single callback is passed instead of an object, it will be used as the *always* handler.
+directly on the collection, and return a `Promise`. The `resolve` callback will
+receive a `response` which could be `null` if a request was cancelled. The `reject`
+callback will receive an `error` which should always be set.
 
 {% highlight js %}
-collection.save();
-
-collection.save({
-    success: (response) => {
-        // Handle success here
-    },
-    failure: (error, response) => {
-        // Handle failure here
-    },
-    always: (error, response) => {
-        // Handle success or failure here
-    }
-})
-
-collection.save((error, response) => {
-    // Handle success or failure here
+collection.save().then((response) => {
+    // Handle success here
+}).catch((error) => {
+    // Handle failure here
 })
 
 {% endhighlight %}
@@ -290,7 +270,7 @@ The request will be ignored if `loading` is already `true` when the request is m
 ### Save {#collection-request-save}
 
 Instead of calling `save` on each model individually, a collection will encode its
-models as an array., using the results of each model's `getSaveBody()` method, which
+models as an array, using the results of each model's `getSaveBody()` method, which
 defaults to the model's attributes. You can override `getSaveBody()` on the collection
 to change this behaviour.
 
@@ -351,15 +331,12 @@ again when the response has been handled (or if the request failed).
 The request will be ignored if `deleting` is already `true` when the request is made.
 
 ### Events {#collection-request-events}
-Events will also be fired on the collection after the request has completed:
-- `{action}.success`
-- `{action}.failure`
-- `{action}.always`
+Events for `save`, `fetch`, and `delete` will be emitted on the collection after
+a request has completed:
 
 {% highlight js %}
-collection.on('save.success', (event) => {
-    // event.error
-    // event.response
+collection.on('save', (event) => {
+    // event.error will be set if the action failed
 })
 {% endhighlight %}
 

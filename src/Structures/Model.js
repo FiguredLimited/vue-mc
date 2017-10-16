@@ -711,7 +711,7 @@ class Model extends Base {
         Vue.set(this, 'fatal',   true);
         Vue.set(this, 'loading', false);
 
-        this.emit('fetch', {error });
+        this.emit('fetch', {error});
     }
 
     /**
@@ -957,7 +957,7 @@ class Model extends Base {
             this.onFatalSaveFailure(error);
         }
 
-        this.emit('save', {error });
+        this.emit('save', {error});
     }
 
     /**
@@ -982,7 +982,7 @@ class Model extends Base {
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    true);
 
-        this.emit('delete', {error });
+        this.emit('delete', {error});
     }
 
     /**

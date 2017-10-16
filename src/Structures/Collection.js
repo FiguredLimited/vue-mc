@@ -816,7 +816,7 @@ class Collection extends Base {
             this.onFatalSaveFailure(error);
         }
 
-        this.emit('save', {error });
+        this.emit('save', {error});
     }
 
     /**
@@ -932,7 +932,7 @@ class Collection extends Base {
         Vue.set(this, 'fatal',   true);
         Vue.set(this, 'loading', false);
 
-        this.emit('fetch', {error });
+        this.emit('fetch', {error});
     }
 
     /**
@@ -965,7 +965,7 @@ class Collection extends Base {
             model.onDeleteSuccess(response);
         });
 
-        this.emit('delete', {error: null });
+        this.emit('delete', {error: null});
     }
 
     /**
@@ -982,7 +982,7 @@ class Collection extends Base {
             model.onDeleteFailure(error);
         });
 
-        this.emit('delete', {error });
+        this.emit('delete', {error});
     }
 
     /**

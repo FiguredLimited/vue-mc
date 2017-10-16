@@ -81,7 +81,7 @@ task2.option('editable'); // false
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `overwriteIdentifier`   | `Boolean`  | `false`           | Whether this model should allow an existing identifier to be overwritten on update.                                                                                                       |
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `routeParameterPattern` | `Regex`    | `/\{([\w-.]*)\}/` | Route parameter matching pattern.                                                                                                                                                         |
+| `routeParameterPattern` | `Regex`    | `/\{([^}]+)\}/`   | Route parameter matching pattern.                                                                                                                                                         |
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `patch`                 | `Boolean`  | `false`           | Whether this model should perform a "patch" on update (only send attributes that have changed).                                                                                           |
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -918,26 +918,15 @@ Events will also be fired after the request has completed:
 ## Requests {#model-requests}
 
 Models support three actions: `fetch`, `save` and `delete`. These are called
-directly on the model, and accepts an object of callbacks for *sucess*, *failure* and *always*.
-If a single callback is passed instead of an object, it will be used as the *always* handler.
+directly on the model, and return a `Promise`. The `resolve` callback will
+receive a `response` which could be `null` if a request was cancelled. The `reject`
+callback will receive an `error` which should always be set.
 
 {% highlight js %}
-model.save();
-
-model.save({
-    success: (response) => {
-        // Handle success here
-    },
-    failure: (error, response) => {
-        // Handle failure here
-    },
-    always: (error, response) => {
-        // Handle success or failure here
-    }
-})
-
-model.save((error, response) => {
-    // Handle success or failure here
+model.save().then((response) => {
+    // Handle success here
+}).catch((error) => {
+    // Handle failure here
 })
 
 {% endhighlight %}
@@ -1019,14 +1008,11 @@ the request is successful.
 
 
 ### Events {#model-request-events}
-Events will also be fired on the model after the request has completed:
-- `{action}.success`
-- `{action}.failure`
-- `{action}.always`
+Events for `save`, `fetch`, and `delete` will be emitted on the model after
+a request has completed:
 
 {% highlight js %}
-model.on('save.success', (event) => {
-    // event.error
-    // event.response
+model.on('save', (event) => {
+    // event.error will be set if the action failed
 })
 {% endhighlight %}
