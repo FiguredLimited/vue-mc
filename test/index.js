@@ -17,19 +17,19 @@ process.on('unhandledRejection', (error, promise) => {
     process.exit(1);
 });
 
-//
+// Structures
 require('./Structures/Model.spec.js');
 require('./Structures/Collection.spec.js')
 
-//
-require('./Validation/rule.spec.js')
-require('./Validation/rules.spec.js')
-require('./Validation/messages.spec.js')
+// Validation
+require('./Validation/Rule.spec.js')
+require('./Validation/Rules.spec.js')
+require('./Validation/Messages.spec.js')
 
-//
+// HTTP
 require('./HTTP/ProxyResponse.spec.js')
 
-//
+// Errors
 require('./Errors/RequestError.spec.js')
 require('./Errors/ResponseError.spec.js')
 require('./Errors/ValidationError.spec.js')
