@@ -5,6 +5,7 @@ h4,
 h5 {
   font-family: $font-head;
   color: $clr-vue-blue;
+  -webkit-font-smoothing: antialiased;
 
   &:first-child {
     margin-top: 0;

@@ -14,8 +14,13 @@
   }
 }
 
+b,
+strong {
+  font-weight: 600;
+}
+
 article {
-  line-height: 150%;
+  line-height: 1.6rem;
   padding: 60px 60px 60px 90px;
   z-index: 1;
   position: relative;
@@ -107,14 +112,14 @@ article {
   }
 
   pre {
-    margin: 1.0rem 0 2rem 0;
+    margin: 2rem 0 2rem 0;
   }
 
   p > code,
   li > code {
     font-family: $font-mono;
     display: inline-block;
-    padding: 0px 3px;
+    padding: 0px 4px;
     margin: 0 1px;
     color: $clr-vue-blue;
     background-color: $clr-border;
