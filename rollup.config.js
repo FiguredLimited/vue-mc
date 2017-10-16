@@ -42,7 +42,7 @@ const MAIN = _.assign({}, BASE, {
 const VALIDATION = _.assign({}, BASE, {
 	input: 'src/Validation/index.js',
 	output: [
-		{ file: 'validation/index.js', format: 'es' },
+		{ file: 'validation/index.js', format: 'cjs' },
 	],
 })
 
@@ -52,7 +52,7 @@ const VALIDATION = _.assign({}, BASE, {
 const LOCALES = _.assign({}, BASE, {
 	input: './src/Validation/locale.js',
 	output: [
-		{ file: 'validation/locale.js', format: 'es' },
+		{ file: 'validation/locale.js', format: 'cjs' },
 	],
 })
 
