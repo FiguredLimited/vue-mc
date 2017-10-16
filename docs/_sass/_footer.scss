@@ -1,0 +1,23 @@
+footer {
+  color: $clr-grey-800;
+  font-size: 12px;
+  line-height: 175%;
+  border-top: 1px solid $clr-grey-200;
+
+  span {
+    display: inline-block;
+    margin: 0 5px 0 0;
+    font-size: 0.8rem;
+
+    a {
+      color: $clr-blue-grey;
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: color 0.1 ease-out;
+
+      &:hover {
+        color: $clr-blue;
+      }
+    }
+  }
+}

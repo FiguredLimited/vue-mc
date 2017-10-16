@@ -1,0 +1,57 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true,
+            "modules": true,
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "rules": {
+        "comma-dangle": ["error", {
+            "arrays": "always-multiline",
+            "objects": "always-multiline",
+            "imports": "always-multiline",
+            "exports": "always-multiline",
+            "functions": "ignore"
+        }],
+        "no-constant-condition": "warn",
+        "no-dupe-args": "error",
+        "no-dupe-keys": "error",
+        "no-duplicate-case": "error",
+        "no-empty-character-class": "warn",
+        "no-empty": "warn",
+        "no-ex-assign": "warn",
+        "no-extra-boolean-cast": "warn",
+        "no-func-assign": "warn",
+        "no-inner-declarations": "warn",
+        "no-invalid-regexp": "error",
+        "no-irregular-whitespace": "warn",
+        "no-negated-in-lhs": "warn",
+        "no-obj-calls": "warn",
+        "no-regex-spaces": "warn",
+        "no-sparse-arrays": "warn",
+        "no-unreachable": "warn",
+        "use-isnan": "warn",
+        "valid-jsdoc": "warn",
+        "valid-typeof": "warn",
+        "curly": ["warn","all"],
+        "eqeqeq": ["warn","smart"],
+        "no-labels": "warn",
+        "no-eval": "warn",
+        "no-extra-bind": "warn",
+        "no-native-reassign": "error",
+        "no-redeclare": "error",
+        "yoda": ["warn","never",{}],
+        "comma-spacing": ["warn",{"before":false,"after":true}],
+        "eol-last": "warn",
+        "indent": ["warn",4],
+        "space-infix-ops": "warn",
+        "spaced-comment": ["warn","always"],
+        "arrow-spacing": ["warn",{"before":true,"after":true}],
+        "constructor-super": "warn",
+        "no-const-assign": "warn",
+        "no-var": "error"
+    }
+}

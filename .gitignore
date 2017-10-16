@@ -1,0 +1,9 @@
+.DS_Store
+.idea
+/.nyc_output
+/coverage
+/node_modules
+/package-lock.json
+/vendor
+/dist
+/validation

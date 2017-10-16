@@ -1,0 +1,207 @@
+menu {
+  margin: 0;
+  padding: 0;
+  background: $clr-white;
+  box-shadow: 0px 0px 20px 0 rgba(0,0,0,0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow: auto;
+  z-index: 4;
+  width: $menu-width;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  border-bottom: 200px solid white; //   \
+  border-top: 200px solid white;    //    | -- Prevents weird OS X overscroll.
+  margin-top: -200px;               //   /
+  box-sizing: content-box;
+
+  &::-webkit-scrollbar {
+      -webkit-appearance: none;
+      background-color: transparent;
+  }
+
+  .titles {
+      @include responsive-when-small-or-medium {
+        display: none;
+      }
+
+      padding: 30px 0px 0px 30px;
+
+      img.logo, .title {
+        display: inline-block;
+      }
+
+      img.logo {
+        padding: 0;
+        margin: 5px 10px 0 0;
+        top: 0;
+        left: 0;
+        vertical-align: top;
+      }
+
+      .title {
+        width: auto;
+        top: 0;
+      }
+  }
+
+  @include responsive-when-small-or-medium {
+    padding: 0;
+    width: 100%;
+    top: $header-height-small;
+
+    visibility: hidden;
+    height: calc(100% - #{$header-height-small});
+
+    border-bottom: 0;
+    border-top: 0;
+    margin-top: 0;
+    box-sizing: border-box;
+  }
+
+  .nav {
+      min-height: 100%;
+      padding: 30px 30px 60px 30px;
+  }
+
+  .nav > a {
+      text-decoration: none;
+
+      h2,h3 {
+        margin: 2rem 0 0.5rem 0 !important;
+      }
+
+      &:first-child {
+        h2,h3 {
+          margin-top: 0 !important;
+        }
+      }
+  }
+
+  h2, h3 {
+    line-height: 100%;
+    color: $clr-vue-blue;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    margin-left: 10px;
+
+    ul {
+      margin-left: 10px;
+
+      li {
+        a {
+          color: $clr-blue-grey-500;
+          font-weight: 400;
+          transition: color 0.1s ease-out;
+
+          &:hover {
+            color: $clr-blue-grey-700;
+          }
+        }
+
+        &:last-child {
+            margin-bottom: 10px;
+        }
+      }
+    }
+
+    li {
+      a {
+        color: $clr-vue-blue;
+        padding-bottom: 2px;
+        padding-top: 8px;
+        line-height: 120%;
+        display: inline-block;
+
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+
+        border-bottom: 2px solid transparent;
+
+        transition: border 0.1s ease-out,
+                    color 0.1s ease-out,
+                    font-weight 0.1s ease-out,
+                    text-indent 0.1s ease-out;
+
+        &:hover {
+          border-bottom: 2px solid $clr-vue-green;
+        }
+
+        &.active {
+          color: $clr-vue-green !important;
+          text-indent: 2px;
+        }
+
+        &.current {
+          text-indent: 2px;
+          color: $clr-vue-green !important;
+        }
+      }
+    }
+  }
+}
+
+#menu {
+  display: none;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  font-size: 0;
+  cursor: pointer;
+
+  @include responsive-when-small-or-medium {
+    display: block;
+
+    &:checked {
+      ~ main {
+
+        article {
+          display: none;
+        }
+
+        menu {
+          visibility: visible;
+        }
+      }
+    }
+  }
+}
+
+label[for="menu"] {
+  display: none;
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+  color: $clr-blue-grey-900;
+
+  @include responsive-when-small-or-medium {
+    display: block;
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 65px;
+    width: 65px;
+    text-align: center;
+    border-right: 1px solid $clr-border;
+  }
+
+  .hamburger {
+    padding: 0;
+    position: relative;
+    top: 15px;
+    text-align: center;
+    width: 100%;
+    font-size: 2.0rem;
+    font-weight: 100;
+    line-height: 100%;
+    color: $clr-grey-800;
+  }
+}

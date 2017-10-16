@@ -1,0 +1,11 @@
+language: node_js
+
+node_js:
+  - node
+
+install:
+  - npm install -g codecov
+  - npm install
+
+after_success:
+  - codecov

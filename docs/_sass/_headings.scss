@@ -1,0 +1,80 @@
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: $font-head;
+  color: $clr-vue-blue;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+h1 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
+h2 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
+h3 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
+h4 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
+h5 { + h1, + h2, + h3, + h4, + h5 { margin-top: 0rem; }}
+
+hr {
+    display: none;
+}
+
+h1 {
+  color: $clr-vue-blue;
+  margin: 4rem 0 1.5rem 0;
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+h2 {
+  color: $clr-blue-grey-400;
+  margin: 3rem 0 1rem 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+h3 {
+  color: $clr-vue-blue;
+  margin: 2.25rem 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+h4 {
+  color: $clr-blue-grey-600;
+  margin: 1.8rem 0 0.5rem 0;
+  font-size: 1.0rem;
+}
+
+h5 {
+  color: $clr-blue-grey-600;
+  margin: 1.8rem 0 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+p,
+ul {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+
+@include responsive-when-small-or-medium {
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  h4 {
+    font-size: 1.0rem;
+  }
+}

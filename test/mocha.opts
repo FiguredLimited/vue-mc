@@ -1,0 +1,4 @@
+--bail
+--slow 20
+--full-trace
+--reporter spec

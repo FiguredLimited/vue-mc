@@ -1,0 +1,10 @@
+baseurl: ""
+
+sass:
+    sass_dir: _sass
+
+defaults:
+  - scope:
+      path: "assets/images"
+    values:
+      image: true
