@@ -9,6 +9,41 @@
 
 Documentation is available at **[http://vuemc.io]()**
 
+### Development
+
+#### Setup
+
+```
+# sudo npm install -g yarn
+yarn
+```
+
+#### Build
+
+```
+yarn build
+
+# You can also listen for changes to build continuously
+yarn build -w
+```
+
+#### Testing
+
+```
+yarn test
+
+# You can also listen for changes to test continuously
+yarn test --watch
+```
+
+#### Docs
+
+You will need to install jekyll to render and edit the documentation.
+
+```
+yarn docs
+```
+
 ### License
 
 [MIT](LICENSE)
