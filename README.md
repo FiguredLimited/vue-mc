@@ -7,7 +7,7 @@
 
 ### Documentation
 
-Documentation is available at **[http://vuemc.io]()**
+Documentation is available at **[http://vuemc.io](http://vuemc.io)**
 
 ### Development
 
