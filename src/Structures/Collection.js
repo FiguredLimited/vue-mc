@@ -1,4 +1,5 @@
-import _ 	    from 'lodash'
+import _ 	            from 'lodash'
+import Vue              from 'vue'
 
 import Base             from './Base.js'
 import Model            from './Model.js'

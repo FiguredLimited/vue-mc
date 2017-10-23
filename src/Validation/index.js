@@ -1,4 +1,6 @@
-import _ 	    from 'lodash'
+/* global window global */
+import moment           from 'moment'
+import _ 	            from 'lodash'
 
 import { en_us }        from './locale.js'
 import isAlpha          from 'validator/lib/isAlpha'

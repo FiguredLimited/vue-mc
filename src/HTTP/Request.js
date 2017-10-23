@@ -1,3 +1,5 @@
+import axios        from 'axios'
+
 import Response     from './Response.js'
 import RequestError from '../Errors/RequestError.js'
 
