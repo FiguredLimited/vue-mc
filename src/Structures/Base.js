@@ -1,3 +1,5 @@
+import _ 	    from 'lodash'
+
 import Request          from '../HTTP/Request.js'
 import ValidationError  from '../Errors/ValidationError.js'
 import {autobind }       from '../utils.js';

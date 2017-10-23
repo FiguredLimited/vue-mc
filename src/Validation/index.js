@@ -1,3 +1,5 @@
+import _ 	    from 'lodash'
+
 import { en_us }        from './locale.js'
 import isAlpha          from 'validator/lib/isAlpha'
 import isAlphanumeric   from 'validator/lib/isAlphanumeric'

@@ -1,3 +1,5 @@
+import _ 	    from 'lodash'
+
 import moxios from 'moxios'
 import {assert, expect} from 'chai'
 import {Model, Collection} from '../../src/index.js'
