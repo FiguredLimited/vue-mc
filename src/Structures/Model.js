@@ -1,3 +1,6 @@
+import _ 	            from 'lodash'
+import Vue              from 'vue'
+
 import Base             from './Base.js'
 import Collection       from './Collection.js'
 import ResponseError    from '../Errors/ResponseError.js'

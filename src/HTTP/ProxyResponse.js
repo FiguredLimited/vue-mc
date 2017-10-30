@@ -1,3 +1,5 @@
+import _ 	    from 'lodash'
+
 class ProxyResponse {
 
     constructor(status, data = {}, headers = {}) {
