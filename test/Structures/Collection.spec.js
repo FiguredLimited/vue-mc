@@ -2,12 +2,10 @@ import moxios from 'moxios'
 import {assert, expect} from 'chai'
 import {Model, Collection} from '../../src/index.js'
 import {email, string} from '../../src/Validation/index.js'
+import * as _ from 'lodash';
 
 moxios.delay = 0;
 
-/**
- *
- */
 function expectRequestToBeSkipped(request, done) {
     let error = new Error("Request was not skipped");
     let delay = 1;

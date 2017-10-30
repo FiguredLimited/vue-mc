@@ -2,6 +2,8 @@ import Base             from './Base.js'
 import Collection       from './Collection.js'
 import ResponseError    from '../Errors/ResponseError.js'
 import ValidationError  from '../Errors/ValidationError.js'
+import Vue              from 'vue'
+import * as _           from 'lodash'
 
 /**
  * Reserved keywords that can't be used for attribute or option names.

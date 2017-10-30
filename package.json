@@ -1,6 +1,6 @@
 {
     "name": "vue-mc",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "",
     "license": "MIT",
     "main": "dist/vue-mc.js",
@@ -36,7 +36,11 @@
         "url": "https://github.com/rtheunissen"
     },
     "dependencies": {
-        "validator": "^8.1.0"
+        "axios": "^0.16",
+        "lodash": "^4.17",
+        "moment": "^2.18.1",
+        "validator": "^8.1.0",
+        "vue": "^2.2"
     },
     "devDependencies": {
         "array-permutation": "^0.2.0",
@@ -63,12 +67,6 @@
         "rollup-plugin-commonjs": "^8.0.2",
         "rollup-plugin-json": "^2.3.0",
         "rollup-plugin-node-resolve": "^3.0.0",
-        "vue": "^2.2"
-    },
-    "peerDependencies": {
-        "axios": "^0.16",
-        "lodash": "^4.17",
-        "moment": "^2.18.1",
         "vue": "^2.2"
     },
     "scripts": {

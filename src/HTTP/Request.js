@@ -1,7 +1,8 @@
 import Response     from './Response.js'
 import RequestError from '../Errors/RequestError.js'
+import axios        from 'axios'
 
-class Request {
+export default class Request {
 
     constructor(config) {
         this.config = config;
@@ -22,5 +23,3 @@ class Request {
         });
     }
 }
-
-export default Request;

@@ -1,4 +1,6 @@
-class ProxyResponse {
+import * as _ from 'lodash'
+
+export default class ProxyResponse {
 
     constructor(status, data = {}, headers = {}) {
         this.data    = _.defaultTo(data, {});
@@ -22,5 +24,3 @@ class ProxyResponse {
         return this.data;
     }
 }
-
-export default ProxyResponse;

@@ -1,3 +1,5 @@
+import * as _ from 'lodash'
+
 class Response {
 
     constructor(response) {

@@ -1,6 +1,7 @@
-import Request          from '../HTTP/Request.js'
-import ValidationError  from '../Errors/ValidationError.js'
-import {autobind }       from '../utils.js';
+import Request      from '../HTTP/Request.js'
+import Vue          from 'vue'
+import * as _       from 'lodash'
+import { autobind } from '../utils.js'
 
 /**
  * Base class for all things common between Model and Collection.

@@ -9,13 +9,15 @@ import isISO8601        from 'validator/lib/isISO8601'
 import isJSON           from 'validator/lib/isJSON'
 import isURL            from 'validator/lib/isURL'
 import isUUID           from 'validator/lib/isUUID'
+import * as _           from 'lodash';
+import moment           from 'moment';
 
 // We want to set the messages a superglobal so that imports across files
 // reference the same messages object.
 let _global = typeof window !== 'undefined' ? window : (global || {});
 
 /**
- * Global alidation message registry.
+ * Global validation message registry.
  */
 export const messages =
     _global.__vuemc_validation_messages =
@@ -131,11 +133,11 @@ export const messages =
  *
  * The error message can be set or replaced using `format(message|template)`.
  *
- * @param {Object} Rule configration:
- *                      - name: Name of the error message.
- *                      - data: Context for the error message.
- *                      - test: Function accepting (value, model), which should
- *                              return `true` if the value is valid.
+ * @param {Object} config:
+ *     - name: Name of the error message.
+ *     - data: Context for the error message.
+ *     - test: Function accepting (value, model), which should
+ *             return `true` if the value is valid.
  *
  * @returns {Function} Validation rule.
  */
@@ -231,7 +233,7 @@ export const rule = function(config) {
     /**
      * Sets a custom error message format on this rule.
      *
-     * @param {string|Function}
+     * @param {string|Function} format
      */
     $rule.format = (format) => {
         return _.assign($rule.copy(), {_format: format });

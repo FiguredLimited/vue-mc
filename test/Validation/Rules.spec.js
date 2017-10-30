@@ -1,6 +1,6 @@
 import {assert, expect} from 'chai'
-import _ from 'lodash'
 import moment from 'moment'
+import * as _ from 'lodash';
 import * as $ from '../../src/Validation/index.js'
 import {Model} from '../../src'
 
@@ -9,7 +9,7 @@ import {Model} from '../../src'
 moment.suppressDeprecationWarnings = true;
 
 /**
- * Some perset values to test with.
+ * Some preset values to test with.
  */
 const FALSY      = ['', false, null, 0, 0.0, NaN, undefined, Infinity];
 const TRUTHY     = ['0', '1', 'abc', true, 1, -1, 1.0, -1.0, [], {}];

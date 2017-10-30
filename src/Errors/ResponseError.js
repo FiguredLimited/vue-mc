@@ -1,4 +1,4 @@
-class ResponseError {
+export default class ResponseError {
     constructor(message, response) {
         this.message  = message;
         this.response = response;
@@ -13,5 +13,3 @@ class ResponseError {
         return this.response;
     }
 }
-
-export default ResponseError;

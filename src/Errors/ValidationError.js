@@ -1,4 +1,4 @@
-class ValidationError {
+export default class ValidationError {
     constructor(errors, message = 'Model did not pass validation') {
         this.message = message;
         this.errors  = errors;
@@ -13,5 +13,3 @@ class ValidationError {
         return this.errors;
     }
 }
-
-export default ValidationError;
