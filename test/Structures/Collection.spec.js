@@ -1914,6 +1914,37 @@ describe('Collection', () => {
             })
         })
 
+        it('should sync all models if the response is an empty string', (done) => {
+            let c = new class extends Collection {
+                routes() { return {save: '/save'}}
+            }
+
+            let m1 = c.add({a: 1});
+            let m2 = c.add({a: 2});
+
+            m1.a = 10;
+            m2.a = 20;
+
+            moxios.withMock(() => {
+                c.save().then((response) => {
+                    expect(m1.a).to.equal(10);
+                    expect(m1.$.a).to.equal(10);
+
+                    expect(m2.a).to.equal(20);
+                    expect(m2.$.a).to.equal(20);
+
+                    done();
+                });
+
+                moxios.wait(() => {
+                    moxios.requests.mostRecent().respondWith({
+                        status: 200,
+                        response: '',
+                    });
+                })
+            })
+        })
+
         it('should fail when saving models but received an empty array', (done) => {
             let c = new class extends Collection {
                 routes() { return {save: '/save'}}

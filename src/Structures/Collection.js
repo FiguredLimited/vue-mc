@@ -620,10 +620,10 @@ class Collection extends Base {
         // We're making an assumption here that paginated models are returned
         // within the "data" field of the response.
         if (this.isPaginated()) {
-            return _.get(data, 'data', data);
+            return _.get(models, 'data', models);
         }
 
-        return data;
+        return models;
     }
 
     /**
