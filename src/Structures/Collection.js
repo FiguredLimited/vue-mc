@@ -608,14 +608,17 @@ class Collection extends Base {
      * @returns {Array|null} Models from the response.
      */
     getModelsFromResponse(response) {
-        let data = response.getData();
+        let models = response.getData();
 
-        //
-        if (_.isNil(data)) {
+        // An empty, non-array response indicates that we didn't intend to send
+        // any models in the response. This means that the current models are
+        // already up to date, as no changes are necessary.
+        if (_.isNil(models) || models === '') {
             return null;
         }
 
-        //
+        // We're making an assumption here that paginated models are returned
+        // within the "data" field of the response.
         if (this.isPaginated()) {
             return _.get(data, 'data', data);
         }
@@ -714,10 +717,6 @@ class Collection extends Base {
         // in the response are in the same order as they are in the collection.
         _.each(models, (model, index) => {
             model.setErrors(errors[index]);
-        });
-
-        //
-        _.each(models, (model, index) => {
             Vue.set(model, 'saving', false);
             Vue.set(model, 'fatal',  false);
         });
