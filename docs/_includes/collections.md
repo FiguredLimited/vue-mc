@@ -64,6 +64,16 @@ class TaskList extends Collection {
 }
 {% endhighlight %}
 
+The collection's model type can also be determined dynamically by overriding the
+`model` method, which by default returns the value of the `model` option.
+
+{% highlight js %}
+class TaskList extends Collection {
+    model() {
+        return Task;
+    }
+}
+{% endhighlight %}
 
 ### Attributes {#collection-attributes}
 
@@ -86,16 +96,6 @@ class TaskList extends Collection {
 
 {% endhighlight %}
 
-The collection's model type can also be determined dynamically by overriding the
-`model` method, which by default returns the value of the `model` option.
-
-{% highlight js %}
-class TaskList extends Collection {
-    model() {
-        return Task;
-    }
-}
-{% endhighlight %}
 
 ## Models {#collection-models}
 
