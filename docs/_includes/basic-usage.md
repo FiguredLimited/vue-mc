@@ -67,6 +67,13 @@ class TaskList extends Collection {
         return Task;
     }
 
+    // Default attributes
+    defaults() {
+        return {
+            orderBy: 'name',
+        }
+    }
+
     // Route configuration
     routes() {
         return {

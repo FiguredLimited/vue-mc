@@ -17,7 +17,7 @@ import {
 /**
  * @type {number} How long moxios has to wait before handling a request.
  */
-moxios.delay = 1;
+moxios.delay = 0;
 
 /**
  * Checks that a request was skipped.
@@ -82,8 +82,8 @@ describe('Model', () => {
                 }
             });
 
-            expect(m.option('methods.patch')).to.equal('TEST');
-            expect(m.option('methods.fetch')).to.equal('GET');
+            expect(m.getOption('methods.patch')).to.equal('TEST');
+            expect(m.getOption('methods.fetch')).to.equal('GET');
         })
 
         it('should should merge with instance options', () => {
@@ -102,9 +102,9 @@ describe('Model', () => {
                 }
             });
 
-            expect(m.option('methods.patch')).to.equal('CONSTRUCTOR');
-            expect(m.option('methods.update')).to.equal('INSTANCE');
-            expect(m.option('methods.fetch')).to.equal('GET');
+            expect(m.getOption('methods.patch')).to.equal('CONSTRUCTOR');
+            expect(m.getOption('methods.update')).to.equal('INSTANCE');
+            expect(m.getOption('methods.fetch')).to.equal('GET');
         })
     })
 
@@ -314,7 +314,7 @@ describe('Model', () => {
             let m = new Model(null, null, {loading: 5});
             expect(m.attributes).to.deep.equal({});
             expect(m.loading).to.equal(false);
-            expect(m.option('loading')).to.equal(5);
+            expect(m.getOption('loading')).to.equal(5);
         })
 
         it('should honour default options', () => {
@@ -324,7 +324,7 @@ describe('Model', () => {
                 }
             }
             expect(m.loading).to.equal(false);
-            expect(m.option('loading')).to.equal(5);
+            expect(m.getOption('loading')).to.equal(5);
         })
 
         it('should override default options', () => {
@@ -336,12 +336,12 @@ describe('Model', () => {
 
             let m = new M(null, null, {loading: 10});
             expect(m.loading).to.equal(false);
-            expect(m.option('loading')).to.equal(10);
+            expect(m.getOption('loading')).to.equal(10);
         })
 
         it('should allow arbitrary options', () => {
             let m = new Model(null, null, {a: 1});
-            expect(m.option('a')).to.equal(1);
+            expect(m.getOption('a')).to.equal(1);
         })
     })
 

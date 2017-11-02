@@ -48,7 +48,7 @@ onCreateNew() {
 
 The `options` parameter allows you to set the options of a model instance. These
 can be any of the default options or something specific to your model.
-To get the value of an option, use `option(name)`. You can also set an option
+To get the value of an option, use `getOption(name)`. You can also set an option
 later on using `setOption(name, value)` or `setOptions(options)`.
 
 You should define a model's default options using the `options()` method:
@@ -65,8 +65,8 @@ class Task extends Model {
 let task1 = new Task({}, null, {editable: true});
 let task2 = new Task({}, null);
 
-task1.option('editable'); // true
-task2.option('editable'); // false
+task1.getOption('editable'); // true
+task2.getOption('editable'); // false
 
 {% endhighlight %}
 

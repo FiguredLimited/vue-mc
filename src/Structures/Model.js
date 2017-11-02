@@ -120,7 +120,7 @@ class Model extends Base {
      * Returns the model's identifier value.
      */
     identifier() {
-        return this.get(this.option('identifier'));
+        return this.get(this.getOption('identifier'));
     }
 
     /**
@@ -374,7 +374,7 @@ class Model extends Base {
     sync(attribute) {
 
         // Mutate all attributes before we sync them, if required to do so.
-        if (this.option('mutateBeforeSync')) {
+        if (this.getOption('mutateBeforeSync')) {
             this.mutate(attribute);
         }
 
@@ -447,7 +447,7 @@ class Model extends Base {
         let previous = this.get(attribute);
 
         // Run the attribute's mutations if required to do so on change.
-        if (this.option('mutateOnChange')) {
+        if (this.getOption('mutateOnChange')) {
             value = this.mutated(attribute, value);
         }
 
@@ -467,7 +467,7 @@ class Model extends Base {
         // If on-the-fly validation is enabled and the value is not blank,
         // validate the attribute. It's important to skip blank strings
         // otherwise an empty form will immediately fail.
-        if (defined && this.option('validateOnChange')) {
+        if (defined && this.getOption('validateOnChange')) {
             Vue.nextTick(() => this.validateAttribute(attribute));
         }
 
@@ -568,7 +568,7 @@ class Model extends Base {
         // Defer validation if an attribute is an object that has a `validate`
         // method. The expectation is that the validate function will return
         // `true` if valid, `false` if not, and handle its own errors.
-        if (this.option('validateRecursively')) {
+        if (this.getOption('validateRecursively')) {
             if (_.isFunction(_.get(value, 'validate'))) {
                 valid = value.validate() && valid;
             }
@@ -775,7 +775,7 @@ class Model extends Base {
      *                    rather than all attributes.
      */
     shouldPatch() {
-        return Boolean(this.option('patch'));
+        return Boolean(this.getOption('patch'));
     }
 
     /**
@@ -811,7 +811,7 @@ class Model extends Base {
      *                    overwritten on update.
      */
     shouldAllowIdentifierOverwrite() {
-        return Boolean(this.option('overwriteIdentifier'));
+        return Boolean(this.getOption('overwriteIdentifier'));
     }
 
     /**
@@ -857,7 +857,7 @@ class Model extends Base {
                 }
 
                 // Update the identifier and sync the saved data.
-                this.set(this.option('identifier'), identifier);
+                this.set(this.getOption('identifier'), identifier);
                 this.sync();
 
             } else {
@@ -1034,12 +1034,12 @@ class Model extends Base {
         }
 
         //
-        if ( ! this.option('saveUnchanged') && ! this.changed()) {
+        if ( ! this.getOption('saveUnchanged') && ! this.changed()) {
             return false;
         }
 
         // Mutate attribute before we save if required to do so.
-        if (this.option('mutateBeforeSave')) {
+        if (this.getOption('mutateBeforeSave')) {
             this.mutate();
         }
 

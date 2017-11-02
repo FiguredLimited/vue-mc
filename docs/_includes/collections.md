@@ -19,9 +19,8 @@ argument to the collection's model type.
 
 ### Options {#collection-options}
 
-The `options` parameter allows you to set the options of a collection instance. These
-can be any of the default options or something specific to your collection.
-To get the value of an option, use `option(name)`. You can also set an option
+The `options` parameter allows you to set the options of a collection instance.
+To get the value of an option, use `getOption(name)`. You can also set an option
 later on using `setOption(name, value)` or `setOptions(options)`.
 
 You should define a collection's default options using the `options()` method:
@@ -35,20 +34,6 @@ class TaskList extends Collection {
         }
     }
 }
-
-{% endhighlight %}
-
-The collection's model type can also be determined dynamically by overriding the
-`model` method, which by default returns the value of the `model` option.
-
-{% highlight js %}
-class TaskList extends Collection {
-    model() {
-        return Task;
-    }
-}
-{% endhighlight %}
-
 
 #### Available options {#collection-available-options}
 
@@ -73,6 +58,39 @@ class TaskList extends Collection {
         "fetch":  "GET",
         "save":   "POST",
         "delete": "DELETE",
+    }
+}
+{% endhighlight %}
+
+
+### Attributes {#collection-attributes}
+
+The `attributes` parameter allows you to set custom attributes on the the collection,
+much like a model. You can also use `get` and `set` to manage attributes.
+This is useful for route parameters or custom states like "editing".
+
+**Attributes are included as route parameters by default.**
+
+You should define a collection's default attributes using the `defaults()` method:
+
+{% highlight js %}
+class TaskList extends Collection {
+    defaults() {
+        return {
+            orderBy: 'name',
+        }
+    }
+}
+
+{% endhighlight %}
+
+The collection's model type can also be determined dynamically by overriding the
+`model` method, which by default returns the value of the `model` option.
+
+{% highlight js %}
+class TaskList extends Collection {
+    model() {
+        return Task;
     }
 }
 {% endhighlight %}

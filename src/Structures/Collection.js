@@ -34,14 +34,18 @@ class Collection extends Base {
      * @param  {Array}  [models]    Models to add to this collection.
      * @param  {Object} [options]   Extra options to set on this collection.
      */
-    constructor(models = [], options = {}) {
+    constructor(models = [], options = {}, attributes = {}) {
         super(options);
 
-        Vue.set(this, 'models',    []);  // Model store.
-        Vue.set(this, '_registry', {});  // Model registry.
+        Vue.set(this, 'models', []);      // Model store.
+        Vue.set(this, '_attributes', {}); // Property store.
+        Vue.set(this, '_registry', {});   // Model registry.
         Vue.set(this, '_page', NO_PAGE);
 
         this.clearState();
+
+        // Set all given attributes.
+        this.set(_.defaultsDeep({}, attributes, this.defaults()));
 
         // Add all given models (if any) to this collection. We explicitly ask
         // for the values here as it's common for some sources to be objects.
@@ -54,7 +58,39 @@ class Collection extends Base {
      * @return {Model} The class/constructor for this collection's model type.
      */
     model() {
-        return this.option('model');
+        return this.getOption('model');
+    }
+
+    /**
+     * @return {Object} Default attributes
+     */
+    defaults() {
+        return {};
+    }
+
+    /**
+     * @return {*} The value of an attribute, or a given fallback if not set.
+     */
+    get(attribute, fallback) {
+        return _.get(this._attributes, attribute, fallback);
+    }
+
+    /**
+     * Sets an attribute's value, or an object of attributes.
+     *
+     * @param {string|Object} attribute
+     * @param {*}             value
+     */
+    set(attribute, value) {
+        if (_.isPlainObject(attribute)) {
+            _.each(attribute, (value, key) => {
+                this.set(key, value);
+            });
+
+            return;
+        }
+
+        Vue.set(this._attributes, attribute, value);
     }
 
     /**
@@ -78,11 +114,9 @@ class Collection extends Base {
      * @returns {Object} Parameters to use for replacement in route patterns.
      */
     getRouteParameters() {
-        let parameters = {
+        return _.merge({}, super.getRouteParameters(), this._attributes, {
             page: this._page,
-        }
-
-        return _.merge({}, super.getRouteParameters(), parameters);
+        });
     }
 
     /**
@@ -209,14 +243,8 @@ class Collection extends Base {
      * @param {Model} model
      */
     onAdd(model) {
-
-        //
         model.registerCollection(this);
-
-        //
         this.addModelToRegistry(model);
-
-        //
         this.emit('add', {model});
     }
 
@@ -260,7 +288,7 @@ class Collection extends Base {
         this.models.push(model);
         this.onAdd(model);
 
-        //
+        // We're assuming that the collection is not loading once a model is added.
         Vue.set(this, 'loading', false);
 
         return model;
@@ -1041,7 +1069,7 @@ class Collection extends Base {
      * @inheritDoc
      */
     getDeleteBody() {
-        if (this.option('useDeleteBody')) {
+        if (this.getOption('useDeleteBody')) {
             return this.getIdentifiers(this.getDeletingModels());
         }
 
@@ -1061,7 +1089,7 @@ class Collection extends Base {
     getDeleteQuery() {
 
         // Don't use query parameters if we want send the request data in the body.
-        if (this.option('useDeleteBody')) {
+        if (this.getOption('useDeleteBody')) {
             return {};
         }
 

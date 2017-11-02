@@ -115,6 +115,9 @@ Collections:
             -
                 name: 'Options'
                 path: '/#collection-options'
+            -
+                name: 'Attributes'
+                path: '/#collection-attributes'
     -
         name: 'Models'
         path: '/#collection-models'

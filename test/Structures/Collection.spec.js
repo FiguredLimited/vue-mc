@@ -50,8 +50,8 @@ describe('Collection', () => {
                 }
             });
 
-            expect(m.option('methods.patch')).to.equal('CONSTRUCTOR');
-            expect(m.option('methods.fetch')).to.equal('GET');
+            expect(m.getOption('methods.patch')).to.equal('CONSTRUCTOR');
+            expect(m.getOption('methods.fetch')).to.equal('GET');
         })
 
         it('should should merge with instance options', () => {
@@ -70,9 +70,53 @@ describe('Collection', () => {
                 }
             });
 
-            expect(m.option('methods.patch')).to.equal('CONSTRUCTOR');
-            expect(m.option('methods.update')).to.equal('INSTANCE');
-            expect(m.option('methods.fetch')).to.equal('GET');
+            expect(m.getOption('methods.patch')).to.equal('CONSTRUCTOR');
+            expect(m.getOption('methods.update')).to.equal('INSTANCE');
+            expect(m.getOption('methods.fetch')).to.equal('GET');
+        })
+    })
+
+    describe('get', () => {
+        it('should return an attribute that was set by the constructor', () => {
+            let c = new Collection([], {}, {a: 1});
+            expect(c.get('a')).to.equal(1);
+        })
+
+        it('should return an attribute that was set by "set"', () => {
+            let c = new Collection([], {}, {});
+            c.set('a', 1);
+            expect(c.get('a')).to.equal(1);
+        })
+
+        it('should return the fallback of an attribute that has not been set', () => {
+            let c = new Collection([], {}, {});
+            expect(c.get('a', 1)).to.equal(1);
+        })
+    })
+
+    describe('set', () => {
+        it('should set the value of an attribute', () => {
+            let c = new Collection([], {}, {});
+            c.set('a', 1);
+            expect(c.get('a')).to.equal(1);
+        })
+
+        it('should set multiple attributes if given an object', () => {
+            let c = new Collection([], {}, {});
+            c.set({
+                a: 1,
+                b: 2,
+            });
+
+            expect(c.get('a')).to.equal(1);
+            expect(c.get('b')).to.equal(2);
+        })
+
+        it('should override a previous value', () => {
+            let c = new Collection([], {}, {a: 1});
+            c.set('a', 2);
+
+            expect(c.get('a')).to.equal(2);
         })
     })
 
@@ -141,6 +185,23 @@ describe('Collection', () => {
         })
     })
 
+    describe('getRouteParameters', () => {
+        it('should include attributes', () => {
+            let c = new Collection([], {}, {a: 1});
+            expect(c.getRouteParameters().a).to.equal(1);
+        })
+
+        it('should include page', () => {
+            let c = new Collection([], {}, {});
+            c.page(5);
+            expect(c.getRouteParameters().page).to.equal(5);
+        })
+
+        it('should include page even if not set', () => {
+            let c = new Collection([], {}, {});
+            expect(c.getRouteParameters().page).to.equal(null);
+        })
+    })
 
     describe('getURL', () => {
         it('should return basic route', () => {
@@ -485,6 +546,24 @@ describe('Collection', () => {
         it('should be okay with an empty options object', () => {
             let c = new Collection([], {});
             expect(c._options).to.deep.equal(c.getDefaultOptions());
+        })
+
+        it('should set attributes', () => {
+            let c = new Collection([], {}, {a: 1});
+            expect(c.get('a')).to.equal(1);
+        })
+
+        it('should set default attributes', () => {
+            let c = new class extends Collection {
+                defaults() {
+                    return {
+                        a: 1,
+                    }
+                }
+            }([], {}, {b: 2});
+
+            expect(c.get('a')).to.equal(1);
+            expect(c.get('b')).to.equal(2);
         })
     })
 

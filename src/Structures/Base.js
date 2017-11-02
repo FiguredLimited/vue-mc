@@ -121,7 +121,7 @@ class Base {
      * @returns {RegExp|string} Pattern to match and group route parameters.
      */
     getRouteParameterPattern() {
-        return this.option('routeParameterPattern');
+        return this.getOption('routeParameterPattern');
     }
 
     /**
@@ -154,7 +154,7 @@ class Base {
      *
      * @returns {*} The value of the given option path.
      */
-    option(path, fallback) {
+    getOption(path, fallback) {
         return _.get(this._options, path, fallback);
     }
 
@@ -325,49 +325,49 @@ class Base {
      * @returns {string} HTTP method to use when making a save request.
      */
     getSaveMethod() {
-        return this.option('methods.save');
+        return this.getOption('methods.save');
     }
 
     /**
      * @returns {string} HTTP method to use when making a fetch request.
      */
     getFetchMethod() {
-        return this.option('methods.fetch');
+        return this.getOption('methods.fetch');
     }
 
     /**
      * @returns {string} HTTP method to use when updating a resource.
      */
     getUpdateMethod() {
-        return this.option('methods.update');
+        return this.getOption('methods.update');
     }
 
     /**
      * @returns {string} HTTP method to use when patching a resource.
      */
     getPatchMethod() {
-        return this.option('methods.patch');
+        return this.getOption('methods.patch');
     }
 
     /**
      * @returns {string} HTTP method to use when creating a resource.
      */
     getCreateMethod() {
-        return this.option('methods.create');
+        return this.getOption('methods.create');
     }
 
     /**
      * @returns {string} HTTP method to use when deleting a resource.
      */
     getDeleteMethod() {
-        return this.option('methods.delete');
+        return this.getOption('methods.delete');
     }
 
     /**
      * @returns {number} The HTTP status code that indicates a validation error.
      */
     getValidationErrorStatus() {
-        return _.defaultTo(this.option('validationErrorStatus'), 422);
+        return _.defaultTo(this.getOption('validationErrorStatus'), 422);
     }
 
     /**
