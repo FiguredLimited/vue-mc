@@ -3,18 +3,10 @@ Basic Usage {#basic-usage}
 
 You should extend the base classes to create appropriate models and collections for your data. The example we'll use is a basic **task list**, consisting of a list (`Collection`) of tasks (`Model`).
 
-{% highlight js %}
-import {Model, Collection} from 'vue-mc'
-
-// Set the on the global on the window so that you don't have to import
-// the base classes in every model and collection class or component.
-window.Model = Model;
-window.Collection = Collection;
-{% endhighlight %}
-
 #### Extending the base classes  {#basic-usage-extend}
 
 {% highlight js %}
+import {Model, Collection} from 'vue-mc'
 
 /**
  * Task model
