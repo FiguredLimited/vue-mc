@@ -143,7 +143,7 @@ class Base {
             // Default route parameter interpolation pattern.
             routeParameterPattern: this.getDefaultRouteParameterPattern(),
 
-            //
+            // The HTTP status code to use for indicating a validation error.
             validationErrorStatus: 422,
         }
     }

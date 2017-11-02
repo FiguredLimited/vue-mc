@@ -165,8 +165,14 @@ class Model extends Base {
             // which will only send changed attributes in the request.
             patch: false,
 
-            //
+            // Whether this model should save even if no attributes have changed
+            // since the last time they were synced. If set to `false` and no
+            // changes have been made, the request will be a considered a success.
             saveUnchanged: true,
+
+            // Whether this model should only use the first validation error it
+            // receives, rather than an array of errors.
+            useFirstErrorOnly: false,
 
             // Whether this model should validate an attribute that has changed.
             // This would only affect the errors of the changed attribute and
@@ -462,7 +468,7 @@ class Model extends Base {
         Vue.set(this._attributes, attribute, value);
 
         // Only emit `change` if the value has changed.
-        this.emit('change', {attribute, previous, value });
+        this.emit('change', {attribute, previous, value});
 
         // If on-the-fly validation is enabled and the value is not blank,
         // validate the attribute. It's important to skip blank strings
@@ -701,7 +707,7 @@ class Model extends Base {
         Vue.set(this, 'fatal',   false);
         Vue.set(this, 'loading', false);
 
-        this.emit('fetch', {error: null });
+        this.emit('fetch', {error: null});
     }
 
     /**
@@ -872,6 +878,13 @@ class Model extends Base {
      * @param {Object} errors
      */
     setErrors(errors) {
+        errors = _.defaultTo(errors, {});
+
+        // Only pick the first error if we don't want to use an array.
+        if (this.getOption('useFirstErrorOnly')) {
+            errors = _.mapValues(errors, _.head);
+        }
+
         Vue.set(this, '_errors', errors);
     }
 
@@ -879,7 +892,7 @@ class Model extends Base {
      * @returns {Object} Validation errors on this model.
      */
     getErrors() {
-        return this._errors = _.defaultTo(this._errors, {});
+        return this._errors;
     }
 
     /**
@@ -893,7 +906,7 @@ class Model extends Base {
     /**
      * Called when a save request was successful.
      *
-     * @param {Object} response
+     * @param {Object|null} response
      */
     onSaveSuccess(response) {
 
@@ -901,7 +914,9 @@ class Model extends Base {
         this.clearErrors();
 
         // Update this model with the data that was returned in the response.
-        this.update(response.getData());
+        if (response) {
+            this.update(response.getData());
+        }
 
         Vue.set(this, 'saving', false);
         Vue.set(this, 'fatal',  false);
@@ -909,8 +924,7 @@ class Model extends Base {
         // Automatically add to all registered collections.
         this.addToAllCollections();
 
-        //
-        this.emit('save', {error: null });
+        this.emit('save', {error: null});
     }
 
     /**
@@ -972,7 +986,7 @@ class Model extends Base {
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    false);
 
-        this.emit('delete', {error: null });
+        this.emit('delete', {error: null});
     }
 
     /**
@@ -1033,9 +1047,9 @@ class Model extends Base {
             return false;
         }
 
-        //
+        // Don't save if no data has changed, but consider it a success.
         if ( ! this.getOption('saveUnchanged') && ! this.changed()) {
-            return false;
+            return true;
         }
 
         // Mutate attribute before we save if required to do so.

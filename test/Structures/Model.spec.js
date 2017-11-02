@@ -69,8 +69,17 @@ describe('Model', () => {
     describe('errors', () => {
         it('should return errors', () => {
             let m = new Model();
-            m.setErrors({a: 1});
-            expect(m.errors).to.deep.equal({a: 1});
+            m.setErrors({a: ['Invalid!']});
+            expect(m.errors).to.deep.equal({a: ['Invalid!']});
+        })
+
+        it('should only return the first error if `useFirstErrorOnly` is set', () => {
+            let m = new Model({}, null, {useFirstErrorOnly: true});
+            m.setErrors({a: [1, 2, 3], b: [4, 5]});
+            expect(m.errors).to.deep.equal({
+                a: 1,
+                b: 4,
+            });
         })
     })
 
@@ -2295,14 +2304,17 @@ describe('Model', () => {
             })
         })
 
-        it('should skip if no attributes have changed when option is enabled', (done) => {
+        it('should be successful if no attributes have changed when option is enabled', (done) => {
             let m = new class extends Model {
                 defaults() { return {id: 1, name: 'Fred'}}
                 routes() { return {save: '/collection/save/{id}'}}
                 options() { return {saveUnchanged: false} }
             }
 
-            expectRequestToBeSkipped(m.save(), done);
+            m.save().then((response) => {
+                expect(response).to.be.null;
+                done();
+            })
         })
 
         it('should pass if no validation rules are configured', () => {
