@@ -3,8 +3,8 @@
     "version": "0.2.0",
     "description": "",
     "license": "MIT",
-    "main": "dist/vue-mc.js",
-    "module": "dist/vue-mc.es.js",
+    "main": "vue-mc.js",
+    "module": "vue-mc.es.js",
     "keywords": [
         "vue",
         "collection",
@@ -16,11 +16,9 @@
         "validation"
     ],
     "files": [
+        "validation",
         "vue-mc.js",
-        "vue-mc.es.js",
-        "validation/rules.js",
-        "validation/locale.js",
-        "validation/index.js"
+        "vue-mc.es.js"
     ],
     "bugs": {
         "url": "https://github.com/FiguredLimited/vue-mc/issues"
@@ -74,7 +72,7 @@
         "lint": "eslint ./src/",
         "test": "nyc mocha ./test",
         "docs": "cd docs && jekyll serve",
-        "prepublishOnly": "npm test && npm run build"
+        "prepublishOnly": "yarn test && yarn build"
     },
     "nyc": {
         "require": [

@@ -5,5 +5,8 @@
 /node_modules
 /package-lock.json
 /vendor
-/dist
+
+# Compiled files
 /validation
+/vue-mc.js
+/vue-mc.es.js

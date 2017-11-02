@@ -25,9 +25,6 @@ const BASE = {
 	]
 }
 
-/**
- * Browser-friendly build.
- */
 const MAIN = _.assign({}, BASE, {
 	input: 'src/index.js',
 	output: [
@@ -36,26 +33,19 @@ const MAIN = _.assign({}, BASE, {
 	],
 })
 
-/**
- *
- */
 const VALIDATION = _.assign({}, BASE, {
-	input: 'src/Validation/index.js',
+	input: 'src/validation/index.js',
 	output: [
 		{ file: 'validation/index.js', format: 'cjs' },
 	],
 })
 
-/**
- *
- */
 const LOCALES = _.assign({}, BASE, {
 	input: './src/Validation/locale.js',
 	output: [
 		{ file: 'validation/locale.js', format: 'cjs' },
 	],
 })
-
 
 export default [
 	MAIN,
