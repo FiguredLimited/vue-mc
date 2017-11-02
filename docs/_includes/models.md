@@ -1006,6 +1006,25 @@ The request will be ignored if `deleting` is already `true` when the request is 
 The model will **automatically be removed** from all registered collections if
 the request is successful.
 
+### Custom {#collection-request-custom}
+
+You can also create custom requests to perform custom actions.
+
+{% highlight js %}
+let config = {
+    // url
+    // method
+    // data
+    // params
+    // headers
+};
+
+return this.getRequest(config).send().then(() => {
+    // Handle success here
+}).catch((error) => {
+    // Handle failure here
+});
+{% endhighlight %}
 
 ### Events {#model-request-events}
 Events for `save`, `fetch`, and `delete` will be emitted on the model after

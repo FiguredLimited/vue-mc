@@ -348,6 +348,26 @@ again when the response has been handled (or if the request failed).
 
 The request will be ignored if `deleting` is already `true` when the request is made.
 
+### Custom {#collection-request-custom}
+
+You can also create custom requests to perform custom actions.
+
+{% highlight js %}
+let config = {
+    // url
+    // method
+    // data
+    // params
+    // headers
+};
+
+return this.getRequest(config).send().then(() => {
+    // Handle success here
+}).catch((error) => {
+    // Handle failure here
+});
+{% endhighlight %}
+
 ### Events {#collection-request-events}
 Events for `save`, `fetch`, and `delete` will be emitted on the collection after
 a request has completed:
