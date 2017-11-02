@@ -94,6 +94,14 @@ class TaskList extends Collection {
     }
 }
 
+let list = new TaskList();
+
+// Read
+list.get('orderBy'); // "name"
+
+// Write
+list.set('orderBy', 'id');
+
 {% endhighlight %}
 
 
