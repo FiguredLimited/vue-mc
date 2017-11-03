@@ -229,6 +229,13 @@ class Collection extends Base {
     }
 
     /**
+     * @return {Boolean} true if this collection has the model in its registry.
+     */
+    hasModelInRegistry(model) {
+        return _.has(this._registry, model._uid);
+    }
+
+    /**
      * Adds a model from the model registry.
      *
      * @param {Model} model
@@ -280,7 +287,7 @@ class Collection extends Base {
         }
 
         // Make sure we don't add the same model twice.
-        if (this.has(model)) {
+        if (this.hasModelInRegistry(model)) {
             return;
         }
 
