@@ -11,23 +11,27 @@ Documentation is available at **[http://vuemc.io](http://vuemc.io)**
 
 ### Development
 
-#### Setup
+#### Install
+
+Install [`yarn`](https://yarnpkg.com/en/) if you don't already have it available:
 
 ```
-# sudo npm install -g yarn
+sudo npm install -g yarn
+```
+
+Install the dependencies:
+
+```
 yarn
 ```
 
 #### Build
 
 ```
-yarn build
-
-# You can also listen for changes to build continuously
-yarn build -w
+yarn build --watch
 ```
 
-#### Testing
+#### Test
 
 ```
 yarn test
