@@ -34,9 +34,6 @@ yarn build --watch
 #### Test
 
 ```
-yarn test
-
-# You can also listen for changes to test continuously
 yarn test --watch
 ```
 
