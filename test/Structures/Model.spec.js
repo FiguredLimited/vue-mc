@@ -519,6 +519,25 @@ describe('Model', () => {
             expect(m.errors).to.deep.equal({a: ['Must be a valid email address']});
         })
 
+        it('should honour the `useFirstErrorOnly` option', () => {
+            let m = new class extends Model {
+                options() {
+                    return {
+                        validateOnChange: true,
+                        useFirstErrorOnly: true,
+                    }
+                }
+                validation() {
+                    return {
+                        a: email,
+                    }
+                }
+            }({a: 'not_an_email'});
+
+            expect(m.validate('a')).to.equal(false);
+            expect(m.errors).to.deep.equal({a: 'Must be a valid email address'});
+        })
+
         it('should validate a single attribute that passes', () => {
             let m = new class extends Model {
                 options() {
