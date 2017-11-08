@@ -585,15 +585,8 @@ class Model extends Base {
             }
         }
 
-        if (_.isEmpty(errors)) {
-            Vue.delete(this._errors, attribute);
-        } else {
-            if (this.getOption('useFirstErrorOnly')) {
-                errors = _.head(errors);
-            }
-
-            Vue.set(this._errors, attribute, errors);
-        }
+        // Set the errors for the attribute.
+        this.setAttributeErrors(attribute, errors);
 
         return valid;
     }
@@ -882,25 +875,44 @@ class Model extends Base {
     }
 
     /**
-     * Sets the errors on this model. This should only be called internally.
+     * Sets errors for a specific attribute. Support the ability to clear error
+     * by passing an empty value.
+     *
+     * @param {string}       attribute
+     * @param {string|array} errors
+     */
+    setAttributeErrors(attribute, errors) {
+        if (_.isEmpty(errors)) {
+            Vue.delete(this._errors, attribute);
+        } else {
+            Vue.set(this._errors, attribute, _.castArray(errors));
+        }
+    }
+
+    /**
+     * Sets the errors on this model.
      *
      * @param {Object} errors
      */
     setErrors(errors) {
-        errors = _.defaultTo(errors, {});
-
-        // Only pick the first error if we don't want to use an array.
-        if (this.getOption('useFirstErrorOnly')) {
-            errors = _.mapValues(errors, _.head);
+        if (_.isEmpty(errors)) {
+            Vue.set(this, '_errors', {});
+            return;
         }
 
-        Vue.set(this, '_errors', errors);
+        _.each(errors, (errors, attribute) => {
+            this.setAttributeErrors(attribute, errors);
+        });
     }
 
     /**
      * @returns {Object} Validation errors on this model.
      */
     getErrors() {
+        if (this.getOption('useFirstErrorOnly')) {
+            return _.mapValues(this._errors, _.head);
+        }
+
         return this._errors;
     }
 
