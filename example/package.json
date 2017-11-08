@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "cross-env": "^5.1.1",
+    "element-theme-default": "^1.4.9",
+    "element-ui": "^2.0.3",
+    "laravel-mix": "^1.6.1",
+    "lodash": "^4.17.4",
+    "vue": "^2.5.3",
+    "vue-mc": "0.2.2"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  }
+}
