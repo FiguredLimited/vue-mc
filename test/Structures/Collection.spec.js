@@ -802,6 +802,64 @@ describe('Collection', () => {
         })
     })
 
+    describe('has', () => {
+        it('should return true when given a model instance that is in the collection', () => {
+            let c = new Collection();
+            let a = c.add({a: 1, b: 2});
+            let x = c.add({x: 5, y: 6});
+
+            expect(c.has(a)).to.be.true;
+            expect(c.has(x)).to.be.true;
+        })
+
+        it('should return true when given an object that matches model attributes', () => {
+            let c = new Collection();
+            let a = c.add({a: 1, b: 2});
+            let x = c.add({x: 5, y: 6});
+
+            expect(c.has({a: 1, b: 2})).to.be.true;
+            expect(c.has({x: 5, y: 6})).to.be.true;
+        })
+
+        it('should return true when a partial object match is found', () => {
+            let c = new Collection();
+            let a = c.add({a: 1, b: 2});
+            let x = c.add({x: 5, y: 6});
+
+            expect(c.has({a: 1})).to.be.true;
+            expect(c.has({x: 5})).to.be.true;
+        })
+
+        it('should return false when given a model instance that is not in the collection', () => {
+            let c = new Collection();
+            let a = new Model({a: 1, b: 2});
+            let x = new Model({x: 5, y: 6});
+
+            c.add(a);
+
+            expect(c.has(a)).to.be.true;
+            expect(c.has(x)).to.be.false;
+        })
+
+        it('should return false when given an object that does not match model attributes', () => {
+            let c = new Collection();
+            let a = c.add({a: 1, b: 2});
+            let x = c.add({x: 5, y: 6});
+
+            expect(c.has({a: 2, b: 3})).to.be.false;
+            expect(c.has({x: 6, y: 7})).to.be.false;
+        })
+
+        it('should return false when a partial object match was not found', () => {
+            let c = new Collection();
+            let a = c.add({a: 1, b: 2});
+            let x = c.add({x: 5, y: 6});
+
+            expect(c.has({a: 8})).to.be.false;
+            expect(c.has({x: 9})).to.be.false;
+        })
+    })
+
     describe('indexOf', () => {
         it('should return the first index of a model', () => {
             let c = new Collection();
