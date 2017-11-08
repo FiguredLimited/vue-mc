@@ -154,7 +154,7 @@ class Base {
      *
      * @returns {*} The value of the given option path.
      */
-    getOption(path, fallback) {
+    getOption(path, fallback = null) {
         return _.get(this._options, path, fallback);
     }
 

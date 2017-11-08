@@ -567,6 +567,11 @@ class Model extends Base {
                 if (_.isString(result)) {
                     errors.push(result);
                     valid = false;
+
+                    // Break early if we're only interested in the first error.
+                    if (this.getOption('useFirstErrorOnly')) {
+                        return false;
+                    }
                 }
             });
         }
@@ -583,6 +588,10 @@ class Model extends Base {
         if (_.isEmpty(errors)) {
             Vue.delete(this._errors, attribute);
         } else {
+            if (this.getOption('useFirstErrorOnly')) {
+                errors = _.head(errors);
+            }
+
             Vue.set(this._errors, attribute, errors);
         }
 
