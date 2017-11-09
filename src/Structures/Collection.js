@@ -40,6 +40,7 @@ class Collection extends Base {
         Vue.set(this, 'models', []);      // Model store.
         Vue.set(this, '_attributes', {}); // Property store.
         Vue.set(this, '_registry', {});   // Model registry.
+        Vue.set(this, '_byId', {});  // Id store with models
         Vue.set(this, '_page', NO_PAGE);
 
         this.clearState();
@@ -69,14 +70,20 @@ class Collection extends Base {
     }
 
     /**
+     * Get value of attribute or get model from collection by specified id
+     * TODO if there is no id in models, get _uuid
+     *
      * @return {*} The value of an attribute, or a given fallback if not set.
      */
     get(attribute, fallback) {
-        return _.get(this._attributes, attribute, fallback);
+        if (attribute === null) {
+            return void 0;
+        }
+        return this._byId[attribute] || _.get(this._attributes, attribute, fallback);
     }
-
     /**
      * Sets an attribute's value, or an object of attributes.
+     * TODO set models in '_byId' where key is _uuid if 'id' doesn't exists in model
      *
      * @param {string|Object} attribute
      * @param {*}             value
@@ -84,12 +91,13 @@ class Collection extends Base {
     set(attribute, value) {
         if (_.isPlainObject(attribute)) {
             _.each(attribute, (value, key) => {
+                if (attribute.hasOwnProperty('id') && (key === 'id')) {
+                    this._byId[value] = attribute
+                }
                 this.set(key, value);
             });
-
             return;
         }
-
         Vue.set(this._attributes, attribute, value);
     }
 

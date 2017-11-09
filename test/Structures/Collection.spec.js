@@ -92,6 +92,31 @@ describe('Collection', () => {
             let c = new Collection([], {}, {});
             expect(c.get('a', 1)).to.equal(1);
         })
+
+        it('should return model with specific id', () => {
+            let c = new Collection([], {}, {});
+            c.set({
+              id: 1,
+              a: 'test1',
+              b: 'test2'
+            });
+            c.set({
+              id: 2,
+              a: 'test3',
+              b: 'test4'
+            });
+            console.log(c.get(1));
+            expect(c.get(1)).to.deep.equal({
+              id: 1,
+              a: 'test1',
+              b: 'test2'
+            });
+            expect(c.get(2)).to.deep.equal({
+              id: 2,
+              a: 'test3',
+              b: 'test4'
+            })
+        })
     })
 
     describe('set', () => {
@@ -117,6 +142,33 @@ describe('Collection', () => {
             c.set('a', 2);
 
             expect(c.get('a')).to.equal(2);
+        })
+
+        it('should set byId properies', () => {
+            let c = new Collection([], {}, {});
+            c.set({
+              id: 1,
+              a: 'test1',
+              b: 'test2'
+            });
+            c.set({
+              id: 2,
+              a: 'test3',
+              b: 'test4'
+            })
+          console.log(c._byId);
+            expect(c._byId).to.deep.equal({
+              1: {
+                id: 1,
+                a: 'test1',
+                b: 'test2'
+              },
+              2: {
+                id: 2,
+                a: 'test3',
+                b: 'test4'
+              }
+            });
         })
     })
 
