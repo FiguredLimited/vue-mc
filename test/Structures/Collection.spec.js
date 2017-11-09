@@ -144,7 +144,7 @@ describe('Collection', () => {
             expect(c.get('a')).to.equal(2);
         })
 
-        it('should set byId properies', () => {
+        it('should set byId properties', () => {
             let c = new Collection([], {}, {});
             c.set({
               id: 1,

@@ -76,9 +76,6 @@ class Collection extends Base {
      * @return {*} The value of an attribute, or a given fallback if not set.
      */
     get(attribute, fallback) {
-        if (attribute === null) {
-            return void 0;
-        }
         return this._byId[attribute] || _.get(this._attributes, attribute, fallback);
     }
     /**
