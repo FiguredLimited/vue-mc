@@ -101,6 +101,9 @@ Models:
                 name: 'Delete'
                 path: '/#model-request-delete'
             -
+                name: 'Custom'
+                path: '/#model-request-custom'
+            -
                 name: 'Events'
                 path: '/#model-request-events'
 
@@ -152,6 +155,9 @@ Collections:
             -
                 name: 'Delete'
                 path: '/#collection-request-delete'
+            -
+                name: 'Custom'
+                path: '/#collection-request-custom'
             -
                 name: 'Events'
                 path: '/#collection-request-events'
