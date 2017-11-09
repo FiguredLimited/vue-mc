@@ -435,7 +435,7 @@ class Collection extends Base {
     }
 
     /**
-     *
+     * Wraps a new collection instance around some given models.
      */
     wrap(models) {
         return new (this.constructor)(models);

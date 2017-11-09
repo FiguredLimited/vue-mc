@@ -434,7 +434,7 @@ class Model extends Base {
      */
     set(attribute, value) {
 
-        // Allow batch set of multiple attributes at once, ie. @set({...});
+        // Allow batch set of multiple attributes at once, ie. set({...});
         if (_.isPlainObject(attribute)) {
             return _.each(attribute, (value, key) => {
                 this.set(key, value);
@@ -449,7 +449,7 @@ class Model extends Base {
             this.registerAttribute(attribute);
         }
 
-        // Current value of the attribute, or `undefined`
+        // Current value of the attribute, or `undefined` if not set
         let previous = this.get(attribute);
 
         // Run the attribute's mutations if required to do so on change.
