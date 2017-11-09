@@ -1,4 +1,3 @@
-
 /**
  * Afrikaans
  */
@@ -49,7 +48,6 @@ export const af_za = {
         uuid: "Moet 'n geldige UUID wees",
     },
 }
-
 
 /**
  * English - United States (Default)
@@ -252,5 +250,56 @@ export const ru_ru = {
         string: 'Должен быть строкой',
         url: 'Должен быть действительным URL',
         uuid: 'Должен быть действительным UUID',
+    },
+}
+
+/**
+ * Danish - Denmark
+ */
+export const da_dk = {
+    locale: 'da-DK',
+    messages: {
+        after: 'Skal være efter ${date}',
+        alpha: 'Må kun indeholde bogstaver',
+        alphanumeric: 'Skal være alfanumerisk',
+        array: 'Skal være en liste',
+        ascii: 'Skal være ASCII',
+        base64: 'Skal være gyldig Base64',
+        before: 'Skal være før ${date}',
+        between: 'Skal være mellem ${min} og ${max}',
+        between_inclusive: 'Skal være mellem ${min} og ${max}, begge inklusive',
+        boolean: 'Skal være enten sand eller falsk',
+        creditcard: 'Skal være et gyldigt kreditkortnummer',
+        date: 'Skal være en gyldig dato',
+        dateformat: 'Skal følge formatet "${format}"',
+        defined: 'Påkrævet',
+        email: 'Skal være en gyldig e-mailadresse',
+        empty: 'Må ikke have indhold',
+        equals: 'Skal indeholde det samme som ${other}',
+        gt: 'Skal være større end ${min}',
+        gte: 'Skal være større end eller lig med ${min}',
+        integer: 'Skal være et heltal',
+        ip: 'Skal være en gyldig IP-adresse',
+        isblank: 'Må ikke være tomt',
+        isnil: 'Påkrævet',
+        isnull: 'Påkrævet',
+        iso8601: 'Skal være en gyldig ISO 8601 dato',
+        json: 'Skal være gyldigt JSON',
+        length: 'Skal have en længde på mindst ${min}',
+        length_between: 'Skal have en længde på mellem ${min} og ${max}',
+        lt: 'Skal være mindre end ${max}',
+        lte: 'Skal være mindre end eller lig med ${max}',
+        match: 'Skal passe mønstret "${pattern}"',
+        negative: 'Skal være et negativt tal',
+        not: 'Må ikke være ${value}',
+        number: 'Skal være et tal',
+        numeric: 'Skal være numerisk',
+        object: 'Skal være et objekt',
+        positive: 'Skal være et positivt tal',
+        required: 'Påkrævet',
+        same: 'Skal have sammen værdi som "${other}"',
+        string: 'Skal være en tekststring',
+        url: 'Skal være en gyldig URL',
+        uuid: 'Skal være en gyldig UUID',
     },
 }
