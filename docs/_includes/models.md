@@ -1008,7 +1008,7 @@ The request will be ignored if `deleting` is already `true` when the request is 
 The model will **automatically be removed** from all registered collections if
 the request is successful.
 
-### Custom {#collection-request-custom}
+### Custom {#model-request-custom}
 
 You can also create custom requests to perform custom actions.
 
