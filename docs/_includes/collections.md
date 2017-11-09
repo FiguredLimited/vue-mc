@@ -578,6 +578,31 @@ create a new collection, it only returns an array of models.
 Returns the first index of a given model or attribute criteria, or `-1` if a model
 could not be found. See [_.findIndex](https://lodash.com/docs/#findIndex).
 
+### get {#collection-get}
+
+Beside normal get parameter, and by normal we mean something like `get('id)` If you model has id field and you want to get it by specifying that id, you can write
+something like this:
+
+{% highlight %}
+
+let model1 = new Model({
+  id: 1,
+  a: 'test1',
+  b: 'test2'
+});
+
+let model2 = new Model({
+  id: 2,
+  a: 'test3',
+  b: 'test4'
+});
+let yourCollection = new Collection([model1, model2]);
+
+yourCollection.get(1); // returns { id: 1, a: 'test1', b: 'test' }
+
+{% endhighlight %} 
+
+### 
 <br><br>
 
 [Back to the top](#introduction)
