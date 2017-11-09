@@ -482,7 +482,7 @@ describe('Model', () => {
             expect(n.errors).to.be.empty;
         })
 
-        it('should not validate if `false` is given as attributes', () => {
+        it('should throw if `false` is given as attribute', (done) => {
             let m = new class extends Model {
                 defaults() {
                     return {
@@ -496,7 +496,11 @@ describe('Model', () => {
                 }
             }
 
-            expect(m.validate(m.changed())).to.equal(true);
+            try {
+                m.validate(false);
+            } catch (e) {
+                done();
+            }
         })
 
         it('should validate a single attribute', () => {
@@ -773,6 +777,16 @@ describe('Model', () => {
             });
 
             m.set('a', 5);
+        })
+
+        it('should not emit a change event when a value is set for the first time', () => {
+            let m = new Model();
+
+            m.on('change', function(e) {
+                assert.fail('Should not have called the change event');
+            });
+
+            m.set('a', 1);
         })
 
         it('should emit a change event with the mutated value', (done) => {

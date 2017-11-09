@@ -481,8 +481,8 @@ class Base {
                 })
 
                 // Failure fallback, for errors that occur in `onFailure`.
-                .catch((fatal) => {
-                    return reject(fatal);
+                .catch((error) => {
+                    return reject(error);
                 });
         });
     }

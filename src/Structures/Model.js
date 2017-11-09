@@ -436,9 +436,11 @@ class Model extends Base {
 
         // Allow batch set of multiple attributes at once, ie. set({...});
         if (_.isPlainObject(attribute)) {
-            return _.each(attribute, (value, key) => {
+            _.each(attribute, (value, key) => {
                 this.set(key, value);
             });
+
+            return;
         }
 
         let defined = this.has(attribute);
@@ -457,24 +459,18 @@ class Model extends Base {
             value = this.mutated(attribute, value);
         }
 
-        let changed = ! _.isEqual(previous, value);
-
-        // No change means we can skip the update.
-        if (previous && ! changed) {
-            return previous;
-        }
-
-        // Set the attribute's new value.
         Vue.set(this._attributes, attribute, value);
 
-        // Only emit `change` if the value has changed.
-        this.emit('change', {attribute, previous, value});
+        // Only consider a change if the attribute was already defined.
+        let changed = defined && ! _.isEqual(previous, value);
 
-        // If on-the-fly validation is enabled and the value is not blank,
-        // validate the attribute. It's important to skip blank strings
-        // otherwise an empty form will immediately fail.
-        if (defined && this.getOption('validateOnChange')) {
-            Vue.nextTick(() => this.validateAttribute(attribute));
+        if (changed) {
+            this.emit('change', {attribute, previous, value});
+
+            // Validate on change only if it's not the first time it's set.
+            if (this.getOption('validateOnChange')) {
+                Vue.nextTick(() => this.validateAttribute(attribute));
+            }
         }
 
         return value;
@@ -554,8 +550,8 @@ class Model extends Base {
     validateAttribute(attribute) {
         let value  = this.get(attribute);
         let rules  = this.validation();
-        let errors = [];
         let valid  = true;
+        let errors = [];
 
         if (attribute in rules) {
             let ruleset = _.castArray(rules[attribute]);
@@ -592,60 +588,34 @@ class Model extends Base {
     }
 
     /**
-     * Validates an array of attributes.
-     *
-     * @returns {boolean} `true` if valid, `false` otherwise.
-     */
-    validateAttributes(attributes) {
-        return _.reduce(attributes, (valid, attribute) => {
-            return this.validateAttribute(attribute) && valid;
-
-        }, true);
-    }
-
-    /**
      * Validates all attributes.
      *
-     * @returns {boolean} `true` if valid, `false` otherwise.
-     */
-    validateAll() {
-        return _.reduce(this._attributes, (valid, value, attribute) => {
-            return this.validateAttribute(attribute) && valid;
-
-        }, true);
-    }
-
-    /**
-     * Perform validation on the given attributes, or on all attributes if none
-     * were specified. Errors will be set on the model if validation fails.
-     *
-     * @param {Object} attributes
+     * @param {Object} [attributes] One or more attributes to validate.
      *
      * @returns {boolean} `true` if the model passes validation.
      */
     validate(attributes) {
-
-        //
-        if (attributes === false) {
-            return true;
-        }
-
-        //
-        if ( ! attributes) {
-            return this.validateAll();
-        }
-
-        //
-        if (_.isArray(attributes)) {
-            return this.validateAttributes(attributes);
-        }
-
-        //
-        if (this.has(attributes)) {
+        if (_.isString(attributes)) {
             return this.validateAttribute(attributes);
+
+        // Only validate the attributes that were specified.
+        } else if (_.isArray(attributes)) {
+            attributes = _.pick(this._attributes, attributes);
+
+        // Or validate all attributes if none were given.
+        } else if (_.isUndefined(attributes)) {
+            attributes = this._attributes;
+
+        } else {
+            throw new Error(
+                'Validation attributes must be an array, a string, or not given'
+            );
         }
 
-        return true;
+        // Validate all attributes if none were given.
+        return _.reduce(attributes, (valid, value, attribute) => {
+            return this.validateAttribute(attribute) && valid;
+        }, true);
     }
 
     /**
