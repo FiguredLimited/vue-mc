@@ -5,6 +5,8 @@ node_js:
 
 cache: yarn
 
+script: yarn test
+
 after_success:
   - yarn add codecov
   - codecov
