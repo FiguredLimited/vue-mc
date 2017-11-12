@@ -698,14 +698,14 @@ class Model extends Base {
      * @returns {string} The key to use when generating the `patch` URL.
      */
     getPatchRoute() {
-        return _.get(this.routes(), 'patch', _.get(this.routes(), 'save'));
+        return this.getRoute('patch', 'save');
     }
 
     /**
      * @returns {string} The key to use when generating the `create` URL.
      */
     getCreateRoute() {
-        return _.get(this.routes(), 'create', _.get(this.routes(), 'save'));
+        return this.getRoute('create', 'save');
     }
 
     /**
@@ -716,7 +716,7 @@ class Model extends Base {
             return this.getPatchRoute();
         }
 
-        return _.get(this.routes(), 'update', _.get(this.routes(), 'save'));
+        return this.getRoute('update', 'save');
     }
 
     /**

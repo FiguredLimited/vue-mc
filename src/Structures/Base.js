@@ -262,21 +262,21 @@ class Base {
      * @returns {string} The key to use when generating the `fetch` URL.
      */
     getFetchRoute() {
-        return _.get(this.routes(), 'fetch');
+        return this.getRoute('fetch');
     }
 
     /**
      * @returns {string} The key to use when generating the `save` URL.
      */
     getSaveRoute() {
-        return _.get(this.routes(), 'save');
+        return this.getRoute('save');
     }
 
     /**
      * @returns {string} The key to use when generating the `delete` URL.
      */
     getDeleteRoute() {
-        return _.get(this.routes(), 'delete');
+        return this.getRoute('delete');
     }
 
     /**
@@ -387,6 +387,19 @@ class Base {
     }
 
     /**
+     * @return {string|undefined} Route value by key.
+     */
+    getRoute(key, fallback) {
+        let route = _.get(this.routes(), key, _.get(this.routes(), fallback));
+
+        if ( ! route) {
+            throw new Error(`Invalid or missing route`);
+        }
+
+        return route;
+    }
+
+    /**
      * @returns {string} The full URL to use when making a fetch request.
      */
     getFetchURL() {
@@ -414,13 +427,6 @@ class Base {
      * @returns {string} A URL that was generated using the given route key.
      */
     getURL(route, parameters = {}) {
-
-        // Check that this model supports the requested route key.
-        if ( ! route) {
-            throw new Error(`Invalid or missing route`);
-        }
-
-        // Get the URL using the given provider.
         return this.getRouteResolver()(route, parameters);
     }
 
