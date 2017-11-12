@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project follows [Semantic Versioning](http://semver.org/)
 
+## [0.2.2] - 2017-11-13
+- Add `getRoute` method
+
 ## [0.2.2] - 2017-11-08
 - Fix `useFirstErrorOnly` not working when using vue-mc validation (not server side)
 
