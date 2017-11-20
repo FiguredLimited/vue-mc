@@ -111,7 +111,7 @@ let task1 = tasks.add({name: 'Tests'});
 let task2 = tasks.add({name: 'Documentation'});
 let task3 = tasks.add({name: 'Publish'});
 
-// You an add multiple models at the same time.
+// You can add multiple models at the same time.
 let added = tasks.add([
     {name: 'Tests'},
     {name: 'Documentation'},
