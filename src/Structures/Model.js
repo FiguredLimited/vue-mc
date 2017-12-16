@@ -167,7 +167,7 @@ class Model extends Base {
 
             // Whether this model should save even if no attributes have changed
             // since the last time they were synced. If set to `false` and no
-            // changes have been made, the request will be a considered a success.
+            // changes have been made, the request will be considered a success.
             saveUnchanged: true,
 
             // Whether this model should only use the first validation error it

@@ -8,13 +8,6 @@ import { autobind } from '../utils.js'
  */
 class Base {
 
-    /**
-     * @returns {string} The class name of this instance.
-     */
-    get $class() {
-        return (Object.getPrototypeOf(this)).constructor.name;
-    }
-
     constructor(options) {
         autobind(this);
 
@@ -32,6 +25,13 @@ class Base {
 
         this.setOptions(options);
         this.boot();
+    }
+
+    /**
+     * @returns {string} The class name of this instance.
+     */
+    get $class() {
+        return (Object.getPrototypeOf(this)).constructor.name;
     }
 
     /**
@@ -59,7 +59,7 @@ class Base {
      * @returns {Object}
      */
     getDefaultEventContext() {
-        return {target: this }
+        return {target: this}
     }
 
     /**

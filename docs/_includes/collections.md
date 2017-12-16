@@ -191,7 +191,7 @@ is fetched or when the constructor is called.
 Like models, routes are defined in a collection's `routes()` method. Expected but optional route keys
 are **fetch**, **save**, and **delete**. Route parameters are returned by `getRouteParameters()`.
 By default, route values are URL paths that support parameter interpolation with curly-brace syntax,
-where the parameters are the collection's options and current page.
+where the parameters are the collection's attributes and current page.
 
 {% highlight js %}
 class Task extends Model {

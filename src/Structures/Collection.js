@@ -622,8 +622,10 @@ class Collection extends Base {
      *
      * @return {Object}
      */
-    getPaginationQueryParameters() {
-        return {page: this._page }
+    getPaginationQuery() {
+        return {
+            page: this._page,
+        }
     }
 
     /**
@@ -631,7 +633,7 @@ class Collection extends Base {
      */
     getFetchQuery() {
         if (this.isPaginated()) {
-            return this.getPaginationQueryParameters();
+            return this.getPaginationQuery();
         }
 
         return super.getFetchQuery();

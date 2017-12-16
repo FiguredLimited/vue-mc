@@ -85,7 +85,7 @@ task2.getOption('editable'); // false
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `patch`                 | `Boolean`  | `false`           | Whether this model should perform a "patch" on update (only send attributes that have changed).                                                                                           |
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `saveUnchanged`         | `Boolean`  | `true`            | Whether this model should save even if no attributes have changed. If set to `false` and no changes have been made, the request will be a considered a success.                           |
+| `saveUnchanged`         | `Boolean`  | `true`            | Whether this model should save even if no attributes have changed. If set to `false` and no changes have been made, the request will be considered a success.                           |
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `useFirstErrorOnly`     | `Boolean`  | `false`           | Whether this model should only use the first validation error it receives, rather than an array of errors.                                                                                |
 |-------------------------+------------+-------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -877,9 +877,9 @@ When the active state is applied to the saved state.
 ### change {#model-events-change}
 When a value is set on the model that is different to what it was before. This
 event will also be emitted when a model is constructed with initial values.
-- `attribute` -- The attribute names that were synced.
-- `previous` -- The attribute names that were synced.
-- `value` -- A copy of the saved state after the attributes were synced.
+- `attribute` -- The name of the attribute that was changed.
+- `previous` -- The previous value of the attribute.
+- `value` -- The new value of the attribute.
 
 ### create {#model-events-create}
 After a model is saved successfully, where the model was *created*.
