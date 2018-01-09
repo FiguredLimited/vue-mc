@@ -806,6 +806,24 @@ const pack = {
 validation.messages.register(pack);
 {% endhighlight %}
 
+##### Supported Locales
+
+|--------+---------------------|
+| Locale | Language            |
+|:-------|:--------------------|
+| af_za  | Afrikaans           |
+|--------+---------------------|
+| da_dk  | Danish              |
+|--------+---------------------|
+| en_us  | English (US)        |
+|--------+---------------------|
+| nl_nl  | Dutch               |
+|--------+---------------------|
+| pt_br  | Portuguese (Brazil) |
+|--------+---------------------|
+| ru_ru  | Russian             |
+|--------+---------------------|
+
 
 ## Routes {#model-routes}
 
