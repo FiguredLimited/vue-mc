@@ -35,6 +35,22 @@ function expectRequestToBeSkipped(request, done) {
  */
 describe('Model', () => {
 
+    describe('autobind', () => {
+        it('should not invoke getters and setters when instantiated', (done) => {
+            let M = class extends Model {
+                get test() {
+                    done(new Error('Should not invoke getter'));
+                }
+                set test(value) {
+                    done(new Error('Should not invoke setter'));
+                }
+            }
+
+            let m = new M();
+            done();
+        })
+    })
+
     describe('_uid', () => {
         it('should automatically generate unique incrementing ids', () => {
             let base = (new Model())._uid;

@@ -15,6 +15,12 @@ export const autobind = function(instance) {
         for (let i = 0; i < names.length; i++) {
             let name = names[i];
 
+            // No need to bind getters, as attempting to access them would also
+            // invoke them which is something we don't want to do here.
+            if (Object.getOwnPropertyDescriptor(obj, name).get) {
+                continue;
+            }
+
             // We're using `defineProperty` here so that we don't make all the
             // class methods enumerable when we replace them.
             if (typeof obj[name] === 'function' && name !== 'constructor') {
