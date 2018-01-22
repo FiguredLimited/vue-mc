@@ -191,6 +191,15 @@ class Base {
     }
 
     /**
+     * Returns all the options that are currently set on this instance.
+     *
+     * @return {Object}
+     */
+    getOptions() {
+        return _.defaultTo(this._options, {});
+    }
+
+    /**
      * Returns a function that translates a route key and parameters to a URL.
      *
      * @returns {Function} Will be passed `route` and `parameters`

@@ -28,6 +28,38 @@ const RESERVED = _.invert([
 ]);
 
 /**
+ * Recursive deep copy helper that honours the "clone" function of models and
+ * collections. This is required to support nested instances.
+ *
+ * @param {Object} source
+ * @param {Object} target
+ * @param {Array}  keys     Optional
+ */
+const copyFrom = function(source, target, keys) {
+    if (keys) {
+        source = _.pick(source, keys);
+    }
+
+    _.each(source, (value, key) => {
+        if (_.isArray(value)) {
+           copyFrom(value, target[key] = []);
+
+        } else if (_.isPlainObject(value)) {
+            copyFrom(value, target[key] = {});
+
+        } else {
+            Vue.set(target, key, _.cloneWith(value, (value) => {
+                if (_.isObject(value) && _.isFunction(value.clone)) {
+                    return value.clone();
+                }
+
+                return _.cloneDeep(value);
+            }));
+        }
+    });
+}
+
+/**
  * Base model class.
  */
 class Model extends Base {
@@ -98,6 +130,35 @@ class Model extends Base {
         if (collection) {
             this.registerCollection(collection);
         }
+    }
+
+    /**
+     * Creates a copy of this model, with the same attributes and options. The
+     * clone will also belong to the same collections as the subject.
+     *
+     * @returns {Model}
+     */
+    clone() {
+        let attributes = {};
+        let reference  = {};
+
+        // Clone all attributes and their descriptors.
+        copyFrom(this._attributes, attributes);
+        copyFrom(this._reference, reference);
+
+        // Create a copy.
+        let clone = new (this.constructor)();
+
+        // Make sure that the clone belongs to the same collections.
+        clone.registerCollection(this._collections);
+
+        // Make sure that the clone has the same existing options.
+        clone.setOptions(this.getOptions());
+
+        Vue.set(clone, '_reference', reference);
+        Vue.set(clone, '_attributes', attributes);
+
+        return clone;
     }
 
     /**
@@ -315,19 +376,13 @@ class Model extends Base {
      */
     reset(attribute) {
 
-        // We're cloning deep to avoid multiple references to the same object,
-        // otherwise updating the attributes will also update the reference.
-        // Set each attribute to its saved equivalent.
-        let saved = _.cloneDeep(this._reference);
+        // Reset specific attributes.
+        if (attribute) {
+            copyFrom(this._reference, this._attributes, _.castArray(attribute));
 
-        // Reset either specific attributes or all attributes if none provided.
-        if (_.isUndefined(attribute)) {
-            Vue.set(this, '_attributes', saved);
-
+        // Reset all attributes if one or more specific ones were not given.
         } else {
-            _.each(_.castArray(attribute), (attribute) => {
-                Vue.set(this._attributes, attribute, _.get(saved, attribute));
-            });
+            copyFrom(this._reference, this._attributes);
         }
 
         this.clearErrors();

@@ -55,6 +55,24 @@ class Collection extends Base {
     }
 
     /**
+     * Creates a copy of this collection. Model references are preserved so
+     * changes to the models inside the clone will also affect the subject.
+     *
+     * @returns {Collection}
+     */
+    clone() {
+        let clone = new (this.constructor)();
+
+        // Add all the existing models.
+        clone.add(this.models);
+
+        // Make sure that the clone has the same existing options.
+        clone.setOptions(this.getOptions());
+
+        return clone;
+    }
+
+    /**
      * @return {Model} The class/constructor for this collection's model type.
      */
     model() {
