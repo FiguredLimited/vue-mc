@@ -42,19 +42,18 @@ const copyFrom = function(source, target, keys) {
 
     _.each(source, (value, key) => {
         if (_.isArray(value)) {
-           copyFrom(value, target[key] = []);
+            Vue.set(target, key, []);
+            copyFrom(value, target[key]);
 
         } else if (_.isPlainObject(value)) {
-            copyFrom(value, target[key] = {});
+            Vue.set(target, key, {});
+            copyFrom(value, target[key]);
+
+        } else if (_.isObject(value) && _.isFunction(value.clone)) {
+            Vue.set(target, key, value.clone());
 
         } else {
-            Vue.set(target, key, _.cloneWith(value, (value) => {
-                if (_.isObject(value) && _.isFunction(value.clone)) {
-                    return value.clone();
-                }
-
-                return _.cloneDeep(value);
-            }));
+            Vue.set(target, key, _.cloneDeep(value));
         }
     });
 }
