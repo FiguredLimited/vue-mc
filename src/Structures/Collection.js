@@ -1153,6 +1153,19 @@ class Collection extends Base {
 
         Vue.set(this, 'deleting', true);
     }
+
+    /**
+     * Convert collection to Array. All models inside are converted to JSON
+     * 
+     * @return {object[]} converted collection
+     */
+    toArray() {
+        const models = [];
+
+        this.each(item => models.push(item.toJSON()));
+
+        return models;
+    }
 }
 
 export default Collection;
