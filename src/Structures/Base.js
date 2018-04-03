@@ -505,14 +505,17 @@ class Base {
     /**
      * Fetches data from the database/API.
      *
+     * @param {options}             Fetch options
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
      * @returns {Promise}
      */
-    fetch() {
+    fetch(options = {}) {
         let config = () => ({
             url:     this.getFetchURL(),
             method:  this.getFetchMethod(),
-            params:  this.getFetchQuery(),
-            headers: this.getFetchHeaders(),
+            params:  _.assign({}, this.getFetchQuery(), options.params),
+            headers: _.assign({}, this.getFetchHeaders(), options.headers),
         });
 
         return this.request(
