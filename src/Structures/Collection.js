@@ -1160,11 +1160,7 @@ class Collection extends Base {
      * @return {object[]} converted collection
      */
     toArray() {
-        const models = [];
-
-        this.each(item => models.push(item.toJSON()));
-
-        return models;
+        return this.map(model => model.toJSON());
     }
 }
 
