@@ -1,8 +1,5 @@
 import Base             from './Base.js'
 import Model            from './Model.js'
-import ResponseError    from '../Errors/ResponseError.js'
-import ValidationError  from '../Errors/ValidationError.js'
-import ProxyResponse    from '../HTTP/ProxyResponse.js'
 import Vue              from 'vue'
 import * as _           from 'lodash'
 
@@ -704,6 +701,7 @@ class Collection extends Base {
             // There is no sensible alternative to an array here, so anyting else
             // is considered an exception that indicates an unexpected state.
             if ( ! _.isArray(saved)) {
+                let ResponseError = this.getOption('Errors.ResponseError');
                 throw new ResponseError(
                     'Response data must be an array or empty',
                     response);
@@ -713,6 +711,7 @@ class Collection extends Base {
             // the number of models that were saved. If these are not equal, it's
             // not possible to map saved data to the saving models.
             if (saved.length !== saving.length) {
+              let ResponseError = this.getOption('Errors.ResponseError');
                 throw new ResponseError(
                     'Expected the same number of models in the response',
                     response);
@@ -721,6 +720,7 @@ class Collection extends Base {
             // Update every model with its respective response data.
             // A strict requirement and assumption is that the models returned
             // in the response are in the same order as they are in the collection.
+          let ProxyResponse = this.getOption('HTTP.ProxyResponse');
             _.each(saved, (data, index) => {
                 saving[index].onSaveSuccess(new ProxyResponse(
                     200, data, response.getHeaders()
@@ -761,6 +761,7 @@ class Collection extends Base {
         // assumption that the array of errors returned in the response must have
         // the same number of elements as there are models being saved.
         if (errors.length !== models.length) {
+          let ResponseError = this.getOption('Errors.ResponseError');
             throw new ResponseError(
                 'Array of errors must equal the number of models');
         }
@@ -831,6 +832,7 @@ class Collection extends Base {
         let errors = response.getValidationErrors();
 
         if ( ! _.isPlainObject(errors) && ! _.isArray(errors)) {
+          let ResponseError = this.getOption('Errors.ResponseError');
             throw new ResponseError(
                 'Validation errors must be an object or array', response);
         }
@@ -959,6 +961,7 @@ class Collection extends Base {
         // There is no sensible alternative to an array here, so anyting else
         // is considered an exception that indicates an unexpected state.
         if ( ! _.isArray(models)) {
+          let ResponseError = this.getOption('Errors.ResponseError');
             throw new ResponseError('Expected an array of models in fetch response');
         }
 
@@ -1066,7 +1069,7 @@ class Collection extends Base {
                 model.onSave();
 
             } catch (error) {
-                if (error instanceof ValidationError) {
+                if (error instanceof this.getOption('Errors.ValidationError')) {
                     valid = false;
                 } else {
                     throw error;
@@ -1077,6 +1080,7 @@ class Collection extends Base {
         // Throwing a validation error here will cause the save request to be
         // rejected, because at least one model's data is not valid.
         if ( ! valid) {
+            let ValidationError = this.getOption('Errors.ValidationError')
             throw new ValidationError(this.getErrors());
         }
 

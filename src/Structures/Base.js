@@ -1,221 +1,241 @@
-import Request      from '../HTTP/Request.js'
-import Vue          from 'vue'
-import * as _       from 'lodash'
-import { autobind } from '../utils.js'
+import {
+    RequestError,
+    ResponseError,
+    ValidationError,
+} from '../Errors'
+import {
+    ProxyResponse,
+    Request,
+    Response,
+} from '../HTTP'
+import Vue from 'vue'
+import * as _ from 'lodash'
+import {autobind} from '../utils.js'
 
 /**
  * Base class for all things common between Model and Collection.
  */
 class Base {
 
-    constructor(options) {
-        autobind(this);
+    constructor (options) {
+        autobind (this);
 
         // Define an automatic unique ID. This is primarily to distinguish
         // between multiple instances of the same name and data.
-        Object.defineProperty(this, '_uid', {
-            value:        _.uniqueId(),
-            enumerable:   false,
+        Object.defineProperty (this, '_uid', {
+            value: _.uniqueId (),
+            enumerable: false,
             configurable: false,
-            writable:     false,
+            writable: false,
         });
 
-        Vue.set(this, '_listeners', {});  // Event listeners
-        Vue.set(this, '_options',   {});  // Internal option store
+        Vue.set (this, '_listeners', {});  // Event listeners
+        Vue.set (this, '_options', {});  // Internal option store
 
-        this.setOptions(options);
-        this.boot();
+        this.setOptions (options);
+        this.boot ();
     }
 
     /**
-     * @returns {string} The class name of this instance.
-     */
-    get $class() {
-        return (Object.getPrototypeOf(this)).constructor.name;
+   * @returns {string} The class name of this instance.
+   */
+    get $class () {
+        return (Object.getPrototypeOf (this)).constructor.name;
     }
 
     /**
-     * Called after construction, this hook allows you to add some extra setup
-     * logic without having to override the constructor.
-     */
-    boot() {
+   * Called after construction, this hook allows you to add some extra setup
+   * logic without having to override the constructor.
+   */
+    boot () {
 
     }
 
     /**
-     * Returns a route configuration in the form {key: name}, where key may be
-     * 'save', 'fetch', 'delete' or any other custom key, and the name is what
-     * will be passed to the route resolver to generate the URL. See @getURL
-     *
-     * @returns {Object}
-     */
-    routes() {
+   * Returns a route configuration in the form {key: name}, where key may be
+   * 'save', 'fetch', 'delete' or any other custom key, and the name is what
+   * will be passed to the route resolver to generate the URL. See @getURL
+   *
+   * @returns {Object}
+   */
+    routes () {
         return {};
     }
 
     /**
-     * Returns the default context for all events emitted by this instance.
-     *
-     * @returns {Object}
-     */
-    getDefaultEventContext() {
+   * Returns the default context for all events emitted by this instance.
+   *
+   * @returns {Object}
+   */
+    getDefaultEventContext () {
         return {target: this}
     }
 
     /**
-     * @returns {string} Default string representation.
-     */
-    toString() {
+   * @returns {string} Default string representation.
+   */
+    toString () {
         return `<${this.$class} #${this._uid}>`;
     }
 
     /**
-     * Emits an event by name to all registered listeners on that event.
+   * Emits an event by name to all registered listeners on that event.
 
-     * Listeners will be called in the order that they were added. If a listener
-     * returns `false`, no other listeners will be called.
-     *
-     * @param {string} event    The name of the event to emit.
-     * @param {Object} context  The context of the event, passed to listeners.
-     */
-    emit(event, context = {}) {
-        let listeners = _.get(this._listeners, event);
+   * Listeners will be called in the order that they were added. If a listener
+   * returns `false`, no other listeners will be called.
+   *
+   * @param {string} event    The name of the event to emit.
+   * @param {Object} context  The context of the event, passed to listeners.
+   */
+    emit (event, context = {}) {
+        let listeners = _.get (this._listeners, event);
 
-        if ( ! listeners) {
+        if (!listeners) {
             return;
         }
 
         // Create the context for the event.
-        context = _.defaults({}, context, this.getDefaultEventContext());
+        context = _.defaults ({}, context, this.getDefaultEventContext ());
 
         // Run through each listener. If any of them return false, stop the
         // iteration and mark that the event wasn't handled by all listeners.
-        _.each(listeners, (listener) => listener(context));
+        _.each (listeners, (listener) => listener (context));
     }
 
     /**
-     * Registers an event listener for a given event.
-     *
-     * Event names can be comma-separated to register multiple events.
-     *
-     * @param {string}   event      The name of the event to listen for.
-     * @param {function} listener   The event listener, accepts context.
-     */
-    on(event, listener) {
-        let events = _.map(_.split(event, ','), _.trim);
+   * Registers an event listener for a given event.
+   *
+   * Event names can be comma-separated to register multiple events.
+   *
+   * @param {string}   event      The name of the event to listen for.
+   * @param {function} listener   The event listener, accepts context.
+   */
+    on (event, listener) {
+        let events = _.map (_.split (event, ','), _.trim);
 
-        _.each(events, (event) => {
+        _.each (events, (event) => {
             this._listeners[event] = this._listeners[event] || [];
-            this._listeners[event].push(listener);
+            this._listeners[event].push (listener);
         });
     }
 
     /**
-     * @returns {Object} Parameters to use for replacement in route patterns.
-     */
-    getRouteParameters() {
+   * @returns {Object} Parameters to use for replacement in route patterns.
+   */
+    getRouteParameters () {
         return {}
     }
 
     /**
-     * @returns {RegExp|string} Pattern to match and group route parameters.
-     */
-    getRouteParameterPattern() {
-        return this.getOption('routeParameterPattern');
+   * @returns {RegExp|string} Pattern to match and group route parameters.
+   */
+    getRouteParameterPattern () {
+        return this.getOption ('routeParameterPattern');
     }
 
     /**
-     * @returns {RegExp} The default route parameter pattern.
-     */
-    getDefaultRouteParameterPattern() {
+   * @returns {RegExp} The default route parameter pattern.
+   */
+    getDefaultRouteParameterPattern () {
         return /\{([^}]+)\}/;
     }
 
     /**
-     * @returns {Object} This class' default options.
-     */
-    getDefaultOptions() {
+   * @returns {Object} This class' default options.
+   */
+    getDefaultOptions () {
         return {
 
             // Default HTTP methods for requests.
-            methods: this.getDefaultMethods(),
+            methods: this.getDefaultMethods (),
 
             // Default route parameter interpolation pattern.
-            routeParameterPattern: this.getDefaultRouteParameterPattern(),
+            routeParameterPattern: this.getDefaultRouteParameterPattern (),
 
             // The HTTP status code to use for indicating a validation error.
             validationErrorStatus: 422,
+
+            HTTP: {
+                Request: Request,
+                Response: Response,
+                ProxyResponse: ProxyResponse,
+            },
+            Errors: {
+                RequestError: RequestError,
+                ResponseError: ResponseError,
+                ValidationError: ValidationError,
+            },
         }
     }
 
     /**
-     * @param {Array|string} path     Option path resolved by `_.get`
-     * @param {*}            fallback Fallback value if the option is not set.
-     *
-     * @returns {*} The value of the given option path.
-     */
-    getOption(path, fallback = null) {
-        return _.get(this._options, path, fallback);
+   * @param {Array|string} path     Option path resolved by `_.get`
+   * @param {*}            fallback Fallback value if the option is not set.
+   *
+   * @returns {*} The value of the given option path.
+   */
+    getOption (path, fallback = null) {
+        return _.get (this._options, path, fallback);
     }
 
     /**
-     * @returns {Object} This instance's default options.
-     */
-    options() {
+   * @returns {Object} This instance's default options.
+   */
+    options () {
         return {}
     }
 
     /**
-     * Sets an option.
-     *
-     * @param {string} path
-     * @param {*}      value
-     */
-    setOption(path, value) {
-        _.set(this._options, path, value);
+   * Sets an option.
+   *
+   * @param {string} path
+   * @param {*}      value
+   */
+    setOption (path, value) {
+        _.set (this._options, path, value);
     }
 
     /**
-     * Sets all given options. Successive values for the same option won't be
-     * overwritten, so this follows the 'defaults' behaviour, and not 'merge'.
-     *
-     * @param {...Object} options One or more objects of options.
-     */
-    setOptions(...options) {
-        Vue.set(this, '_options', _.defaultsDeep(
+   * Sets all given options. Successive values for the same option won't be
+   * overwritten, so this follows the 'defaults' behaviour, and not 'merge'.
+   *
+   * @param {...Object} options One or more objects of options.
+   */
+    setOptions (...options) {
+        Vue.set (this, '_options', _.defaultsDeep (
             {},
             ...options,                 // Given options
-            this.options(),             // Instance defaults
-            this.getDefaultOptions()    // Class defaults
+            this.options (),             // Instance defaults
+            this.getDefaultOptions ()    // Class defaults
         ));
     }
 
     /**
-     * Returns all the options that are currently set on this instance.
-     *
-     * @return {Object}
-     */
-    getOptions() {
-        return _.defaultTo(this._options, {});
+   * Returns all the options that are currently set on this instance.
+   *
+   * @return {Object}
+   */
+    getOptions () {
+        return _.defaultTo (this._options, {});
     }
 
     /**
-     * Returns a function that translates a route key and parameters to a URL.
-     *
-     * @returns {Function} Will be passed `route` and `parameters`
-     */
-    getRouteResolver() {
-        return this.getDefaultRouteResolver();
+   * Returns a function that translates a route key and parameters to a URL.
+   *
+   * @returns {Function} Will be passed `route` and `parameters`
+   */
+    getRouteResolver () {
+        return this.getDefaultRouteResolver ();
     }
 
     /**
-     * @returns {Object} An object consisting of all route string replacements.
-     */
-    getRouteReplacements(route, parameters = {}) {
+   * @returns {Object} An object consisting of all route string replacements.
+   */
+    getRouteReplacements (route, parameters = {}) {
         let replace = {};
-        let pattern = new RegExp(this.getRouteParameterPattern(), 'g');
+        let pattern = new RegExp (this.getRouteParameterPattern (), 'g');
 
-        for (let parameter; (parameter = pattern.exec(route)) !== null; ) {
+        for (let parameter; (parameter = pattern.exec (route)) !== null;) {
             replace[parameter[0]] = parameters[parameter[1]];
         }
 
@@ -223,241 +243,245 @@ class Base {
     }
 
     /**
-     * Returns the default URL provider, which assumes that route keys are URL's,
-     * and parameter replacement syntax is in the form "{param}".
-     *
-     * @returns {Function}
-     */
-    getDefaultRouteResolver() {
+   * Returns the default URL provider, which assumes that route keys are URL's,
+   * and parameter replacement syntax is in the form "{param}".
+   *
+   * @returns {Function}
+   */
+    getDefaultRouteResolver () {
         return (route, parameters = {}) => {
-            let replacements = this.getRouteReplacements(route, parameters);
+            let replacements = this.getRouteReplacements (route, parameters);
 
             // Replace all route parameters with their replacement values.
-            return _.reduce(replacements, (result, value, parameter) => {
-                return _.replace(result, parameter, value);
+            return _.reduce (replacements, (result, value, parameter) => {
+                return _.replace (result, parameter, value);
             }, route);
         }
     }
 
     /**
-     * @returns {Object} The data to send to the server when saving this model.
-     */
-    getDeleteBody() {
+   * @returns {Object} The data to send to the server when saving this model.
+   */
+    getDeleteBody () {
         return {};
     }
 
     /**
-     * @returns {Object} Query parameters that will be appended to the `fetch` URL.
-     */
-    getFetchQuery() {
+   * @returns {Object} Query parameters that will be appended to the `fetch` URL.
+   */
+    getFetchQuery () {
         return {};
     }
 
     /**
-     * @returns {Object} Query parameters that will be appended to the `save` URL.
-     */
-    getSaveQuery() {
+   * @returns {Object} Query parameters that will be appended to the `save` URL.
+   */
+    getSaveQuery () {
         return {};
     }
 
     /**
-     * @returns {Object} Query parameters that will be appended to the `delete` URL.
-     */
-    getDeleteQuery() {
+   * @returns {Object} Query parameters that will be appended to the `delete` URL.
+   */
+    getDeleteQuery () {
         return {};
     }
 
     /**
-     * @returns {string} The key to use when generating the `fetch` URL.
-     */
-    getFetchRoute() {
-        return this.getRoute('fetch');
+   * @returns {string} The key to use when generating the `fetch` URL.
+   */
+    getFetchRoute () {
+        return this.getRoute ('fetch');
     }
 
     /**
-     * @returns {string} The key to use when generating the `save` URL.
-     */
-    getSaveRoute() {
-        return this.getRoute('save');
+   * @returns {string} The key to use when generating the `save` URL.
+   */
+    getSaveRoute () {
+        return this.getRoute ('save');
     }
 
     /**
-     * @returns {string} The key to use when generating the `delete` URL.
-     */
-    getDeleteRoute() {
-        return this.getRoute('delete');
+   * @returns {string} The key to use when generating the `delete` URL.
+   */
+    getDeleteRoute () {
+        return this.getRoute ('delete');
     }
 
     /**
-     * @returns {Object} Headers to use when making a save request.
-     */
-    getSaveHeaders() {
+   * @returns {Object} Headers to use when making a save request.
+   */
+    getSaveHeaders () {
         return {};
     }
 
     /**
-     * @returns {Object} Headers to use when making any request.
-     */
-    getDefaultHeaders() {
+   * @returns {Object} Headers to use when making any request.
+   */
+    getDefaultHeaders () {
         return {};
     }
 
     /**
-     * @returns {Object} Headers to use when making a fetch request.
-     */
-    getFetchHeaders() {
+   * @returns {Object} Headers to use when making a fetch request.
+   */
+    getFetchHeaders () {
         return {};
     }
 
     /**
-     * @returns {Object} Headers to use when making a delete request.
-     */
-    getDeleteHeaders() {
+   * @returns {Object} Headers to use when making a delete request.
+   */
+    getDeleteHeaders () {
         return {};
     }
 
     /**
-     * @returns {Object} Default HTTP methods.
-     */
-    getDefaultMethods() {
+   * @returns {Object} Default HTTP methods.
+   */
+    getDefaultMethods () {
         return {
-            fetch:  'GET',
-            save:   'POST',
+            fetch: 'GET',
+            save: 'POST',
             update: 'POST',
             create: 'POST',
-            patch:  'PATCH',
+            patch: 'PATCH',
             delete: 'DELETE',
         }
     }
 
     /**
-     * @returns {string} HTTP method to use when making a save request.
-     */
-    getSaveMethod() {
-        return this.getOption('methods.save');
+   * @returns {string} HTTP method to use when making a save request.
+   */
+    getSaveMethod () {
+        return this.getOption ('methods.save');
     }
 
     /**
-     * @returns {string} HTTP method to use when making a fetch request.
-     */
-    getFetchMethod() {
-        return this.getOption('methods.fetch');
+   * @returns {string} HTTP method to use when making a fetch request.
+   */
+    getFetchMethod () {
+        return this.getOption ('methods.fetch');
     }
 
     /**
-     * @returns {string} HTTP method to use when updating a resource.
-     */
-    getUpdateMethod() {
-        return this.getOption('methods.update');
+   * @returns {string} HTTP method to use when updating a resource.
+   */
+    getUpdateMethod () {
+        return this.getOption ('methods.update');
     }
 
     /**
-     * @returns {string} HTTP method to use when patching a resource.
-     */
-    getPatchMethod() {
-        return this.getOption('methods.patch');
+   * @returns {string} HTTP method to use when patching a resource.
+   */
+    getPatchMethod () {
+        return this.getOption ('methods.patch');
     }
 
     /**
-     * @returns {string} HTTP method to use when creating a resource.
-     */
-    getCreateMethod() {
-        return this.getOption('methods.create');
+   * @returns {string} HTTP method to use when creating a resource.
+   */
+    getCreateMethod () {
+        return this.getOption ('methods.create');
     }
 
     /**
-     * @returns {string} HTTP method to use when deleting a resource.
-     */
-    getDeleteMethod() {
-        return this.getOption('methods.delete');
+   * @returns {string} HTTP method to use when deleting a resource.
+   */
+    getDeleteMethod () {
+        return this.getOption ('methods.delete');
     }
 
     /**
-     * @returns {number} The HTTP status code that indicates a validation error.
-     */
-    getValidationErrorStatus() {
-        return _.defaultTo(this.getOption('validationErrorStatus'), 422);
+   * @returns {number} The HTTP status code that indicates a validation error.
+   */
+    getValidationErrorStatus () {
+        return _.defaultTo (this.getOption ('validationErrorStatus'), 422);
     }
 
     /**
-     * @returns {boolean} `true` if the response indicates a validation error.
-     */
-    isBackendValidationError(error) {
+   * @returns {boolean} `true` if the response indicates a validation error.
+   */
+    isBackendValidationError (error) {
 
-        // The error must have a response for it to be a validation error.
-        if ( ! _.invoke(error, 'getResponse', false)) {
+    // The error must have a response for it to be a validation error.
+        if (!_.invoke (error, 'getResponse', false)) {
             return false;
         }
 
-        let status  = error.getResponse().getStatus();
-        let invalid = this.getValidationErrorStatus();
+        let status = error.getResponse ().getStatus ();
+        let invalid = this.getValidationErrorStatus ();
 
         return status == invalid;
     }
 
     /**
-     * @return {string|undefined} Route value by key.
-     */
-    getRoute(key, fallback) {
-        let route = _.get(this.routes(), key, _.get(this.routes(), fallback));
+   * @return {string|undefined} Route value by key.
+   */
+    getRoute (key, fallback) {
+        let route = _.get (this.routes (), key, _.get (this.routes (), fallback));
 
-        if ( ! route) {
-            throw new Error(`Invalid or missing route`);
+        if (!route) {
+            throw new Error (`Invalid or missing route`);
         }
 
         return route;
     }
 
     /**
-     * @returns {string} The full URL to use when making a fetch request.
-     */
-    getFetchURL() {
-        return this.getURL(this.getFetchRoute(), this.getRouteParameters());
+   * @returns {string} The full URL to use when making a fetch request.
+   */
+    getFetchURL () {
+        return this.getURL (this.getFetchRoute (), this.getRouteParameters ());
     }
 
     /**
-     * @returns {string} The full URL to use when making a save request.
-     */
-    getSaveURL() {
-        return this.getURL(this.getSaveRoute(), this.getRouteParameters());
+   * @returns {string} The full URL to use when making a save request.
+   */
+    getSaveURL () {
+        return this.getURL (this.getSaveRoute (), this.getRouteParameters ());
     }
 
     /**
-     * @returns {string} The full URL to use when making a delete request.
-     */
-    getDeleteURL() {
-        return this.getURL(this.getDeleteRoute(), this.getRouteParameters());
+   * @returns {string} The full URL to use when making a delete request.
+   */
+    getDeleteURL () {
+        return this.getURL (this.getDeleteRoute (), this.getRouteParameters ());
     }
 
     /**
-     * @param {string} route      The route key to use to generate the URL.
-     * @param {Object} parameters Route parameters.
-     *
-     * @returns {string} A URL that was generated using the given route key.
-     */
-    getURL(route, parameters = {}) {
-        return this.getRouteResolver()(route, parameters);
+   * @param {string} route      The route key to use to generate the URL.
+   * @param {Object} parameters Route parameters.
+   *
+   * @returns {string} A URL that was generated using the given route key.
+   */
+    getURL (route, parameters = {}) {
+        return this.getRouteResolver () (route, parameters);
+    }
+
+
+    /**
+   * @returns {Request} A new `Request` using the given configuration.
+   */
+    getRequest (config) {
+        let request = this.getOption ('HTTP.Request');
+        return new request (config,
+          this.getOption('HTTP.Response'),
+          this.getOption('Errors.RequestError'));
     }
 
     /**
-     * @returns {Request} A new `Request` using the given configuration.
-     */
-    getRequest(config) {
-        return new Request(config);
-    }
+   * This is the central component for all HTTP requests and handling.
+   *
+   * @param  {Object}     config      Request configuration
+   * @param  {function}   onRequest   Called before the request is made.
+   * @param  {function}   onSuccess   Called when the request was successful.
+   * @param  {function}   onFailure   Called when the request failed.
+   */
+    request (config, onRequest, onSuccess, onFailure) {
+        return new Promise ((resolve, reject) => {
 
-    /**
-     * This is the central component for all HTTP requests and handling.
-     *
-     * @param  {Object}     config      Request configuration
-     * @param  {function}   onRequest   Called before the request is made.
-     * @param  {function}   onSuccess   Called when the request was successful.
-     * @param  {function}   onFailure   Called when the request failed.
-     */
-    request(config, onRequest, onSuccess, onFailure) {
-        return new Promise((resolve, reject) => {
-
-            let check = onRequest();
+            let check = onRequest ();
 
             // Request should be skipped but the promise should not be resolved.
             if (check === false) {
@@ -466,56 +490,56 @@ class Base {
 
             // Request should be skipped but should be considered successful.
             if (check === true) {
-                onSuccess(null);
-                return resolve(null);
+                onSuccess (null);
+                return resolve (null);
             }
 
             // Support passing the request configuration as a function, to allow
             // for deferred resolution of certain values that may have changed
             // during the call to "onRequest".
-            if (_.isFunction(config)) {
-                config = config();
+            if (_.isFunction (config)) {
+                config = config ();
             }
 
             // Apply the default headers.
-            _.defaults(config.headers, this.getDefaultHeaders());
+            _.defaults (config.headers, this.getDefaultHeaders ());
 
             // Make the request.
-            return this.getRequest(config).send()
+            return this.getRequest (config).send ()
 
-                // Success
-                .then((response) => {
-                    onSuccess(response);
-                    return resolve(response);
+            // Success
+                .then ((response) => {
+                    onSuccess (response);
+                    return resolve (response);
                 })
 
-                // Failure
-                .catch((error) => {
-                    onFailure(error);
-                    return reject(error);
+            // Failure
+                .catch ((error) => {
+                    onFailure (error);
+                    return reject (error);
                 })
 
-                // Failure fallback, for errors that occur in `onFailure`.
-                .catch((error) => {
-                    return reject(error);
+            // Failure fallback, for errors that occur in `onFailure`.
+                .catch ((error) => {
+                    return reject (error);
                 });
         });
     }
 
     /**
-     * Fetches data from the database/API.
-     *
-     * @returns {Promise}
-     */
-    fetch() {
+   * Fetches data from the database/API.
+   *
+   * @returns {Promise}
+   */
+    fetch () {
         let config = () => ({
-            url:     this.getFetchURL(),
-            method:  this.getFetchMethod(),
-            params:  this.getFetchQuery(),
-            headers: this.getFetchHeaders(),
+            url: this.getFetchURL (),
+            method: this.getFetchMethod (),
+            params: this.getFetchQuery (),
+            headers: this.getFetchHeaders (),
         });
 
-        return this.request(
+        return this.request (
             config,
             this.onFetch,
             this.onFetchSuccess,
@@ -524,19 +548,19 @@ class Base {
     }
 
     /**
-     * Persists data to the database/API.
-     * @returns {Promise}
-     */
-    save() {
+   * Persists data to the database/API.
+   * @returns {Promise}
+   */
+    save () {
         let config = () => ({
-            url:     this.getSaveURL(),
-            method:  this.getSaveMethod(),
-            data:    this.getSaveData(),
-            params:  this.getSaveQuery(),
-            headers: this.getSaveHeaders(),
+            url: this.getSaveURL (),
+            method: this.getSaveMethod (),
+            data: this.getSaveData (),
+            params: this.getSaveQuery (),
+            headers: this.getSaveHeaders (),
         });
 
-        return this.request(
+        return this.request (
             config,
             this.onSave,
             this.onSaveSuccess,
@@ -545,19 +569,19 @@ class Base {
     }
 
     /**
-     * Removes model or collection data from the database/API.
-     * @returns {Promise}
-     */
-    delete() {
+   * Removes model or collection data from the database/API.
+   * @returns {Promise}
+   */
+    delete () {
         let config = () => ({
-            url:     this.getDeleteURL(),
-            method:  this.getDeleteMethod(),
-            data:    this.getDeleteBody(),
-            params:  this.getDeleteQuery(),
-            headers: this.getDeleteHeaders(),
+            url: this.getDeleteURL (),
+            method: this.getDeleteMethod (),
+            data: this.getDeleteBody (),
+            params: this.getDeleteQuery (),
+            headers: this.getDeleteHeaders (),
         });
 
-        return this.request(
+        return this.request (
             config,
             this.onDelete,
             this.onDeleteSuccess,
