@@ -1,7 +1,5 @@
 import Base             from './Base.js'
 import Collection       from './Collection.js'
-import ResponseError    from '../Errors/ResponseError.js'
-import ValidationError  from '../Errors/ValidationError.js'
 import Vue              from 'vue'
 import * as _           from 'lodash'
 
@@ -725,6 +723,7 @@ class Model extends Base {
 
         // A fetch request must receive *some* data in return.
         if (_.isEmpty(attributes)) {
+            let ResponseError = this.getOption('Errors.ResponseError');
             throw new ResponseError("No data in fetch response", response);
         }
 
@@ -981,6 +980,7 @@ class Model extends Base {
         let errors = error.getResponse().getValidationErrors();
 
         if ( ! _.isPlainObject(errors)) {
+            let ResponseError = this.getOption('Errors.ResponseError')
             throw new ResponseError(
                 'Validation errors must be an object', error.getResponse());
         }
@@ -1104,6 +1104,7 @@ class Model extends Base {
 
         // Validate all attributes before saving.
         if ( ! this.validate()) {
+            let ValidationError = this.getOption('Errors.ValidationError');
             throw new ValidationError(this.errors);
         }
 

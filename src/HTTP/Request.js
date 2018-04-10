@@ -4,8 +4,10 @@ import axios        from 'axios'
 
 export default class Request {
 
-    constructor(config) {
+    constructor(config, response, error) {
         this.config = config;
+        this.Response = response;
+        this.RequestError = error;
     }
 
     /**
@@ -15,10 +17,15 @@ export default class Request {
         return new Promise((resolve, reject) => {
             axios.request(this.config)
                 .then((response) => {
-                    return resolve(new Response(response));
+                    return resolve(new this.Response(response));
                 })
                 .catch((error) => {
-                    return reject(new RequestError(error, new Response(error.response)));
+                    return reject(
+                        new this.RequestError(
+                            error,
+                            new this.Response(error.response)
+                        ))
+                    ;
                 })
         });
     }
