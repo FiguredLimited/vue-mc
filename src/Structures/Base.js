@@ -511,11 +511,11 @@ class Base {
      * @returns {Promise}
      */
     fetch(options = {}) {
-        let config = () => ({
+        let config = () => _.defaults(options, {
             url:     this.getFetchURL(),
             method:  this.getFetchMethod(),
-            params:  _.assign({}, this.getFetchQuery(), options.params),
-            headers: _.assign({}, this.getFetchHeaders(), options.headers),
+            params:  this.getFetchQuery(),
+            headers: this.getFetchHeaders(),
         });
 
         return this.request(
