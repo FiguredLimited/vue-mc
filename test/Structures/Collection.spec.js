@@ -3215,7 +3215,8 @@ describe('Collection', () => {
 
             expect(cArray).to.be.an('array');
             expect(cArray).to.have.lengthOf(2);
-            // expect(cArray).to.include.members([{id: 1}, {id: 2}])
+            expect(JSON.stringify(cArray)).to.equal('[{"id":1},{"id":2}]');
+            expect(JSON.stringify(cArray)).to.equal(JSON.stringify(c));
         })
     })
 })
