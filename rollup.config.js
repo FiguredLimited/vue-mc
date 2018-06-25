@@ -16,8 +16,16 @@ const BASE = {
 		commonjs(),
 		babel({
 			babelrc: false,
-			plugins: ["external-helpers"],
-			presets: [["es2015", {modules: false}]],
+			plugins: ['@babel/plugin-external-helpers'],
+			presets: [['@babel/preset-env', {
+				targets: {
+				  browsers: [
+					'>0.25%',
+					'not ie 10',
+					'not op_mini all'
+				  ]
+				}
+			}]],
 			exclude: [
 				'node_modules/**'
 			]
