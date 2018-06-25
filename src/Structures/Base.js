@@ -212,8 +212,9 @@ class Base {
      * @returns {Object} An object consisting of all route string replacements.
      */
     getRouteReplacements(route, parameters = {}) {
-        let replace = {};
-        let pattern = new RegExp(this.getRouteParameterPattern(), 'g');
+        const replace = {};
+        let pattern = this.getRouteParameterPattern();
+        pattern = new RegExp(pattern instanceof RegExp ? pattern.source : pattern, 'g');
 
         for (let parameter; (parameter = pattern.exec(route)) !== null; ) {
             replace[parameter[0]] = parameters[parameter[1]];
@@ -505,10 +506,13 @@ class Base {
     /**
      * Fetches data from the database/API.
      *
+     * @param {options}             Fetch options
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
      * @returns {Promise}
      */
-    fetch() {
-        let config = () => ({
+    fetch(options = {}) {
+        let config = () => _.defaults(options, {
             url:     this.getFetchURL(),
             method:  this.getFetchMethod(),
             params:  this.getFetchQuery(),

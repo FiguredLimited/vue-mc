@@ -3204,5 +3204,20 @@ describe('Collection', () => {
             })
         })
     })
+
+    describe('toArray', () => {
+        it('should return an array of all toJSON models', () => {
+            let c = new Collection();
+            let m1 = c.add({id: 1});
+            let m2 = c.add({id: 2});
+
+            let cArray = c.toArray();
+
+            expect(cArray).to.be.an('array');
+            expect(cArray).to.have.lengthOf(2);
+            expect(JSON.stringify(cArray)).to.equal('[{"id":1},{"id":2}]');
+            expect(JSON.stringify(cArray)).to.equal(JSON.stringify(c));
+        })
+    })
 })
 
