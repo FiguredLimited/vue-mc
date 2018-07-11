@@ -23,65 +23,65 @@ export const messages =
     _global.__vuemc_validation_messages =
     _global.__vuemc_validation_messages || new class {
 
-            constructor() {
-                this.reset();
-            }
+    constructor() {
+        this.reset();
+    }
 
-            /**
+    /**
      * Resets everything to the default configuration.
      */
-            reset() {
-                this.$locale   = 'en-us';
-                this.$fallback = 'en-us';
-                this.$locales  = {};
+    reset() {
+        this.$locale   = 'en-us';
+        this.$fallback = 'en-us';
+        this.$locales  = {};
 
-                this.register(en_us);
-            }
+        this.register(en_us);
+    }
 
-            /**
+    /**
      * Sets the active locale.
      *
      * @param {string} locale
      */
-            locale(locale) {
-                this.$locale = _.toLower(locale);
-            }
+    locale(locale) {
+        this.$locale = _.toLower(locale);
+    }
 
-            /**
+    /**
      * Registers a language pack.
      */
-            register(bundle) {
-                let locale = _.toLower(bundle.locale);
+    register(bundle) {
+        let locale = _.toLower(bundle.locale);
 
-                _.each(_.get(bundle, 'messages', {}), (message, name) => {
-                    _.set(this.$locales, [locale, name], _.template(message));
-                });
-            }
+        _.each(_.get(bundle, 'messages', {}), (message, name) => {
+            _.set(this.$locales, [locale, name], _.template(message));
+        });
+    }
 
-            /**
+    /**
      * Replaces or adds a new message for a given name and optional locale.
      *
      * @param {string} name
      * @param {string} format
      */
-            set(name, format, locale) {
-                let template = _.isString(format) ? _.template(format) : format;
+    set(name, format, locale) {
+        let template = _.isString(format) ? _.template(format) : format;
 
-                // Use the given locale.
-                if (locale) {
-                    _.set(this.$locales, [locale, name], template);
+        // Use the given locale.
+        if (locale) {
+            _.set(this.$locales, [locale, name], template);
 
-                    // Otherwise use the active locale.
-                } else if (this.$locale) {
-                    _.set(this.$locales, [this.$locale, name], template);
+        // Otherwise use the active locale.
+        } else if (this.$locale) {
+            _.set(this.$locales, [this.$locale, name], template);
 
-                    // Otherwise fall back to the default locale.
-                } else {
-                    _.set(this.$locales, [this.$fallback, name], template);
-                }
-            }
+        // Otherwise fall back to the default locale.
+        } else {
+            _.set(this.$locales, [this.$fallback, name], template);
+        }
+    }
 
-            /**
+    /**
      * Returns a formatted string for a given message name and context data.
      *
      * @param {string} name
@@ -89,24 +89,24 @@ export const messages =
      *
      * @returns {string} The formatted message.
      */
-            get(name, data = {}) {
+    get(name, data = {}) {
 
-                // Attempt to find the name using the active locale, falling back to the
-                // active locale's language, and finally falling back to the default.
-                let template =
+        // Attempt to find the name using the active locale, falling back to the
+        // active locale's language, and finally falling back to the default.
+        let template =
             _.get(this.$locales, [this.$locale, name],
-                _.get(this.$locales, [_.split(this.$locale, '-')[0], name],
-                    _.get(this.$locales, [this.$fallback, name])));
+            _.get(this.$locales, [_.split(this.$locale, '-')[0], name],
+            _.get(this.$locales, [this.$fallback, name])));
 
-                // Fall back to a blank string so that we don't potentially
-                // leak message names or context data into the template.
-                if ( ! template) {
-                    return '';
-                }
-
-                return template(data);
-            }
+        // Fall back to a blank string so that we don't potentially
+        // leak message names or context data into the template.
+        if ( ! template) {
+            return '';
         }
+
+        return template(data);
+    }
+}
 
 /**
  * Rule helpers for easy validation.
