@@ -8,8 +8,7 @@ const BASE = {
 	external: [
 		'lodash',
 		'vue',
-		'axios',
-		'moment',
+		'axios'
 	],
 	plugins: [
 		resolve(),
