@@ -1,12 +1,7 @@
 import {assert, expect} from 'chai'
-import moment from 'moment'
 import * as _ from 'lodash';
 import * as $ from '../../src/Validation/index.js'
 import {Model} from '../../src'
-
-// Using invalid date formats throw this warning but we don't
-// want to see it while we're testing.
-moment.suppressDeprecationWarnings = true;
 
 /**
  * Some preset values to test with.
@@ -197,10 +192,10 @@ describe('Rules', () => {
             let v = '2020-06-08'; // Between a and b
 
             pass($.between(a, b), v);
-            pass($.between(a, b), moment(v));
-            pass($.between(moment(a), b), v);
-            pass($.between(a, moment(b)), v);
-            pass($.between(moment(a), moment(b)), moment(v));
+            pass($.between(a, b), new Date(v));
+            pass($.between(new Date(a), b), v);
+            pass($.between(a, new Date(b)), v);
+            pass($.between(new Date(a), new Date(b)), new Date(v));
         })
 
         it('should fail for dates not between', () => {
@@ -209,10 +204,10 @@ describe('Rules', () => {
             let v = '2020-06-18'; // Not between a and b
 
             fail($.between(a, b), v);
-            fail($.between(a, b), moment(v));
-            fail($.between(moment(a), b), v);
-            fail($.between(a, moment(b)), v);
-            fail($.between(moment(a), moment(b)), moment(v));
+            fail($.between(a, b), new Date(v));
+            fail($.between(new Date(a), b), v);
+            fail($.between(a, new Date(b)), v);
+            fail($.between(new Date(a), new Date(b)), new Date(v));
         })
 
         it('should pass for dates inclusive (inner)', () => {
@@ -249,20 +244,20 @@ describe('Rules', () => {
     })
 
     describe('date', () => {
-        it('should pass using a moment', () => {
-            pass($.date, moment());
+        it('should pass using a Date', () => {
+            pass($.date, new Date());
         })
 
         it('should pass using a timestamp', () => {
-            pass($.date, +moment());
+            pass($.date, Date.now());
         })
 
         it('should pass using a valid date string', () => {
             pass($.date, '2016-06-10');
         })
 
-        it('should fail with an invalid moment', () => {
-            fail($.date, moment('nope!'));
+        it('should fail with an invalid Date', () => {
+            fail($.date, new Date('nope!'));
         })
 
         it('should fail with an invalid date string', () => {
@@ -272,26 +267,26 @@ describe('Rules', () => {
 
     describe('dateformat', () => {
         it('should pass for a matching date string format', () => {
-            pass($.dateformat('MM-DD-YYYY'), '12-25-1995');
-            pass($.dateformat('MM/DD/YYYY'), '12/25/1995');
+            pass($.dateformat('MM-dd-yyyy'), '12-25-1995');
+            pass($.dateformat('MM/dd/yyyy'), '12/25/1995');
         })
 
         it('should pass for a matching date timestamp format', () => {
-            pass($.dateformat('X'), '1504856445954');
-            pass($.dateformat('X'),  1504856445954);
+            pass($.dateformat('T'), '1504856445954');
+            pass($.dateformat('T'),  1504856445954);
         })
 
         it('should fail for a valid date that does not use the exact format', () => {
-            fail($.dateformat('MM-DD-YYYY'), '12/25/1995');
+            fail($.dateformat('MM-dd-yyyy'), '12/25/1995');
         })
 
         it('should fail for a valid date that does not match the format', () => {
-            fail($.dateformat('MM-DD-YYYY'), '1995-12-25');
+            fail($.dateformat('MM-dd-yyyy'), '1995-12-25');
         })
 
         it('should fail for an invalid date', () => {
-            fail($.dateformat('MM-DD-YYYY'), 'Nope!');
-            fail($.dateformat('MM-DD-YYYY'), 'Nope!');
+            fail($.dateformat('MM-dd-yyyy'), 'Nope!');
+            fail($.dateformat('MM-dd-yyyy'), 'Nope!');
         })
     })
 
