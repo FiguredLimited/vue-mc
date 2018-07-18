@@ -34,7 +34,7 @@ const MAIN = _.assign({}, BASE, {
 })
 
 const VALIDATION = _.assign({}, BASE, {
-	input: 'src/validation/index.js',
+	input: 'src/Validation/index.js',
 	output: [
 		{ file: 'validation/index.js', format: 'cjs' },
 	],
