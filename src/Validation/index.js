@@ -10,7 +10,7 @@ import isJSON           from 'validator/lib/isJSON'
 import isURL            from 'validator/lib/isURL'
 import isUUID           from 'validator/lib/isUUID'
 import * as _           from 'lodash';
-import moment           from 'moment';
+import { format as formatDate, isAfter as isAfterDate, isBefore as isBeforeDate, isValid as isValidDate, parse as parseDate, toDate } from "date-fns";
 
 // We want to set the messages a superglobal so that imports across files
 // reference the same messages object.
@@ -271,15 +271,13 @@ export const rule = function(config) {
  */
 
 /**
- * Checks if the value is after a given date string or `moment` object.
+ * Checks if the value is after a given date string or `Date` object.
  */
 export const after = function(date) {
     return rule({
         name: 'after',
         data: {date},
-        test: (value) => {
-            return moment(value).isAfter(date)
-        },
+        test: (value) => isAfterDate(value, date),
     })
 }
 
@@ -329,13 +327,13 @@ export const base64 = rule({
 })
 
 /**
- * Checks if a value is before a given date string or `moment` object.
+ * Checks if a value is before a given date string or `Date` object.
  */
 export const before = function(date) {
     return rule({
         name: 'before',
         data: {date},
-        test: (value) => moment(value).isBefore(date),
+        test: (value) => isBeforeDate(value, date),
     })
 }
 
@@ -343,14 +341,14 @@ export const before = function(date) {
  * Checks if a value is between a given minimum or maximum, inclusive by default.
  */
 export const between = function(min, max, inclusive = true) {
-    let _min = +(_.isString(min) ? moment(min) : min);
-    let _max = +(_.isString(max) ? moment(max) : max);
+    let _min = +(_.isString(min) ? toDate(min) : min);
+    let _max = +(_.isString(max) ? toDate(max) : max);
 
     return rule({
         data: {min, max},
         name: inclusive ? 'between_inclusive' : 'between',
         test: (value) => {
-            let _value = +(_.isString(value) ? moment(value) : value);
+            let _value = +(_.isString(value) ? toDate(value) : value);
 
             return inclusive
                 ? _.gte(_value, _min) && _.lte(_value, _max)
@@ -381,21 +379,23 @@ export const creditcard = rule({
  */
 export const date = rule({
     name: 'date',
-    test: (value) => moment(value).isValid(),
+    test: (value) => isValidDate(toDate(value)),
 })
 
 
 /**
  * Checks if a value matches the given date format.
  *
- * @see https://momentjs.com/docs/#/displaying/format
+ * @see https://date-fns.org/v2.0.0-alpha.9/docs/format
  */
 export const dateformat = function(format) {
     return rule({
         name: 'dateformat',
         data: {format},
         test: (value) => {
-            return moment(value, format, true).isValid();
+            const parsedDate = parseDate(value, format, new Date());
+
+            return isValidDate(parsedDate) && formatDate(parsedDate, format) === value.toString();
         },
     })
 }
