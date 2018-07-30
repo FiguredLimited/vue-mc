@@ -17,14 +17,14 @@ import {
 /**
  * @type {number} How long moxios has to wait before handling a request.
  */
-moxios.delay = 0;
+moxios.delay = 1;
 
 /**
  * Checks that a request was skipped.
  */
 function expectRequestToBeSkipped(request, done) {
     let error = new Error("Request was not skipped");
-    let delay = 1;
+    let delay = 2;
 
     request.then(() => done(error)).catch(() => done(error));
     _.delay(done, delay);

@@ -4,11 +4,11 @@ import {Model, Collection} from '../../src/index.js'
 import {email, string} from '../../src/Validation/index.js'
 import * as _ from 'lodash';
 
-moxios.delay = 0;
+moxios.delay = 1;
 
 function expectRequestToBeSkipped(request, done) {
     let error = new Error("Request was not skipped");
-    let delay = 1;
+    let delay = 2;
 
     request.then(() => done(error)).catch(() => done(error));
     _.delay(done, delay);
@@ -2932,14 +2932,15 @@ describe('Collection', () => {
 
             moxios.withMock(() => {
                 c.fetch().then((response) => {
+                    // console.log(response);
                     expectRequestToBeSkipped(c.fetch(), done);
                 });
-            });
-
-            moxios.wait(() => {
-                moxios.requests.mostRecent().respondWith({
-                    status: 200,
-                    response: []
+            
+                moxios.wait(() => {
+                    moxios.requests.mostRecent().respondWith({
+                        status: 200,
+                        response: []
+                    });
                 });
             });
         })
