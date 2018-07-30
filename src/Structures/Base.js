@@ -3,6 +3,10 @@ import Vue          from 'vue'
 import * as _       from 'lodash'
 import { autobind } from '../utils.js'
 
+const REQUEST_CONTINUE  = 0;
+const REQUEST_REDUNDANT = 1;
+const REQUEST_SKIP      = 2;
+
 /**
  * Base class for all things common between Model and Collection.
  */
@@ -457,50 +461,44 @@ class Base {
      */
     request(config, onRequest, onSuccess, onFailure) {
         return new Promise((resolve, reject) => {
+            return onRequest().then((status) => {
+                switch (status) {
+                    case REQUEST_CONTINUE:
+                        break;
+                    case REQUEST_SKIP:
+                        return;
+                    case REQUEST_REDUNDANT: // Skip, but consider it a success.
+                        onSuccess(null);
+                        resolve(null);
+                        return;
+                }
 
-            let check = onRequest();
+                // Support passing the request configuration as a function, to allow
+                // for deferred resolution of certain values that may have changed
+                // during the call to "onRequest".
+                if (_.isFunction(config)) {
+                    config = config();
+                }
 
-            // Request should be skipped but the promise should not be resolved.
-            if (check === false) {
-                return;
-            }
+                // Apply the default headers.
+                _.defaults(config.headers, this.getDefaultHeaders());
 
-            // Request should be skipped but should be considered successful.
-            if (check === true) {
-                onSuccess(null);
-                return resolve(null);
-            }
+                // Make the request.
+                return this.getRequest(config)
+                    .send()
+                    .then((response) => {
+                        onSuccess(response);
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        onFailure(error);
+                        reject(error);
+                    })
 
-            // Support passing the request configuration as a function, to allow
-            // for deferred resolution of certain values that may have changed
-            // during the call to "onRequest".
-            if (_.isFunction(config)) {
-                config = config();
-            }
-
-            // Apply the default headers.
-            _.defaults(config.headers, this.getDefaultHeaders());
-
-            // Make the request.
-            return this.getRequest(config).send()
-
-                // Success
-                .then((response) => {
-                    onSuccess(response);
-                    return resolve(response);
-                })
-
-                // Failure
-                .catch((error) => {
-                    onFailure(error);
-                    return reject(error);
-                })
-
-                // Failure fallback, for errors that occur in `onFailure`.
-                .catch((error) => {
-                    return reject(error);
-                });
-        });
+                    // Failure fallback, for errors that occur in `onFailure`.
+                    .catch(reject);
+            }).catch(reject);
+        })
     }
 
     /**
@@ -569,5 +567,9 @@ class Base {
         );
     }
 }
+
+Base.REQUEST_CONTINUE  = REQUEST_CONTINUE;
+Base.REQUEST_REDUNDANT = REQUEST_REDUNDANT;
+Base.REQUEST_SKIP      = REQUEST_SKIP;
 
 export default Base;
