@@ -597,48 +597,49 @@ class Model extends Base {
     }
 
     /**
+     * @return {Array}
+     */
+    getValidateRules(attribute) {
+        return _.castArray(_.get(this.validation(), attribute, []));
+    }
+
+    /**
      * Validates a specific attribute of this model, and sets errors for it.
      *
      * @returns {boolean} `true` if valid, `false` otherwise.
      */
     validateAttribute(attribute) {
-        let value  = this.get(attribute);
-        let rules  = this.validation();
-        let valid  = true;
-        let errors = [];
-
-        if (attribute in rules) {
-            let ruleset = _.castArray(rules[attribute]);
-
-            _.each(ruleset, (rule) => {
-                let result = rule(value, attribute, this);
-
-                // Rules should return an error message if validation failed.
-                if (_.isString(result)) {
-                    errors.push(result);
-                    valid = false;
-
-                    // Break early if we're only interested in the first error.
-                    if (this.getOption('useFirstErrorOnly')) {
-                        return false;
-                    }
-                }
-            });
+        if (!this.has(attribute)) {
+            return Promise.reject(new Error(`'${attribute}' is not defined`));
         }
+        
+        let errors  = [];
+        let value   = this.get(attribute);
+        let rules   = this.getValidateRules(attribute);
+        let tasks   = rules.map((rule) => rule(value, attribute, this));
 
-        // Defer validation if an attribute is an object that has a `validate`
-        // method. The expectation is that the validate function will return
-        // `true` if valid, `false` if not, and handle its own errors.
+        // Check if any nested values should be validated also.
         if (this.getOption('validateRecursively')) {
             if (_.isFunction(_.get(value, 'validate'))) {
-                valid = value.validate() && valid;
+                tasks.push(value.validate());
             }
         }
 
-        // Set the errors for the attribute.
-        this.setAttributeErrors(attribute, errors);
+        return Promise.all(tasks).then((errors) => {
 
-        return valid;
+            // Errors will always be messages or nested error objects.
+            errors = _.filter(errors, (e) => _.isString(e) || _.isObject(e));
+
+            // Set errors for the model being validated.
+            this.setAttributeErrors(attribute, errors);
+            
+            // Check to see if we should yield only the first error.
+            if (this.getOption('useFirstErrorOnly') && !_.isEmpty(errors)) {
+                return _.first(errors);
+            }
+
+            return errors;
+        });
     }
 
     /**
@@ -646,30 +647,37 @@ class Model extends Base {
      *
      * @param {Object} [attributes] One or more attributes to validate.
      *
-     * @returns {boolean} `true` if the model passes validation.
+     * @returns {Promise} 
      */
     validate(attributes) {
-        if (_.isString(attributes)) {
-            return this.validateAttribute(attributes);
-
-        // Only validate the attributes that were specified.
-        } else if (_.isArray(attributes)) {
-            attributes = _.pick(this._attributes, attributes);
-
-        // Or validate all attributes if none were given.
-        } else if (_.isUndefined(attributes)) {
-            attributes = this._attributes;
-
-        } else {
-            throw new Error(
-                'Validation attributes must be an array, a string, or not given'
-            );
+        if (_.isUndefined(attributes)) {
+            attributes = Object.keys(this._attributes);
         }
 
-        // Validate all attributes if none were given.
-        return _.reduce(attributes, (valid, value, attribute) => {
-            return this.validateAttribute(attribute) && valid;
-        }, true);
+        // Support a single, string attribute.
+        if (_.isString(attributes)) {
+            return this.validateAttribute(attributes).then((errors) => {
+                return !_.isEmpty(errors) ? {[attributes]: errors} : {};
+            });
+        }
+
+        // Support an array of attributes to validate.
+        if (_.isArray(attributes)) {
+            let $errors = {};
+
+            let tasks = attributes.map((attribute) => {
+                return this.validateAttribute(attribute).then((errors) => {
+                    if (!_.isEmpty(errors)) {
+                        $errors[attribute] = errors;
+                    }
+                });
+            });
+
+            return Promise.all(tasks).then(() => $errors);
+        }
+
+        return Promise.reject(
+            new Error("Invalid argument for validation attributes"));
     }
 
     /**
@@ -1052,14 +1060,16 @@ class Model extends Base {
      * @returns {boolean|undefined} `false` if the request should not be made.
      */
     onFetch() {
+        return new Promise((resolve, reject) => {
+            // Don't fetch if already fetching. This prevents accidental requests
+            // that sometimes occur as a result of a double-click.
+            if (this.loading) {
+                return resolve(Base.REQUEST_SKIP);
+            }
 
-        // Don't fetch if already fetching. This prevents accidental requests
-        // that sometimes occur as a result of a double-click.
-        if (this.loading) {
-            return false;
-        }
-
-        Vue.set(this, 'loading', true);
+            Vue.set(this, 'loading', true);
+            return resolve(Base.REQUEST_CONTINUE);
+        });
     }
 
     /**
@@ -1085,29 +1095,37 @@ class Model extends Base {
      * @returns {boolean} `false` if the request should not be made.
      */
     onSave() {
+        return new Promise((resolve, reject) => {
 
-        // Don't save if we're already busy saving this model.
-        // This prevents things like accidental double-clicks.
-        if (this.saving) {
-            return false;
-        }
+            // Don't save if we're already busy saving this model.
+            // This prevents things like accidental double-clicks.
+            if (this.saving) {
+                return resolve(Base.REQUEST_SKIP);
+            }
 
-        // Don't save if no data has changed, but consider it a success.
-        if ( ! this.getOption('saveUnchanged') && ! this.changed()) {
-            return true;
-        }
+            // Don't save if no data has changed, but consider it a success.
+            if ( ! this.getOption('saveUnchanged') && ! this.changed()) {
+                return resolve(Base.REQUEST_REDUNDANT);
+            }
 
-        // Mutate attribute before we save if required to do so.
-        if (this.getOption('mutateBeforeSave')) {
-            this.mutate();
-        }
+            // 
+            Vue.set(this, 'saving', true);
 
-        // Validate all attributes before saving.
-        if ( ! this.validate()) {
-            throw new ValidationError(this.errors);
-        }
+            // Mutate attribute before we save if required to do so.
+            if (this.getOption('mutateBeforeSave')) {
+                this.mutate();
+            }
 
-        Vue.set(this, 'saving', true);
+            return this.validate().then((errors) => {
+                if (_.isEmpty(errors)) {
+                    return resolve(Base.REQUEST_CONTINUE);
+                }
+
+                Vue.set(this, 'saving', false);
+                reject(new ValidationError(this.errors));
+                return;
+            });
+        });
     }
 
     /**
@@ -1116,13 +1134,14 @@ class Model extends Base {
      * @returns {boolean} `false` if the request should not be made.
      */
     onDelete() {
-
-        // Don't save if we're already busy deleting this model.
         if (this.deleting) {
-            return false;
+            return Promise.resolve(Base.REQUEST_SKIP);
         }
 
-        Vue.set(this, 'deleting', true);
+        return new Promise((resolve, reject) => {
+            Vue.set(this, 'deleting', true);
+            resolve(Base.REQUEST_CONTINUE);
+        });
     }
 }
 
