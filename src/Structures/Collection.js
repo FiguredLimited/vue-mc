@@ -148,7 +148,7 @@ class Collection extends Base {
      * Resets model state, ie. `loading`, etc back to their initial states.
      */
     clearState() {
-        Vue.set(this, 'loading',  true);
+        Vue.set(this, 'loading',  false);
         Vue.set(this, 'saving',   false);
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    false);
