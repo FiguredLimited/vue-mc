@@ -15,6 +15,7 @@ import invoke from 'lodash/invoke';
 import isFunction from 'lodash/isFunction';
 import assign from 'lodash/assign';
 import each from 'lodash/each';
+import split from 'lodash/split';
 
 const REQUEST_CONTINUE  = 0; 
 const REQUEST_REDUNDANT = 1; 
@@ -104,7 +105,7 @@ class Base {
 
         // Run through each listener. If any of them return false, stop the
         // iteration and mark that the event wasn't handled by all listeners.
-        listeners.forEach(listener => listener(context));
+        each(listeners, listener => listener(context));
     }
 
     /**
@@ -116,7 +117,7 @@ class Base {
      * @param {function} listener   The event listener, accepts context.
      */
     on(event, listener) {
-        const events = map(event.split(','), trim);
+        let events = map(split(event, ','), trim);
 
         each(events, (event) => {
             this._listeners[event] = this._listeners[event] || [];
