@@ -14,6 +14,7 @@ import replace from 'lodash/replace';
 import invoke from 'lodash/invoke';
 import isFunction from 'lodash/isFunction';
 import assign from 'lodash/assign';
+import each from 'lodash/each';
 
 const REQUEST_CONTINUE  = 0; 
 const REQUEST_REDUNDANT = 1; 
@@ -117,7 +118,7 @@ class Base {
     on(event, listener) {
         const events = map(event.split(','), trim);
 
-        events.forEeach((event) => {
+        each(events, (event) => {
             this._listeners[event] = this._listeners[event] || [];
             this._listeners[event].push(listener);
         });
