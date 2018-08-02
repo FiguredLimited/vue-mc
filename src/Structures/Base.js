@@ -480,12 +480,12 @@ class Base {
                 // Support passing the request configuration as a function, to allow 
                 // for deferred resolution of certain values that may have changed 
                 // during the call to "onRequest". 
-                if (_.isFunction(config)) { 
+                if (isFunction(config)) { 
                     config = config(); 
                 } 
  
                 // Apply the default headers. 
-                _.defaults(config.headers, this.getDefaultHeaders()); 
+                defaults(config.headers, this.getDefaultHeaders()); 
  
                 // Make the request. 
                 return this.getRequest(config) 
