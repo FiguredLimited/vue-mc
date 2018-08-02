@@ -2,7 +2,7 @@ import Base             from './Base';
 import Model            from './Model';
 import ResponseError    from '../Errors/ResponseError';
 import ValidationError  from '../Errors/ValidationError';
-import ProxyResponse    from '../Http/ProxyResponse';
+import ProxyResponse    from '../HTTP/ProxyResponse';
 import Vue              from 'vue';
 import get from 'lodash/get';
 import each from 'lodash/each';

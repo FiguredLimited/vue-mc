@@ -6,7 +6,6 @@ import Vue              from 'vue';
 import get from 'lodash/get';
 import each from 'lodash/each';
 import defaultsDeep from 'lodash/defaultsDeep';
-import reduce from 'lodash/reduce';
 import isFunction from 'lodash/isFunction';
 import values from 'lodash/values';
 import isPlainObject from 'lodash/isPlainObject';

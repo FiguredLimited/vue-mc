@@ -1,4 +1,4 @@
-import Request      from '../Http/Request.js';
+import Request      from '../HTTP/Request.js';
 import { autobind } from '../utils.js' 
 import Vue          from 'vue';
 import uniqueId     from 'lodash/uniqueId';
