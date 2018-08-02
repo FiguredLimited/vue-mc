@@ -1160,7 +1160,7 @@ class Collection extends Base {
         return Promise.all(this.models.map((m) => m.onDelete())).then(() => {
             
             // No need to do anything if no models should be deleted.
-            if (_.isEmpty(this.getDeletingModels())) {
+            if (isEmpty(this.getDeletingModels())) {
                 return Base.REQUEST_REDUNDANT;
             }
  
