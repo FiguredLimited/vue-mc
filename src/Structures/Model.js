@@ -31,6 +31,7 @@ import isString from 'lodash/isString';
 import isObjectLike from 'lodash/isObjectLike';
 import head from 'lodash/head';
 import first from 'lodash/first';
+import filter from 'lodash/filter';
 
 /**
  * Reserved keywords that can't be used for attribute or option names.
@@ -1127,7 +1128,7 @@ class Model extends Base {
             } 
  
             return this.validate().then((errors) => { 
-                if (_.isEmpty(errors)) { 
+                if (isEmpty(errors)) { 
                     return resolve(Base.REQUEST_CONTINUE); 
                 } 
 
