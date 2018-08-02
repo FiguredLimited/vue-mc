@@ -4,11 +4,11 @@ import {Model, Collection} from '../../src/index.js'
 import {email, string} from '../../src/Validation/index.js'
 import * as _ from 'lodash';
 
-moxios.delay = 0;
+moxios.delay = 1;
 
 function expectRequestToBeSkipped(request, done) {
     let error = new Error("Request was not skipped");
-    let delay = 1;
+    let delay = 2;
 
     request.then(() => done(error)).catch(() => done(error));
     _.delay(done, delay);
@@ -18,6 +18,14 @@ function expectRequestToBeSkipped(request, done) {
  * Unit tests for Collection.js
  */
 describe('Collection', () => {
+
+    beforeEach(function () {
+      moxios.install()
+    })
+
+    afterEach(function () {
+      moxios.uninstall()
+    })
 
     describe('_uid', () => {
         it('should automatically generate unique incrementing ids', () => {
@@ -457,7 +465,7 @@ describe('Collection', () => {
     })
 
     describe('validate', () => {
-        it('should validate all models', () => {
+        it('should validate all models', (done) => {
             let c  = new Collection();
 
             let M1 = class extends Model {
@@ -480,21 +488,34 @@ describe('Collection', () => {
             let m1 = c.add(new M1({a: 1, b: 2}));
             let m2 = c.add(new M2({c: 3}));
 
-            expect(c.validate()).to.equal(false);
-            expect(m1.errors).to.to.have.property('a');
-            expect(m1.errors).to.to.have.property('b');
+            c.validate().then((errors) => {
+                expect(errors).to.have.lengthOf(2);
 
-            expect(m2.errors).to.to.have.property('c');
+                expect(errors[0]).to.have.property('a');
+                expect(errors[0]).to.have.property('b');
+                expect(errors[1]).to.have.property('c');
+
+                expect(m1.errors).to.have.property('a');
+                expect(m1.errors).to.have.property('b');
+                expect(m2.errors).to.have.property('c');
+
+                done();
+            });
         })
 
         it('should pass with no models', () => {
             let c  = new Collection();
-            expect(c.validate()).to.equal(true);
+            c.validate().then((errors) => {
+                expect(errors).to.be.empty;
+            });
         })
 
-        it('should pass with no models that have validation', () => {
+        it('should pass with no models that have validation', (done) => {
             let c = new Collection([{}, {}]);
-            expect(c.validate()).to.equal(true);
+            c.validate().then((errors) => {
+                expect(errors).to.deep.equal([{}, {}]);
+                done();
+            });
         })
     })
 
@@ -1563,7 +1584,7 @@ describe('Collection', () => {
             })
         })
 
-        it('should skip if already deleting', () => {
+        it('should skip if already deleting', (done) => {
             let c = new class extends Collection {
                 routes() { return {delete: '/delete'}}
             }
@@ -1578,10 +1599,7 @@ describe('Collection', () => {
                 throw 'Did not expect to handle event'
             });
 
-            c.delete().then((response) => {
-                expect(response).to.be.null;
-                done();
-            });
+            expectRequestToBeSkipped(c.delete(), done);
         })
 
         it('should skip if there are no models to delete', (done) => {
@@ -1608,10 +1626,7 @@ describe('Collection', () => {
             m2.deleting = true;
             m3.deleting = true;
 
-            c.delete().then((response) => {
-                expect(response).to.be.null;
-                done();
-            })
+            expectRequestToBeSkipped(c.delete(), done);
         })
 
         it('should emit event on success', (done) => {
@@ -1846,34 +1861,8 @@ describe('Collection', () => {
                     done();
                 })
 
-                expect(c.deleting).to.equal(true);
-
                 moxios.wait(() => {
-                    moxios.requests.mostRecent().respondWith({
-                        status: 200
-                    })
-                })
-            })
-        })
-
-        it('should set deleting to false on delete success', (done) => {
-            let c = new class extends Collection {
-                routes() { return {delete: '/delete'}}
-            }
-
-            c.add(new Model({id: 1}));
-            c.add(new Model({id: 2}));
-
-            moxios.withMock(() => {
-                expect(c.deleting).to.equal(false);
-                c.delete().then((response) => {
-                    expect(c.deleting).to.equal(false);
-                    done();
-                })
-
-                expect(c.deleting).to.equal(true);
-
-                moxios.wait(() => {
+                    expect(c.deleting).to.equal(true);
                     moxios.requests.mostRecent().respondWith({
                         status: 200
                     })
@@ -1896,9 +1885,8 @@ describe('Collection', () => {
                     done();
                 })
 
-                expect(c.deleting).to.equal(true);
-
                 moxios.wait(() => {
+                    expect(c.deleting).to.equal(true);
                     moxios.requests.mostRecent().respondWith({
                         status: 500
                     })
@@ -2016,8 +2004,11 @@ describe('Collection', () => {
 
             moxios.withMock(() => {
                 c.save();
-                expect(c.saving).to.equal(true);
-                done();
+
+                moxios.wait(() => {
+                    expect(c.saving).to.equal(true);
+                    done();
+                });
             })
         })
 
@@ -2932,14 +2923,15 @@ describe('Collection', () => {
 
             moxios.withMock(() => {
                 c.fetch().then((response) => {
+                    // console.log(response);
                     expectRequestToBeSkipped(c.fetch(), done);
                 });
-            });
-
-            moxios.wait(() => {
-                moxios.requests.mostRecent().respondWith({
-                    status: 200,
-                    response: []
+            
+                moxios.wait(() => {
+                    moxios.requests.mostRecent().respondWith({
+                        status: 200,
+                        response: []
+                    });
                 });
             });
         })

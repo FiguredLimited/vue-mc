@@ -434,7 +434,7 @@ but this will not override the default nested validation behaviour.
     <tr>
         <td class="name">after(date)</td>
         <td class="desc">
-            Checks if the value is after a given date string or <code>moment</code> object.
+            Checks if the value is after a given date string or <code>Date</code> object.
         </td>
     </tr>
     <tr>
@@ -470,7 +470,7 @@ but this will not override the default nested validation behaviour.
     <tr>
         <td class="name">before(date)</td>
         <td class="desc">
-            Checks if a value is before a given date string or <code>moment</code> object.
+            Checks if a value is before a given date string or <code>Date</code> object.
         </td>
     </tr>
     <tr>
@@ -500,7 +500,7 @@ but this will not override the default nested validation behaviour.
     <tr>
         <td class="name">dateformat(format)</td>
         <td class="desc">
-            Checks if a value matches the given date <a href="https://momentjs.com/docs/#/displaying/format" _target="blank">format</a>.
+            Checks if a value matches the given date <a href="https://date-fns.org/v2.0.0-alpha.9/docs/format" _target="blank">format</a>.
         </td>
     </tr>
     <tr>

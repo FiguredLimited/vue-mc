@@ -35,8 +35,8 @@
     },
     "dependencies": {
         "axios": "^0.16",
+        "date-fns": "^2.0.0-alpha.11",
         "lodash": "^4.17",
-        "moment": "^2.18.1",
         "validator": "^8.1.0",
         "vue": "^2.2"
     },
@@ -56,7 +56,6 @@
         "eslint": "^4.7.2",
         "lodash": "^4.17",
         "mocha": "^3.5.0",
-        "moment": "^2.18.1",
         "moxios": "^0.4.0",
         "nyc": "^11.1.0",
         "rollup": "^0.50.0",

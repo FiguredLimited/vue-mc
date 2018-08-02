@@ -61,15 +61,8 @@ class Collection extends Base {
      * @returns {Collection}
      */
     clone() {
-        let clone = new (this.constructor)();
-
-        // Add all the existing models.
-        clone.add(this.models);
-
-        // Make sure that the clone has the same existing options.
-        clone.setOptions(this.getOptions());
-
-        return clone;
+        return new (this.constructor)
+            (this.getModels(), this.getOptions(), this.getAttributes());
     }
 
     /**
@@ -112,6 +105,20 @@ class Collection extends Base {
     }
 
     /**
+     * @return {Object}
+     */
+    getAttributes() {
+        return this._attributes;
+    }
+
+    /**
+     * @return {Model[]}
+     */
+    getModels() {
+        return this.models;
+    }
+
+    /**
      * Returns the default options for this model.
      *
      * @returns {Object}
@@ -148,7 +155,7 @@ class Collection extends Base {
      * Resets model state, ie. `loading`, etc back to their initial states.
      */
     clearState() {
-        Vue.set(this, 'loading',  true);
+        Vue.set(this, 'loading',  false);
         Vue.set(this, 'saving',   false);
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    false);
@@ -218,12 +225,10 @@ class Collection extends Base {
     }
 
     /**
-     * @returns {bool} Whether all models in this collection have valid data.
+     * @returns {Promise}
      */
     validate() {
-        return _.reduce(this.models, (valid, model) => {
-            return model.validate() && valid;
-        }, true);
+        return Promise.all(this.models.map((model) => model.validate()));
     }
 
     /**
@@ -453,13 +458,6 @@ class Collection extends Base {
     }
 
     /**
-     * Wraps a new collection instance around some given models.
-     */
-    wrap(models) {
-        return new (this.constructor)(models);
-    }
-
-    /**
      * Creates a new collection of the same type that contains only the models
      * for which the given predicate returns `true` for, or matches by property.
      *
@@ -473,7 +471,10 @@ class Collection extends Base {
      * @returns {Collection}
      */
     filter(predicate) {
-        return this.wrap(this.where(predicate));
+        let result = this.clone();
+        
+        result.models = _.filter(result.models, predicate);
+        return result;
     }
 
     /**
@@ -891,7 +892,6 @@ class Collection extends Base {
      * @returns {Collection} This collection.
      */
     page(page) {
-
         // Disable pagination if a valid page wasn't provided.
         if (_.isNil(page)) {
             Vue.set(this, '_page', NO_PAGE);
@@ -997,15 +997,19 @@ class Collection extends Base {
      * @returns {boolean|undefined} `false` if the request should not be made.
      */
     onFetch() {
+        return new Promise((resolve, reject) => {
 
-        // Don't fetch if there are no more results to be fetched.
-        if (this.isPaginated() && this.isLastPage()) {
-            return false;
-        }
+            // Don't fetch if there are no more results to be fetched.
+            if (this.isPaginated() && this.isLastPage()) {
+                return resolve(Base.REQUEST_SKIP);
+            }
 
-        // Because we're fetching new data, we can assume that this collection
-        // is now loading. This allows the template to indicate a loading state.
-        Vue.set(this, 'loading', true);
+            // Because we're fetching new data, we can assume that this collection
+            // is now loading. This allows the template to indicate a loading state.
+            Vue.set(this, 'loading', true);
+            resolve(Base.REQUEST_CONTINUE);
+            return;
+        });
     }
 
     /**
@@ -1050,37 +1054,33 @@ class Collection extends Base {
      *
      */
     onSave() {
-
         // Don't save if we're already busy saving this collection.
         // This prevents things like accidental double clicks.
         if (this.saving) {
-            return false;
+            return Promise.resolve(Base.REQUEST_SKIP);
         }
 
         let valid = true;
-
-        // Call 'onSave' on each model so that the models can set their state
-        // accordingly, and indicate whether a validation failure should occur.
-        _.each(this.models, (model) => {
-            try {
-                model.onSave();
-
-            } catch (error) {
+        let tasks = this.models.map((model) => {
+            return model.onSave().catch((error) => {
                 if (error instanceof ValidationError) {
                     valid = false;
                 } else {
                     throw error;
                 }
-            }
+            });
         });
 
-        // Throwing a validation error here will cause the save request to be
-        // rejected, because at least one model's data is not valid.
-        if ( ! valid) {
-            throw new ValidationError(this.getErrors());
-        }
+        // Call 'onSave' on each model so that the models can set their state
+        // accordingly, and indicate whether a validation failure should occur.
+        return Promise.all(tasks).then(() => {
+            if ( ! valid) {
+                throw new ValidationError(this.getErrors());
+            }
 
-        Vue.set(this, 'saving', true);
+            Vue.set(this, 'saving', true);
+            return Base.REQUEST_CONTINUE;
+        });
     }
 
     /**
@@ -1134,24 +1134,20 @@ class Collection extends Base {
      * @returns {boolean} `false` if the request should not be made.
      */
     onDelete() {
-
-        // Don't save if we're already busy saving this collection.
-        // This prevents things like accidental double clicks.
         if (this.deleting) {
-            return false;
+            return Promise.resolve(Base.REQUEST_SKIP);
         }
 
-        // Exclude all models that return `false` on delete.
-        let models = _.filter(this.models, (model) => {
-            return model.onDelete() !== false;
+        return Promise.all(this.models.map((m) => m.onDelete())).then(() => {
+            
+            // No need to do anything if no models should be deleted.
+            if (_.isEmpty(this.getDeletingModels())) {
+                return Base.REQUEST_REDUNDANT;
+            }
+
+            Vue.set(this, 'deleting', true);
+            return Base.REQUEST_CONTINUE;
         });
-
-        // Don't save if there are no models to delete.
-        if (_.isEmpty(models)) {
-            return true;
-        }
-
-        Vue.set(this, 'deleting', true);
     }
 
     /**
