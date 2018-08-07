@@ -1,14 +1,41 @@
-import Base             from './Base.js'
-import Collection       from './Collection.js'
-import ResponseError    from '../Errors/ResponseError.js'
-import ValidationError  from '../Errors/ValidationError.js'
-import Vue              from 'vue'
-import * as _           from 'lodash'
+import Base             from './Base';
+import Collection       from './Collection';
+import ResponseError    from '../Errors/ResponseError.js';
+import ValidationError  from '../Errors/ValidationError.js';
+import Vue              from 'vue';
+import get from 'lodash/get';
+import each from 'lodash/each';
+import defaultsDeep from 'lodash/defaultsDeep';
+import isFunction from 'lodash/isFunction';
+import values from 'lodash/values';
+import isPlainObject from 'lodash/isPlainObject';
+import merge from 'lodash/merge';
+import isArray from 'lodash/isArray';
+import has from 'lodash/has';
+import isObject from 'lodash/isObject';
+import isNil from 'lodash/isNil';
+import isEmpty from 'lodash/isEmpty';
+import invert from 'lodash/invert';
+import pick from 'lodash/pick';
+import cloneDeep from 'lodash/cloneDeep';
+import once from 'lodash/once';
+import mapValues from 'lodash/mapValues';
+import flow from 'lodash/flow';
+import isUndefined from 'lodash/isUndefined';
+import defaultTo from 'lodash/defaultTo';
+import castArray from 'lodash/castArray';
+import isEqual from 'lodash/isEqual';
+import keys from 'lodash/keys';
+import isString from 'lodash/isString';
+import isObjectLike from 'lodash/isObjectLike';
+import head from 'lodash/head';
+import first from 'lodash/first';
+import filter from 'lodash/filter';
 
 /**
  * Reserved keywords that can't be used for attribute or option names.
  */
-const RESERVED = _.invert([
+const RESERVED = invert([
     '_attributes',
     '_collections',
     '_errors',
@@ -35,34 +62,30 @@ const RESERVED = _.invert([
  * @param {Object} target
  * @param {Array}  keys     Optional
  */
-const copyFrom = function(source, target, keys) {
+const copyFrom = function (source, target, keys) {
     if (keys) {
-        source = _.pick(source, keys);
+        source = pick(source, keys);
     }
 
-    _.each(source, (value, key) => {
-        if (_.isArray(value)) {
+    each(source, (value, key) => {
+        if (isArray(value)) {
             Vue.set(target, key, []);
             copyFrom(value, target[key]);
-
-        } else if (_.isPlainObject(value)) {
+        } else if (isPlainObject(value)) {
             Vue.set(target, key, {});
             copyFrom(value, target[key]);
-
-        } else if (_.isObject(value) && _.isFunction(value.clone)) {
+        } else if (isObject(value) && isFunction(value.clone)) {
             Vue.set(target, key, value.clone());
-
         } else {
-            Vue.set(target, key, _.cloneDeep(value));
+            Vue.set(target, key, cloneDeep(value));
         }
     });
-}
+};
 
 /**
  * Base model class.
  */
 class Model extends Base {
-
     /**
      * A convenience wrapper around the model's attributes that are saved.
      * This is similar to the `saved` method, but instead of accessing a single
@@ -86,7 +109,7 @@ class Model extends Base {
      * @returns {Object} The collection that this model is registered to.
      */
     get collections() {
-        return _.values(this._collections);
+        return values(this._collections);
     }
 
     /**
@@ -138,15 +161,15 @@ class Model extends Base {
      * @returns {Model}
      */
     clone() {
-        let attributes = {};
-        let reference  = {};
+        const attributes = {};
+        const reference  = {};
 
         // Clone all attributes and their descriptors.
         copyFrom(this._attributes, attributes);
         copyFrom(this._reference, reference);
 
         // Create a copy.
-        let clone = new (this.constructor)();
+        const clone = new (this.constructor)();
 
         // Make sure that the clone belongs to the same collections.
         clone.registerCollection(this._collections);
@@ -167,13 +190,13 @@ class Model extends Base {
      * @see {@link https://lodash.com/docs/#once}
      */
     memoize() {
-        let memoized = [
+        const memoized = [
             'validation',  //   \
             'defaults',    //   | These do not need to be evaluated every time.
             'routes',      //  /
         ];
 
-        _.each(memoized, (name) => this[name] = _.once(this[name]));
+        each(memoized, name => this[name] = once(this[name]));
     }
 
     /**
@@ -212,51 +235,50 @@ class Model extends Base {
      * @returns {Object}
      */
     getDefaultOptions() {
-        return _.merge({}, super.getDefaultOptions(), {
-
+        return merge({}, super.getDefaultOptions(), {
             // The attribute that should be used to uniquely identify this model.
-            identifier: 'id',
+            identifier : 'id',
 
             // Whether this model should allow an existing identifier to be
             // overwritten on update.
-            overwriteIdentifier: false,
+            overwriteIdentifier : false,
 
             // Whether this model should perform a "patch" on update,
             // which will only send changed attributes in the request.
-            patch: false,
+            patch : false,
 
             // Whether this model should save even if no attributes have changed
             // since the last time they were synced. If set to `false` and no
             // changes have been made, the request will be considered a success.
-            saveUnchanged: true,
+            saveUnchanged : true,
 
             // Whether this model should only use the first validation error it
             // receives, rather than an array of errors.
-            useFirstErrorOnly: false,
+            useFirstErrorOnly : false,
 
             // Whether this model should validate an attribute that has changed.
             // This would only affect the errors of the changed attribute and
             // will only be applied if the value is not a blank string.
-            validateOnChange: false,
+            validateOnChange : false,
 
             // Whether this model should validate models and collections within
             // its attribute tree. The result is implicit recursion as each of
             // those instances will also validate their trees, etc.
-            validateRecursively: true,
+            validateRecursively : true,
 
             // Whether this model should mutate a property as it is changed,
             // before it is set. This is a rare requirement because you usually
             // don't  want to mutate something that you are busy editing.
-            mutateOnChange: false,
+            mutateOnChange : false,
 
             // Whether this model should mutate all attributes before they are
             // synced to the "saved" state. This would include construction,
             // on fetch, on save, and on assign.
-            mutateBeforeSync: true,
+            mutateBeforeSync : true,
 
             // Whether this model should use mutated values for the attributes
             // in "save" request. This will not mutate the active state.
-            mutateBeforeSave: true,
+            mutateBeforeSave : true,
         });
     }
 
@@ -264,14 +286,14 @@ class Model extends Base {
      * Compiles all mutations into pipelines that can be executed quickly.
      */
     compileMutators() {
-        this._mutations = _.mapValues(this.mutations(), (m) => _.flow(m));
+        this._mutations = mapValues(this.mutations(), m => flow(m));
     }
 
     /**
      * @returns {Object} Parameters to use for replacement in route patterns.
      */
     getRouteParameters() {
-        return _.merge({}, super.getRouteParameters(), this._attributes);
+        return merge({}, super.getRouteParameters(), this._attributes);
     }
 
     /**
@@ -283,12 +305,12 @@ class Model extends Base {
      * @param {Collection} collection
      */
     registerCollection(collection) {
-        if (_.isArray(collection)) {
-            _.each(collection, this.registerCollection);
+        if (isArray(collection)) {
+            each(collection, this.registerCollection);
             return;
         }
 
-        if (_.isNil(collection) || _.isUndefined(collection._uid)) {
+        if (isNil(collection) || isUndefined(collection._uid)) {
             throw new Error('Collection is not valid');
         }
 
@@ -304,12 +326,12 @@ class Model extends Base {
      * @param {Collection} collection
      */
     unregisterCollection(collection) {
-        if (_.isArray(collection)) {
-            _.each(collection, this.unregisterCollection);
+        if (isArray(collection)) {
+            each(collection, this.unregisterCollection);
             return;
         }
 
-        if (_.isNil(collection) || _.isUndefined(collection._uid)) {
+        if (isNil(collection) || isUndefined(collection._uid)) {
             throw new Error('Collection is not valid');
         }
 
@@ -322,10 +344,10 @@ class Model extends Base {
      * attributes, and is not reversable.
      */
     clearAttributes() {
-        let defaults = this.defaults();
+        const defaults = this.defaults();
 
-        Vue.set(this, '_attributes', _.cloneDeep(defaults));
-        Vue.set(this, '_reference',  _.cloneDeep(defaults));
+        Vue.set(this, '_attributes', cloneDeep(defaults));
+        Vue.set(this, '_reference',  cloneDeep(defaults));
     }
 
     /**
@@ -358,7 +380,7 @@ class Model extends Base {
      * @returns {Object} The attributes that were assigned to the model.
      */
     assign(attributes) {
-        this.set(_.defaultsDeep({}, attributes, _.cloneDeep(this.defaults())));
+        this.set(defaultsDeep({}, attributes, cloneDeep(this.defaults())));
         this.sync();
     }
 
@@ -374,10 +396,9 @@ class Model extends Base {
      * @param {string|string[]} attribute
      */
     reset(attribute) {
-
         // Reset specific attributes.
         if (attribute) {
-            copyFrom(this._reference, this._attributes, _.castArray(attribute));
+            copyFrom(this._reference, this._attributes, castArray(attribute));
 
         // Reset all attributes if one or more specific ones were not given.
         } else {
@@ -392,7 +413,7 @@ class Model extends Base {
      * @returns {*} The value of an attribute after applying its mutations.
      */
     mutated(attribute, value) {
-        let mutator = _.get(this._mutations, attribute);
+        const mutator = get(this._mutations, attribute);
 
         if (mutator) {
             return mutator(value);
@@ -406,16 +427,16 @@ class Model extends Base {
      * @param {string|string[]|undefined} attribute
      */
     mutate(attribute) {
-        if (_.isUndefined(attribute)) {
-            _.each(this._attributes, (value, attribute) => {
+        if (isUndefined(attribute)) {
+            each(this._attributes, (value, attribute) => {
                 Vue.set(this._attributes, attribute, this.mutated(attribute, value));
             });
 
         // Only mutate specific attributes.
         } else {
-            _.each(_.castArray(attribute), (attribute) => {
-                let current = this.get(attribute);
-                let mutated = this.mutated(attribute, current);
+            each(castArray(attribute), (attribute) => {
+                const current = this.get(attribute);
+                const mutated = this.mutated(attribute, current);
 
                 Vue.set(this._attributes, attribute, mutated);
             });
@@ -432,7 +453,6 @@ class Model extends Base {
      * @param {string|string[]} attribute
      */
     sync(attribute) {
-
         // Mutate all attributes before we sync them, if required to do so.
         if (this.getOption('mutateBeforeSync')) {
             this.mutate(attribute);
@@ -441,15 +461,14 @@ class Model extends Base {
         // We're cloning deep to avoid multiple references to the same object,
         // otherwise updating the attributes will also update the reference.
         // Set each saved attribute to its active equivalent.
-        let active = _.cloneDeep(this._attributes);
+        const active = cloneDeep(this._attributes);
 
         // Sync either specific attributes or all attributes if none provided.
-        if (_.isUndefined(attribute)) {
+        if (isUndefined(attribute)) {
             Vue.set(this, '_reference', active);
-
         } else {
-            _.each(_.castArray(attribute), (attribute) => {
-                Vue.set(this._reference, attribute, _.get(active, attribute));
+            each(castArray(attribute), (attribute) => {
+                Vue.set(this._reference, attribute, get(active, attribute));
             });
         }
 
@@ -461,18 +480,17 @@ class Model extends Base {
      * on the model, passing through `get` and `set`.
      */
     registerAttribute(attribute) {
-
         // Protect against unwillingly using an attribute name that already
         // exists as an internal property or method name.
-        if (_.has(RESERVED, attribute)) {
+        if (has(RESERVED, attribute)) {
             throw new Error(`Can't use reserved attribute name '${attribute}'`);
         }
 
         // Create dynamic accessors and mutations so that we can update the
         // model directly while also keeping the model attributes in sync.
         Object.defineProperty(this, attribute, {
-            get: ()      => this.get(attribute),
-            set: (value) => this.set(attribute, value),
+            get : ()      => this.get(attribute),
+            set : value => this.set(attribute, value),
         });
     }
 
@@ -487,26 +505,25 @@ class Model extends Base {
      * @returns {*} The value that was set.
      */
     set(attribute, value) {
-
         // Allow batch set of multiple attributes at once, ie. set({...});
-        if (_.isPlainObject(attribute)) {
-            _.each(attribute, (value, key) => {
+        if (isPlainObject(attribute)) {
+            each(attribute, (value, key) => {
                 this.set(key, value);
             });
 
             return;
         }
 
-        let defined = this.has(attribute);
+        const defined = this.has(attribute);
 
         // Only register the pass-through property if it's not already set up.
         // If it already exists on the instance, we know it has been.
-        if ( ! defined) {
+        if (! defined) {
             this.registerAttribute(attribute);
         }
 
         // Current value of the attribute, or `undefined` if not set
-        let previous = this.get(attribute);
+        const previous = this.get(attribute);
 
         // Run the attribute's mutations if required to do so on change.
         if (this.getOption('mutateOnChange')) {
@@ -516,10 +533,10 @@ class Model extends Base {
         Vue.set(this._attributes, attribute, value);
 
         // Only consider a change if the attribute was already defined.
-        let changed = defined && ! _.isEqual(previous, value);
+        const changed = defined && ! isEqual(previous, value);
 
         if (changed) {
-            this.emit('change', {attribute, previous, value});
+            this.emit('change', { attribute, previous, value });
 
             // Validate on change only if it's not the first time it's set.
             if (this.getOption('validateOnChange')) {
@@ -539,18 +556,17 @@ class Model extends Base {
      * @param {string|string[]} attribute
      */
     unset(attribute) {
-
         // We're cloning deep to avoid multiple references to the same object,
         // otherwise updating the attributes will also update the reference.
-        let defaults = _.cloneDeep(this.defaults());
+        const defaults = cloneDeep(this.defaults());
 
         // Unset either specific attributes or all attributes if none provided.
-        let attributes = _.defaultTo(attribute, _.keys(this._attributes));
+        const attributes = defaultTo(attribute, keys(this._attributes));
 
         // Unset either specific attributes or all attributes if none provided.
-        _.each(_.castArray(attributes), (attribute) => {
+        each(castArray(attributes), (attribute) => {
             if (this.has(attribute)) {
-                Vue.set(this._attributes, attribute, _.get(defaults, attribute));
+                Vue.set(this._attributes, attribute, get(defaults, attribute));
             }
         });
     }
@@ -565,7 +581,7 @@ class Model extends Base {
      * @returns {*} The value of the attribute or `fallback` if not found.
      */
     get(attribute, fallback) {
-        return _.get(this._attributes, attribute, fallback);
+        return get(this._attributes, attribute, fallback);
     }
 
     /**
@@ -582,7 +598,7 @@ class Model extends Base {
      * @returns {*} The value of the attribute or `fallback` if not found.
      */
     saved(attribute, fallback) {
-        return _.get(this._reference, attribute, fallback);
+        return get(this._reference, attribute, fallback);
     }
 
     /**
@@ -593,14 +609,14 @@ class Model extends Base {
      *                   Will return true if the object exists but is undefined.
      */
     has(attribute) {
-        return _.has(this._attributes, attribute);
+        return has(this._attributes, attribute);
     }
 
     /**
      * @return {Array}
      */
     getValidateRules(attribute) {
-        return _.castArray(_.get(this.validation(), attribute, []));
+        return castArray(get(this.validation(), attribute, [])); 
     }
 
     /**
@@ -620,7 +636,7 @@ class Model extends Base {
 
         // Check if any nested values should be validated also.
         if (this.getOption('validateRecursively')) {
-            if (_.isFunction(_.get(value, 'validate'))) {
+            if (isFunction(get(value, 'validate'))) {
                 tasks.push(value.validate());
             }
         }
@@ -628,14 +644,14 @@ class Model extends Base {
         return Promise.all(tasks).then((errors) => {
 
             // Errors will always be messages or nested error objects.
-            errors = _.filter(errors, (e) => _.isString(e) || _.isObject(e));
+            errors = filter(errors, (e) => isString(e) || isObject(e));
 
             // Set errors for the model being validated.
             this.setAttributeErrors(attribute, errors);
             
             // Check to see if we should yield only the first error.
-            if (this.getOption('useFirstErrorOnly') && !_.isEmpty(errors)) {
-                return _.first(errors);
+            if (this.getOption('useFirstErrorOnly') && !isEmpty(errors)) {
+                return first(errors);
             }
 
             return errors;
@@ -650,24 +666,24 @@ class Model extends Base {
      * @returns {Promise} 
      */
     validate(attributes) {
-        if (_.isUndefined(attributes)) {
+        if (isUndefined(attributes)) {
             attributes = Object.keys(this._attributes);
         }
 
         // Support a single, string attribute.
-        if (_.isString(attributes)) {
+        if (isString(attributes)) {
             return this.validateAttribute(attributes).then((errors) => {
-                return !_.isEmpty(errors) ? {[attributes]: errors} : {};
+                return !isEmpty(errors) ? {[attributes]: errors} : {};
             });
         }
 
         // Support an array of attributes to validate.
-        if (_.isArray(attributes)) {
+        if (isArray(attributes)) {
             let $errors = {};
 
             let tasks = attributes.map((attribute) => {
                 return this.validateAttribute(attribute).then((errors) => {
-                    if (!_.isEmpty(errors)) {
+                    if (!isEmpty(errors)) {
                         $errors[attribute] = errors;
                     }
                 });
@@ -692,7 +708,7 @@ class Model extends Base {
      * Adds this model to all registered collections.
      */
     addToAllCollections() {
-        _.each(this._collections, (collection, id) => {
+        each(this._collections, (collection, id) => {
             collection.add(this);
         });
     }
@@ -701,7 +717,7 @@ class Model extends Base {
      * Removes this model from all registered collections.
      */
     removeFromAllCollections() {
-        _.each(this._collections, (collection, id) => {
+        each(this._collections, (collection, id) => {
             collection.remove(this);
         });
     }
@@ -714,26 +730,26 @@ class Model extends Base {
      *                         if no attributes have changed since the last sync.
      */
     changed() {
-        let changed = [];
+        const changed = [];
 
-        _.each(this._attributes, (value, attribute) => {
-            if ( ! _.isEqual(value, this.saved(attribute))) {
+        each(this._attributes, (value, attribute) => {
+            if (! isEqual(value, this.saved(attribute))) {
                 changed.push(attribute);
             }
         });
 
-        return ! _.isEmpty(changed) ? changed : false;
+        return ! isEmpty(changed) ? changed : false;
     }
 
     /**
      * Called when a fetch request was successful.
      */
     onFetchSuccess(response) {
-        let attributes = response.getData();
+        const attributes = response.getData();
 
         // A fetch request must receive *some* data in return.
-        if (_.isEmpty(attributes)) {
-            throw new ResponseError("No data in fetch response", response);
+        if (isEmpty(attributes)) {
+            throw new ResponseError('No data in fetch response', response);
         }
 
         this.assign(attributes);
@@ -741,7 +757,7 @@ class Model extends Base {
         Vue.set(this, 'fatal',   false);
         Vue.set(this, 'loading', false);
 
-        this.emit('fetch', {error: null});
+        this.emit('fetch', { error : null });
     }
 
     /**
@@ -753,7 +769,7 @@ class Model extends Base {
         Vue.set(this, 'fatal',   true);
         Vue.set(this, 'loading', false);
 
-        this.emit('fetch', {error});
+        this.emit('fetch', { error });
     }
 
     /**
@@ -822,10 +838,9 @@ class Model extends Base {
      * @returns {Object} The data to send to the server when saving this model.
      */
     getSaveData() {
-
         // Only use changed attributes if patching.
         if (this.isExisting() && this.shouldPatch()) {
-            return _.pick(this._attributes, this.changed());
+            return pick(this._attributes, this.changed());
         }
 
         return this._attributes;
@@ -860,46 +875,43 @@ class Model extends Base {
      * @param {Object} response
      */
     update(data) {
-
         // No content means we don't want to update the model at all.
         // The attributes that we passed in the request should now be considered
         // the source of truth, so we should update the reference attributes here.
-        if ( ! data || (_.isObjectLike(data) && _.isEmpty(data))) {
+        if (! data || (isObjectLike(data) && isEmpty(data))) {
             this.sync();
 
         // A plain object implies that we want to update the model data.
         // It's not a requirement to respond with a complete dataset,
         // eg. a response to a patch request might return partial data.
-        } else if (_.isPlainObject(data)) {
+        } else if (isPlainObject(data)) {
             this.assign(data);
 
         // There is some data, but it's not an object, so we can assume that the
         // response only returned an identifier for this model.
         } else {
-            let identifier = this.parseIdentifier(data);
+            const identifier = this.parseIdentifier(data);
 
             // It's possible that the response didn't actually return a valid
             // identifier, so before we try to use it we should make sure that
             // we're not accidentially assigning the wrong data as identifiers.
             if (this.isValidIdentifier(identifier)) {
-
                 // The current identifier of this model.
-                let current = this.identifier();
+                const current = this.identifier();
 
                 // If an identifier already exists on this model and the returned
                 // identifier is not the same, this almost definitely indicates
                 // an unexpected state. The default is to protect against this
                 // and fail hard, but this might not always be what we want.
                 if (current && (identifier !== current)) {
-                    if ( ! this.shouldAllowIdentifierOverwrite()) {
-                        throw new Error(`Not allowed to overwrite model identifier`);
+                    if (! this.shouldAllowIdentifierOverwrite()) {
+                        throw new Error('Not allowed to overwrite model identifier');
                     }
                 }
 
                 // Update the identifier and sync the saved data.
                 this.set(this.getOption('identifier'), identifier);
                 this.sync();
-
             } else {
                 throw new Error('Expected an empty response, object, or valid identifier');
             }
@@ -914,10 +926,10 @@ class Model extends Base {
      * @param {string|array} errors
      */
     setAttributeErrors(attribute, errors) {
-        if (_.isEmpty(errors)) {
+        if (isEmpty(errors)) {
             Vue.delete(this._errors, attribute);
         } else {
-            Vue.set(this._errors, attribute, _.castArray(errors));
+            Vue.set(this._errors, attribute, castArray(errors));
         }
     }
 
@@ -927,12 +939,12 @@ class Model extends Base {
      * @param {Object} errors
      */
     setErrors(errors) {
-        if (_.isEmpty(errors)) {
+        if (isEmpty(errors)) {
             Vue.set(this, '_errors', {});
             return;
         }
 
-        _.each(errors, (errors, attribute) => {
+        each(errors, (errors, attribute) => {
             this.setAttributeErrors(attribute, errors);
         });
     }
@@ -942,7 +954,7 @@ class Model extends Base {
      */
     getErrors() {
         if (this.getOption('useFirstErrorOnly')) {
-            return _.mapValues(this._errors, _.head);
+            return mapValues(this._errors, head);
         }
 
         return this._errors;
@@ -962,7 +974,6 @@ class Model extends Base {
      * @param {Object|null} response
      */
     onSaveSuccess(response) {
-
         // Clear errors because the request was successful.
         this.clearErrors();
 
@@ -977,7 +988,7 @@ class Model extends Base {
         // Automatically add to all registered collections.
         this.addToAllCollections();
 
-        this.emit('save', {error: null});
+        this.emit('save', { error : null });
     }
 
     /**
@@ -986,9 +997,9 @@ class Model extends Base {
      * @param {Object} errors
      */
     onSaveValidationFailure(error) {
-        let errors = error.getResponse().getValidationErrors();
+        const errors = error.getResponse().getValidationErrors();
 
-        if ( ! _.isPlainObject(errors)) {
+        if (! isPlainObject(errors)) {
             throw new ResponseError(
                 'Validation errors must be an object', error.getResponse());
         }
@@ -1026,7 +1037,7 @@ class Model extends Base {
             this.onFatalSaveFailure(error);
         }
 
-        this.emit('save', {error});
+        this.emit('save', { error });
     }
 
     /**
@@ -1039,7 +1050,7 @@ class Model extends Base {
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    false);
 
-        this.emit('delete', {error: null});
+        this.emit('delete', { error : null });
     }
 
     /**
@@ -1051,7 +1062,7 @@ class Model extends Base {
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    true);
 
-        this.emit('delete', {error});
+        this.emit('delete', { error });
     }
 
     /**
@@ -1060,16 +1071,16 @@ class Model extends Base {
      * @returns {boolean|undefined} `false` if the request should not be made.
      */
     onFetch() {
-        return new Promise((resolve, reject) => {
-            // Don't fetch if already fetching. This prevents accidental requests
-            // that sometimes occur as a result of a double-click.
-            if (this.loading) {
-                return resolve(Base.REQUEST_SKIP);
-            }
+        return new Promise((resolve, reject) => { 
+            // Don't fetch if already fetching. This prevents accidental requests 
+            // that sometimes occur as a result of a double-click. 
+            if (this.loading) { 
+                return resolve(Base.REQUEST_SKIP); 
+            } 
 
-            Vue.set(this, 'loading', true);
-            return resolve(Base.REQUEST_CONTINUE);
-        });
+            Vue.set(this, 'loading', true); 
+            return resolve(Base.REQUEST_CONTINUE); 
+        }); 
     }
 
     /**
@@ -1078,7 +1089,7 @@ class Model extends Base {
      *                    model's identifier is missing.
      */
     isNew() {
-        return _.isNil(this.identifier());
+        return isNil(this.identifier());
     }
 
     /**
@@ -1095,37 +1106,36 @@ class Model extends Base {
      * @returns {boolean} `false` if the request should not be made.
      */
     onSave() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => { 
+            // Don't save if we're already busy saving this model. 
+            // This prevents things like accidental double-clicks. 
+            if (this.saving) { 
+                return resolve(Base.REQUEST_SKIP); 
+            } 
 
-            // Don't save if we're already busy saving this model.
-            // This prevents things like accidental double-clicks.
-            if (this.saving) {
-                return resolve(Base.REQUEST_SKIP);
-            }
+            // Don't save if no data has changed, but consider it a success. 
+            if ( ! this.getOption('saveUnchanged') && ! this.changed()) { 
+                return resolve(Base.REQUEST_REDUNDANT); 
+            } 
 
-            // Don't save if no data has changed, but consider it a success.
-            if ( ! this.getOption('saveUnchanged') && ! this.changed()) {
-                return resolve(Base.REQUEST_REDUNDANT);
-            }
+            //  
+            Vue.set(this, 'saving', true); 
 
-            // 
-            Vue.set(this, 'saving', true);
+            // Mutate attribute before we save if required to do so. 
+            if (this.getOption('mutateBeforeSave')) { 
+                this.mutate(); 
+            } 
+ 
+            return this.validate().then((errors) => { 
+                if (isEmpty(errors)) { 
+                    return resolve(Base.REQUEST_CONTINUE); 
+                } 
 
-            // Mutate attribute before we save if required to do so.
-            if (this.getOption('mutateBeforeSave')) {
-                this.mutate();
-            }
-
-            return this.validate().then((errors) => {
-                if (_.isEmpty(errors)) {
-                    return resolve(Base.REQUEST_CONTINUE);
-                }
-
-                Vue.set(this, 'saving', false);
-                reject(new ValidationError(this.errors));
-                return;
-            });
-        });
+                Vue.set(this, 'saving', false); 
+                reject(new ValidationError(this.errors)); 
+                return; 
+            }); 
+        }); 
     }
 
     /**
@@ -1137,7 +1147,7 @@ class Model extends Base {
         if (this.deleting) {
             return Promise.resolve(Base.REQUEST_SKIP);
         }
-
+ 
         return new Promise((resolve, reject) => {
             Vue.set(this, 'deleting', true);
             resolve(Base.REQUEST_CONTINUE);

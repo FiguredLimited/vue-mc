@@ -1,10 +1,39 @@
-import Base             from './Base.js'
-import Model            from './Model.js'
-import ResponseError    from '../Errors/ResponseError.js'
-import ValidationError  from '../Errors/ValidationError.js'
-import ProxyResponse    from '../HTTP/ProxyResponse.js'
-import Vue              from 'vue'
-import * as _           from 'lodash'
+import Base             from './Base';
+import Model            from './Model';
+import ResponseError    from '../Errors/ResponseError';
+import ValidationError  from '../Errors/ValidationError';
+import ProxyResponse    from '../HTTP/ProxyResponse';
+import Vue              from 'vue';
+import get from 'lodash/get';
+import each from 'lodash/each';
+import map from 'lodash/map';
+import set from 'lodash/set';
+import defaultsDeep from 'lodash/defaultsDeep';
+import reduce from 'lodash/reduce';
+import isFunction from 'lodash/isFunction';
+import values from 'lodash/values';
+import isPlainObject from 'lodash/isPlainObject';
+import merge from 'lodash/merge';
+import method from 'lodash/method';
+import size from 'lodash/size';
+import unset from 'lodash/unset';
+import isArray from 'lodash/isArray';
+import filter from 'lodash/filter';
+import has from 'lodash/has';
+import isObject from 'lodash/isObject';
+import find from 'lodash/find';
+import findIndex from 'lodash/findIndex';
+import sumBy from 'lodash/sumBy';
+import countBy from 'lodash/countBy';
+import sortBy from 'lodash/sortBy';
+import first from 'lodash/first';
+import last from 'lodash/last';
+import isNil from 'lodash/isNil';
+import keyBy from 'lodash/keyBy';
+import isEmpty from 'lodash/isEmpty';
+import max from 'lodash/max';
+import join from 'lodash/join';
+import toSafeInteger from 'lodash/toSafeInteger';
 
 /**
  * Used as a marker to indicate that pagination is not enabled.
@@ -20,7 +49,6 @@ const LAST_PAGE = 0;
  * Base collection class.
  */
 class Collection extends Base {
-
     /**
      * Accessor to support Array.length semantics.
      */
@@ -45,12 +73,12 @@ class Collection extends Base {
         this.clearState();
 
         // Set all given attributes.
-        this.set(_.defaultsDeep({}, attributes, this.defaults()));
+        this.set(defaultsDeep({}, attributes, this.defaults()));
 
         // Add all given models (if any) to this collection. We explicitly ask
         // for the values here as it's common for some sources to be objects.
         if (models) {
-            this.add(_.values(models));
+            this.add(values(models));
         }
     }
 
@@ -83,7 +111,7 @@ class Collection extends Base {
      * @return {*} The value of an attribute, or a given fallback if not set.
      */
     get(attribute, fallback) {
-        return _.get(this._attributes, attribute, fallback);
+        return get(this._attributes, attribute, fallback);
     }
 
     /**
@@ -93,8 +121,8 @@ class Collection extends Base {
      * @param {*}             value
      */
     set(attribute, value) {
-        if (_.isPlainObject(attribute)) {
-            _.each(attribute, (value, key) => {
+        if (isPlainObject(attribute)) {
+            each(attribute, (value, key) => {
                 this.set(key, value);
             });
 
@@ -124,14 +152,14 @@ class Collection extends Base {
      * @returns {Object}
      */
     getDefaultOptions() {
-        return _.merge(super.getDefaultOptions(), {
+        return merge(super.getDefaultOptions(), {
 
             // The class/constructor for this collection's model type.
-            model: Model,
+            model : Model,
 
             // Whether this collection should send model identifiers as JSON
             // in the body of a delete request, instead of a query parameter.
-            useDeleteBody: true,
+            useDeleteBody : true,
         });
     }
 
@@ -139,8 +167,8 @@ class Collection extends Base {
      * @returns {Object} Parameters to use for replacement in route patterns.
      */
     getRouteParameters() {
-        return _.merge({}, super.getRouteParameters(), this._attributes, {
-            page: this._page,
+        return merge({}, super.getRouteParameters(), this._attributes, {
+            page : this._page,
         });
     }
 
@@ -148,7 +176,7 @@ class Collection extends Base {
      * Removes all errors from the models in this collection.
      */
     clearErrors() {
-        _.each(this.models, _.method('clearErrors'));
+        each(this.models, method('clearErrors'));
     }
 
     /**
@@ -165,13 +193,13 @@ class Collection extends Base {
      * Removes all models from this collection.
      */
     clearModels() {
-        let models = this.models;
+        const models = this.models;
 
         // Clear the model store, but keep a reference.
         Vue.set(this, 'models', []);
 
         // Notify each model that it has been removed from this collection.
-        _.each(models, (model) => {
+        each(models, (model) => {
             this.onRemove(model);
         });
     }
@@ -189,7 +217,7 @@ class Collection extends Base {
      * so follows the same signature and effects as `Model.sync`.
      */
     sync() {
-        _.each(this.models, _.method('sync'));
+        each(this.models, method('sync'));
     }
 
     /**
@@ -199,14 +227,14 @@ class Collection extends Base {
      * @param {string|string[]} attribute
      */
     reset(...attribute) {
-        _.each(this.models, _.method('reset', ...attribute));
+        each(this.models, method('reset', ...attribute));
     }
 
     /**
      * Returns the number of models in this collection.
      */
     size() {
-        return _.size(this.models);
+        return size(this.models);
     }
 
     /**
@@ -248,14 +276,14 @@ class Collection extends Base {
      * @param {Model} model
      */
     removeModelFromRegistry(model) {
-        _.unset(this._registry, model._uid);
+        unset(this._registry, model._uid);
     }
 
     /**
      * @return {Boolean} true if this collection has the model in its registry.
      */
     hasModelInRegistry(model) {
-        return _.has(this._registry, model._uid);
+        return has(this._registry, model._uid);
     }
 
     /**
@@ -264,7 +292,7 @@ class Collection extends Base {
      * @param {Model} model
      */
     addModelToRegistry(model) {
-        _.set(this._registry, model._uid, 1);
+        set(this._registry, model._uid, 1);
     }
 
     /**
@@ -275,7 +303,7 @@ class Collection extends Base {
     onAdd(model) {
         model.registerCollection(this);
         this.addModelToRegistry(model);
-        this.emit('add', {model});
+        this.emit('add', { model });
     }
 
     /**
@@ -292,20 +320,19 @@ class Collection extends Base {
      * @returns {Model|Array} The added model or array of added models.
      */
     add(model = {}) {
-
         // If given an array, assume an array of models and add them all.
-        if (_.isArray(model)) {
-            return _.filter(_.map(model, this.add));
+        if (isArray(model)) {
+            return filter(map(model, this.add));
         }
 
         // Objects should be converted to model instances first, then added.
-        if (_.isPlainObject(model)) {
+        if (isPlainObject(model)) {
             return this.add(this.createModel(model));
         }
 
         // This is also just to catch a potential bug. All models should have
         // an auto id so this would indicate an unexpected state.
-        if ( ! this.isModel(model)) {
+        if (! this.isModel(model)) {
             throw new Error('Expected a model, plain object, or array of either');
         }
 
@@ -332,7 +359,7 @@ class Collection extends Base {
     onRemove(model) {
         model.unregisterCollection(this);
         this.removeModelFromRegistry(model);
-        this.emit('remove', {model });
+        this.emit('remove', { model });
     }
 
     /**
@@ -348,7 +375,7 @@ class Collection extends Base {
             return;
         }
 
-        let model = _.get(this.models, index);
+        const model = get(this.models, index);
         Vue.delete(this.models, index);
         this.onRemove(model);
 
@@ -380,25 +407,25 @@ class Collection extends Base {
      * @throws {Error} If the model is an invalid type.
      */
     remove(model) {
-        if ( ! model) {
+        if (! model) {
             throw new Error('Expected function, object, array, or model to remove');
         }
 
         // Support using a predicate to remove all models it returns true for.
         // Alternatively support an object of values to filter by.
-        if (_.isFunction(model) || _.isPlainObject(model)) {
-            return this.remove(_.filter(this.models, model));
+        if (isFunction(model) || isPlainObject(model)) {
+            return this.remove(filter(this.models, model));
         }
 
         // Support removing multiple models at the same time if an array was
         // given. A model would otherwise always be an object so this is safe.
-        if (_.isArray(model)) {
-            return _.filter(_.map(model, this.remove));
+        if (isArray(model)) {
+            return filter(map(model, this.remove));
         }
 
         // This is just to catch a potential bug. All models should have
         // an auto id here so this would indicate an unexpected state.
-        if ( ! this.isModel(model)) {
+        if (! this.isModel(model)) {
             throw new Error('Model to remove is not a valid model');
         }
 
@@ -413,9 +440,9 @@ class Collection extends Base {
      * @return {boolean} `true` if the given `model` is an instance of Model.
      */
     isModel(candidate) {
-        return _.isObject(candidate)
-            && _.has(candidate, '_attributes')
-            && _.has(candidate, '_uid');
+        return isObject(candidate)
+            && has(candidate, '_attributes')
+            && has(candidate, '_uid');
     }
 
     /**
@@ -430,19 +457,18 @@ class Collection extends Base {
 
         // Getting the index of a model instance can be optimised.
         if (this.isModel(filter)) {
-
             // Constant time check, if the registry doesn't have a record of
             // the model, we know it's not in the collection.
-            if ( ! _.has(this._registry, model._uid)) {
+            if (! has(this._registry, model._uid)) {
                 return -1;
             }
 
             // There is no need to filter on the entire object, because the
             // unique ID of the model is all we need to identify it.
-            filter = {_uid: model._uid };
+            filter = { _uid : model._uid };
         }
 
-        return _.findIndex(this.models, filter);
+        return findIndex(this.models, filter);
     }
 
     /**
@@ -454,7 +480,7 @@ class Collection extends Base {
      * @see {@link https://lodash.com/docs/#find}
      */
     find(where) {
-        return _.find(this.models, where);
+        return find(this.models, where);
     }
 
     /**
@@ -471,10 +497,10 @@ class Collection extends Base {
      * @returns {Collection}
      */
     filter(predicate) {
-        let result = this.clone();
-        
-        result.models = _.filter(result.models, predicate);
-        return result;
+        let result = this.clone(); 
+         
+        result.models = filter(result.models, predicate); 
+        return result; 
     }
 
     /**
@@ -488,7 +514,7 @@ class Collection extends Base {
      * @returns {Model[]}
      */
     where(predicate) {
-        return _.filter(this.models, predicate);
+        return filter(this.models, predicate);
     }
 
     /**
@@ -502,7 +528,7 @@ class Collection extends Base {
      * @return {Model[]}
      */
     map(callback) {
-        return _.map(this.models, callback);
+        return map(this.models, callback);
     }
 
     /**
@@ -513,7 +539,7 @@ class Collection extends Base {
      * @param {function} callback Receives `model` and `index`.
      */
     each(callback) {
-        return _.each(this.models, callback);
+        return each(this.models, callback);
     }
 
     /**
@@ -532,13 +558,12 @@ class Collection extends Base {
      * @returns {*} The final value of result, after the last iteration.
      */
     reduce(iteratee, initial) {
-
         // Use the first model as the initial value if an initial was not given.
         if (arguments.length === 1) {
             initial = this.first();
         }
 
-        return _.reduce(this.models, iteratee, initial);
+        return reduce(this.models, iteratee, initial);
     }
 
     /**
@@ -549,7 +574,7 @@ class Collection extends Base {
      * @returns {number} Sum of all models, accessed by attribute or callback.
      */
     sum(iteratee) {
-        return _.sumBy(this.models, iteratee);
+        return sumBy(this.models, iteratee);
     }
 
     /**
@@ -562,7 +587,7 @@ class Collection extends Base {
      * @returns {Object}
      */
     count(iteratee) {
-        return _.countBy(this.models, iteratee);
+        return countBy(this.models, iteratee);
     }
 
     /**
@@ -575,7 +600,7 @@ class Collection extends Base {
      *                                     invoked with a single arg `model`.
      */
     sort(comparator) {
-        Vue.set(this, 'models', _.sortBy(this.models, comparator));
+        Vue.set(this, 'models', sortBy(this.models, comparator));
     }
 
     /**
@@ -592,14 +617,14 @@ class Collection extends Base {
      * @returns {Model|undefined} The first model of this collection.
      */
     first() {
-        return _.first(this.models);
+        return first(this.models);
     }
 
     /**
      * @returns {Model|undefined} The last model of this collection.
      */
     last() {
-        return _.last(this.models);
+        return last(this.models);
     }
 
     /**
@@ -608,7 +633,7 @@ class Collection extends Base {
      * @returns {Model|undefined} Removed model or undefined if there were none.
      */
     shift() {
-        if ( ! this.isEmpty()) {
+        if (! this.isEmpty()) {
             return this._removeModelAtIndex(0);
         }
     }
@@ -619,7 +644,7 @@ class Collection extends Base {
      * @returns {Model|undefined} Removed model or undefined if there were none.
      */
     pop() {
-        if ( ! this.isEmpty()) {
+        if (! this.isEmpty()) {
             return this._removeModelAtIndex(this.size() - 1);
         }
     }
@@ -633,7 +658,7 @@ class Collection extends Base {
      */
     replace(models) {
         this.clearModels();
-        this.add(_.values(models));
+        this.add(values(models));
     }
 
     /**
@@ -643,8 +668,8 @@ class Collection extends Base {
      */
     getPaginationQuery() {
         return {
-            page: this._page,
-        }
+            page : this._page,
+        };
     }
 
     /**
@@ -664,19 +689,19 @@ class Collection extends Base {
      * @returns {Array|null} Models from the response.
      */
     getModelsFromResponse(response) {
-        let models = response.getData();
+        const models = response.getData();
 
         // An empty, non-array response indicates that we didn't intend to send
         // any models in the response. This means that the current models are
         // already up to date, as no changes are necessary.
-        if (_.isNil(models) || models === '') {
+        if (isNil(models) || models === '') {
             return null;
         }
 
         // We're making an assumption here that paginated models are returned
         // within the "data" field of the response.
         if (this.isPaginated()) {
-            return _.get(models, 'data', models);
+            return get(models, 'data', models);
         }
 
         return models;
@@ -688,23 +713,20 @@ class Collection extends Base {
      * @param {Object} response
      */
     onSaveSuccess(response) {
-
         // Model data returned in the response.
-        let saved = this.getModelsFromResponse(response);
+        const saved = this.getModelsFromResponse(response);
 
         // All the models that are currently being saved.
-        let saving = this.getSavingModels();
+        const saving = this.getSavingModels();
 
         // Empty response is similar to an empty response returned when saving
         // a model: assume that the attributes are the saved state, so sync.
-        if (_.isNil(saved)) {
-            _.each(saving, _.method('sync'));
-
+        if (isNil(saved)) {
+            each(saving, method('sync'));
         } else {
-
             // There is no sensible alternative to an array here, so anyting else
             // is considered an exception that indicates an unexpected state.
-            if ( ! _.isArray(saved)) {
+            if (! isArray(saved)) {
                 throw new ResponseError(
                     'Response data must be an array or empty',
                     response);
@@ -722,7 +744,7 @@ class Collection extends Base {
             // Update every model with its respective response data.
             // A strict requirement and assumption is that the models returned
             // in the response are in the same order as they are in the collection.
-            _.each(saved, (data, index) => {
+            each(saved, (data, index) => {
                 saving[index].onSaveSuccess(new ProxyResponse(
                     200, data, response.getHeaders()
                 ));
@@ -732,21 +754,21 @@ class Collection extends Base {
         Vue.set(this, 'saving', false);
         Vue.set(this, 'fatal',  false);
 
-        this.emit('save', {error: null });
+        this.emit('save', { error : null });
     }
 
     /**
      * @returns {Model[]} Models in this collection that are in a "saving" state.
      */
     getSavingModels() {
-        return _.filter(this.models, 'saving');
+        return filter(this.models, 'saving');
     }
 
     /**
      * @returns {Model[]} Models in this collection that are in a "deleting" state.
      */
     getDeletingModels() {
-        return _.filter(this.models, 'deleting');
+        return filter(this.models, 'deleting');
     }
 
     /**
@@ -756,7 +778,7 @@ class Collection extends Base {
      * @param  {integer} status Response status
      */
     applyValidationErrorArray(errors) {
-        let models = this.getSavingModels();
+        const models = this.getSavingModels();
 
         // To allow matching errors with models, it's a strict requirement and
         // assumption that the array of errors returned in the response must have
@@ -771,7 +793,7 @@ class Collection extends Base {
         //
         // A strict requirement and assumption is that the models returned
         // in the response are in the same order as they are in the collection.
-        _.each(models, (model, index) => {
+        each(models, (model, index) => {
             model.setErrors(errors[index]);
             Vue.set(model, 'saving', false);
             Vue.set(model, 'fatal',  false);
@@ -785,10 +807,10 @@ class Collection extends Base {
      * @param  {integer} status Response status
      */
     applyValidationErrorObject(errors) {
-        let lookup = _.keyBy(this.models, (model) => model.identifier());
+        const lookup = keyBy(this.models, model => model.identifier());
 
-        _.each(errors, (errors, identifier) => {
-            let model = _.get(lookup, identifier);
+        each(errors, (errors, identifier) => {
+            const model = get(lookup, identifier);
 
             if (model) {
                 model.setErrors(errors);
@@ -804,13 +826,12 @@ class Collection extends Base {
      *                              of errors keyed by model identifiers.
      */
     setErrors(errors) {
-
         // Support an array of errors, one for each model in the collection.
-        if (_.isArray(errors)) {
+        if (isArray(errors)) {
             this.applyValidationErrorArray(errors);
 
         // Support an object of errors keyed by model identifiers.
-        } else if (_.isPlainObject(errors)) {
+        } else if (isPlainObject(errors)) {
             this.applyValidationErrorObject(errors);
         }
     }
@@ -819,7 +840,7 @@ class Collection extends Base {
      * @returns {Array} An array of this collection's validation errors.
      */
     getErrors() {
-        return _.map(this.models, 'errors');
+        return map(this.models, 'errors');
     }
 
     /**
@@ -828,10 +849,10 @@ class Collection extends Base {
      * @param {Object} response
      */
     onSaveValidationFailure(error) {
-        let response = error.getResponse();
-        let errors = response.getValidationErrors();
+        const response = error.getResponse();
+        const errors = response.getValidationErrors();
 
-        if ( ! _.isPlainObject(errors) && ! _.isArray(errors)) {
+        if (! isPlainObject(errors) && ! isArray(errors)) {
             throw new ResponseError(
                 'Validation errors must be an object or array', response);
         }
@@ -850,7 +871,7 @@ class Collection extends Base {
      * @param {Object} response
      */
     onFatalSaveFailure(error, response) {
-        _.each(this.getSavingModels(), (model) => {
+        each(this.getSavingModels(), (model) => {
             model.onFatalSaveFailure(error, response);
         });
 
@@ -873,14 +894,14 @@ class Collection extends Base {
             this.onFatalSaveFailure(error);
         }
 
-        this.emit('save', {error});
+        this.emit('save', { error });
     }
 
     /**
      * @returns {Array} The data to use for saving.
      */
     getSaveData() {
-        return _.map(this.getSavingModels(), _.method('getSaveData'));
+        return map(this.getSavingModels(), method('getSaveData'));
     }
 
     /**
@@ -893,13 +914,13 @@ class Collection extends Base {
      */
     page(page) {
         // Disable pagination if a valid page wasn't provided.
-        if (_.isNil(page)) {
+        if (isNil(page)) {
             Vue.set(this, '_page', NO_PAGE);
 
         // Page was provided, so we should either set the page or disable
         // pagination entirely if the page is `false`.
         } else {
-            Vue.set(this, '_page', _.max([1, _.toSafeInteger(page)]));
+            Vue.set(this, '_page', max([1, toSafeInteger(page)]));
         }
 
         return this;
@@ -934,10 +955,9 @@ class Collection extends Base {
      * @param {Model[]} models
      */
     applyPagination(models) {
-
         // If no models were returned in the response we can assume that
         // we're now on the last page, and we should not continue.
-        if (_.isEmpty(models)) {
+        if (isEmpty(models)) {
             Vue.set(this, '_page', LAST_PAGE);
 
         // Otherwise, there were at least one model, and we can safely
@@ -954,11 +974,11 @@ class Collection extends Base {
      * @param {Object} response
      */
     onFetchSuccess(response) {
-        let models = this.getModelsFromResponse(response);
+        const models = this.getModelsFromResponse(response);
 
         // There is no sensible alternative to an array here, so anyting else
         // is considered an exception that indicates an unexpected state.
-        if ( ! _.isArray(models)) {
+        if (! isArray(models)) {
             throw new ResponseError('Expected an array of models in fetch response');
         }
 
@@ -974,7 +994,7 @@ class Collection extends Base {
         Vue.set(this, 'loading', false);
         Vue.set(this, 'fatal',   false);
 
-        this.emit('fetch', {error: null });
+        this.emit('fetch', { error : null });
     }
 
     /**
@@ -988,7 +1008,7 @@ class Collection extends Base {
         Vue.set(this, 'fatal',   true);
         Vue.set(this, 'loading', false);
 
-        this.emit('fetch', {error});
+        this.emit('fetch', { error });
     }
 
     /**
@@ -997,18 +1017,17 @@ class Collection extends Base {
      * @returns {boolean|undefined} `false` if the request should not be made.
      */
     onFetch() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => { 
+            // Don't fetch if there are no more results to be fetched. 
+            if (this.isPaginated() && this.isLastPage()) { 
+                return resolve(Base.REQUEST_SKIP); 
+            } 
 
-            // Don't fetch if there are no more results to be fetched.
-            if (this.isPaginated() && this.isLastPage()) {
-                return resolve(Base.REQUEST_SKIP);
-            }
-
-            // Because we're fetching new data, we can assume that this collection
-            // is now loading. This allows the template to indicate a loading state.
-            Vue.set(this, 'loading', true);
-            resolve(Base.REQUEST_CONTINUE);
-            return;
+            // Because we're fetching new data, we can assume that this collection 
+            // is now loading. This allows the template to indicate a loading state. 
+            Vue.set(this, 'loading', true); 
+            resolve(Base.REQUEST_CONTINUE); 
+            return; 
         });
     }
 
@@ -1021,11 +1040,11 @@ class Collection extends Base {
         Vue.set(this, 'deleting', false);
         Vue.set(this, 'fatal',    false);
 
-        _.each(this.getDeletingModels(), (model) => {
+        each(this.getDeletingModels(), (model) => {
             model.onDeleteSuccess(response);
         });
 
-        this.emit('delete', {error: null});
+        this.emit('delete', { error : null });
     }
 
     /**
@@ -1038,11 +1057,11 @@ class Collection extends Base {
         Vue.set(this, 'fatal',    true);
         Vue.set(this, 'deleting', false);
 
-        _.each(this.getDeletingModels(), (model) => {
+        each(this.getDeletingModels(), (model) => {
             model.onDeleteFailure(error);
         });
 
-        this.emit('delete', {error});
+        this.emit('delete', { error });
     }
 
     /**
@@ -1057,12 +1076,13 @@ class Collection extends Base {
         // Don't save if we're already busy saving this collection.
         // This prevents things like accidental double clicks.
         if (this.saving) {
-            return Promise.resolve(Base.REQUEST_SKIP);
+            return Promise.resolve(Base.REQUEST_SKIP); 
         }
 
         let valid = true;
-        let tasks = this.models.map((model) => {
-            return model.onSave().catch((error) => {
+
+        let tasks = this.models.map((model) => { 
+            return model.onSave().catch((error) => { 
                 if (error instanceof ValidationError) {
                     valid = false;
                 } else {
@@ -1071,16 +1091,16 @@ class Collection extends Base {
             });
         });
 
-        // Call 'onSave' on each model so that the models can set their state
-        // accordingly, and indicate whether a validation failure should occur.
-        return Promise.all(tasks).then(() => {
-            if ( ! valid) {
-                throw new ValidationError(this.getErrors());
-            }
+        // Call 'onSave' on each model so that the models can set their state 
+        // accordingly, and indicate whether a validation failure should occur. 
+        return Promise.all(tasks).then(() => { 
+            if ( ! valid) { 
+                throw new ValidationError(this.getErrors()); 
+            } 
 
-            Vue.set(this, 'saving', true);
-            return Base.REQUEST_CONTINUE;
-        });
+            Vue.set(this, 'saving', true); 
+            return Base.REQUEST_CONTINUE; 
+        }); 
     }
 
     /**
@@ -1089,7 +1109,7 @@ class Collection extends Base {
      * @returns {Array}
      */
     getIdentifiers(models) {
-        return _.map(models, _.method('identifier'));
+        return map(models, method('identifier'));
     }
 
     /**
@@ -1114,18 +1134,17 @@ class Collection extends Base {
      * @inheritDoc
      */
     getDeleteQuery() {
-
         // Don't use query parameters if we want send the request data in the body.
         if (this.getOption('useDeleteBody')) {
             return {};
         }
 
         // Collect all the identifiers of the models being deleted.
-        let models      = this.getDeletingModels();
-        let identifier  = this.getDeleteQueryIdenitifierKey();
-        let identifiers = this.getIdentifiers(models);
+        const models      = this.getDeletingModels();
+        const identifier  = this.getDeleteQueryIdenitifierKey();
+        const identifiers = this.getIdentifiers(models);
 
-        return {[identifier]: _.join(identifiers, ',') };
+        return { [identifier] : join(identifiers, ',') };
     }
 
     /**
@@ -1137,14 +1156,14 @@ class Collection extends Base {
         if (this.deleting) {
             return Promise.resolve(Base.REQUEST_SKIP);
         }
-
+ 
         return Promise.all(this.models.map((m) => m.onDelete())).then(() => {
             
             // No need to do anything if no models should be deleted.
-            if (_.isEmpty(this.getDeletingModels())) {
+            if (isEmpty(this.getDeletingModels())) {
                 return Base.REQUEST_REDUNDANT;
             }
-
+ 
             Vue.set(this, 'deleting', true);
             return Base.REQUEST_CONTINUE;
         });
