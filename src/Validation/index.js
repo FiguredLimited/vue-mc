@@ -1,4 +1,5 @@
 import { en_us }        from './locale.js'
+import * as _           from 'lodash';
 import isAlpha          from 'validator/lib/isAlpha'
 import isAlphanumeric   from 'validator/lib/isAlphanumeric'
 import isBase64         from 'validator/lib/isBase64'
@@ -9,10 +10,17 @@ import isISO8601        from 'validator/lib/isISO8601'
 import isJSON           from 'validator/lib/isJSON'
 import isURL            from 'validator/lib/isURL'
 import isUUID           from 'validator/lib/isUUID'
-import * as _           from 'lodash';
-import { format as formatDate, isAfter as isAfterDate, isBefore as isBeforeDate, isValid as isValidDate, parse as parseDate, toDate } from "date-fns";
 
-// We want to set the messages a superglobal so that imports across files
+import {
+    format      as formatDate, 
+    isAfter     as isAfterDate, 
+    isBefore    as isBeforeDate, 
+    isValid     as isValidDate, 
+    parse       as parseDate, 
+    toDate
+} from "date-fns";
+
+// We want to set the messages as a superglobal so that imports across files
 // reference the same messages object.
 let _global = typeof window !== 'undefined' ? window : (global || {});
 
@@ -90,13 +98,13 @@ export const messages =
      * @returns {string} The formatted message.
      */
     get(name, data = {}) {
+        let template;
 
         // Attempt to find the name using the active locale, falling back to the
         // active locale's language, and finally falling back to the default.
-        let template =
-            _.get(this.$locales, [this.$locale, name],
-            _.get(this.$locales, [_.split(this.$locale, '-')[0], name],
-            _.get(this.$locales, [this.$fallback, name])));
+        template = template || _.get(this.$locales, [this.$locale, name]);
+        template = template || _.get(this.$locales, [_.split(this.$locale, '-')[0], name]);
+        template = template || _.get(this.$locales, [this.$fallback, name]);
 
         // Fall back to a blank string so that we don't potentially
         // leak message names or context data into the template.
@@ -108,22 +116,37 @@ export const messages =
     }
 }
 
+
 /**
- * Rule helpers for easy validation.
- * These can all be used directly in a model's validation configuration.
- *
- * @example
- *
- * import {ascii, length} from 'vue-mc/validation'
- *
- * class User extends Model {
- *     validation() {
- *         return {
- *             password: ascii.and(length(6)),
- *         }
- *     }
- * }
+ * Resolves the result of invoking a rule. It's possible that the rule is within
+ * a chain and therefore a pending promise, or a resolved value. This function 
+ * normalises the result by calling `resolve` if the rule passed, and `reject`
+ * if the rule didn't pass.
  */
+const $resolve = function(result, resolve, reject) {
+    if (result instanceof Promise) {
+        result.then((result) => {
+            $resolve(result, resolve, reject);
+        });
+    } else {
+        if (result === false || _.isString(result)) {
+            reject(result);
+        } else {
+            resolve();
+        }
+    }
+}
+
+/**
+ * Wraps a rule invocation in a promise so that we can consume the results in a 
+ * consistent way. This is necessary because rules may optionally return a 
+ * promise when validation is done asynchronously.
+ */
+const promisify = function(rule, value, attribute, model) {
+    return new Promise((resolve, reject) => {
+        return $resolve(rule(value, attribute, model), resolve, reject);
+    });
+};
 
 /**
  * Creates a new validation rule.
@@ -151,71 +174,77 @@ export const rule = function(config) {
      * It has some extra metadata to allow rule chaining and custom formats.
      */
     let $rule = function(value, attribute, model) {
+    
+        return new Promise((resolve, reject) => {
 
-        // `true` if this rule's core acceptance criteria was met.
-        let valid = test(value, attribute, model);
+            // This is the base of the validation chain. Most rules will consist
+            // of only this one rule, unless they have AND or OR chains.
+            let base = [promisify(test, value, attribute, model)];
 
-        // If valid, check that all rules in the "and" chain also pass.
-        if (valid) {
-            for (let _and of $rule._and) {
-                let result = _and(value, attribute, model);
+            // Append the AND rules, because they would have to pass as well.
+            let _and = $rule._and.map((rule) => {
+                return promisify(rule, value, attribute, model);
+            });
 
-                // If any of the chained rules return a string, we know that
-                // that rule has failed, and therefore this chain is invalid.
-                if (_.isString(result)) {
-                    return result;
-                }
+            Promise.all(_.concat(base, _and)).then(() => {
+                // All rules passed, so there's no need to check the OR chain.
+                // This rule is valid for the given value.
+                resolve();
 
-                // If the function simply returned `false`, we need to fall back
-                // to the parent rule's error message, so we indicate that the
-                // rule didn't pass validation, and break out of the chain.
-                if (result === false) {
-                    valid = false;
-                    break;
-                }
-            }
+            }).catch((error) => {
+                // Either the base rule or an AND rule has failed, so we should
+                // attempt to run the OR chain to see if the rule passes.
+                // 
+                // We want the OR chain to exit early when a rule passes, so we
+                // need to invert the promise, ie. we reject when a rule passes.
+                let _or = _.map($rule._or, (rule) => {
+                    return new Promise((resolve, reject) => {
+                        return promisify(rule, value, attribute, model)
+                            .then(reject)
+                            .catch(resolve);
+                    })
+                });
 
-            // Either there weren't any "and" rules or they all passed.
-            if (valid) {
-                return true;
-            }
+                Promise.all(_or).catch((error) => { 
+                    // At least one rule in the OR chain passed, so this rule is
+                    // valid for the given value.
+                    resolve();
 
-        // This rule's acceptance criteria was not met, but there is a chance
-        // that a rule in the "or" chain's might pass.
-        } else {
-            for (let _or of $rule._or) {
-                let result = _or(value, attribute, model);
+                }).then(() => {
+                    // All the rules in the OR chain failed, or there were none.
+                    // We should continue with the error path.
 
-                // A rule should either return true in the event of a general
-                // "pass", or nothing at all. A failure would have to be a
-                // string message (usually from another rule) or `false`.
-                if (result === true || _.isUndefined(result)) {
-                    return true;
-                }
-            }
-        }
+                    // We can resolve using the error that was produced when
+                    // running the AND chain, because they failed first.
+                    if (_.isString(error)) {
+                        resolve(error);
+                        return;
+                    }
 
-        // At this point we want to report that this rule has failed, because
-        // none of the "and" or "or" chains passed either.
+                    // Add the invalid value to the message context, which is 
+                    // made available to all rules by default. This allows for 
+                    // ${value} interpolation.
+                    _.assign(data, {attribute, value});
 
-        // Add the invalid value to the message context, which is made available
-        // to all rules by default. This allows for ${value} interpolation.
-        _.assign(data, {attribute, value });
+                    // This would be a custom format explicitly set on this rule.
+                    let format = _.get($rule, '_format');
 
-        // This would be a custom format explicitly set on this rule.
-        let format = _.get($rule, '_format');
+                    // Use the default message if an explicit format isn't set.
+                    if ( ! format) {
+                        resolve(messages.get(name, data));
+                    
+                    } else {
+                        // Replace the custom format with a template if it is 
+                        // still a string.
+                        if (_.isString(format)) {
+                            $rule._format = (format = _.template(format));
+                        }
 
-        // Use the default message if an explicit format isn't set.
-        if ( ! format) {
-            return messages.get(name, data);
-        }
-
-        // Replace the custom format with a template if it's still a string.
-        if (_.isString(format)) {
-            $rule._format = format = _.template(format);
-        }
-
-        return format(data);
+                        resolve(format(data));
+                    }
+                });
+            })
+        })
     };
 
     /**
@@ -223,7 +252,7 @@ export const rule = function(config) {
      *                     setting a custom format doesn't modify the base rule.
      */
     $rule.copy = () => {
-        return _.assign(rule({name, test, data }), _.pick($rule, [
+        return _.assign(rule({name, test, data}), _.pick($rule, [
             '_format',
             '_and',
             '_or',
@@ -246,7 +275,7 @@ export const rule = function(config) {
      * @param {Function|Function[]} rules One or more functions to add to the chain.
      */
     $rule.or = (rules) => {
-        return _.assign($rule.copy(), {_or: _.concat($rule._or, rules) });
+        return _.assign($rule.copy(), {_or: $rule._or.concat(rules)});
     };
 
     /**
@@ -256,13 +285,16 @@ export const rule = function(config) {
      * @param {Function|Function[]} rules One or more functions to add to the chain.
      */
     $rule.and = (rules) => {
-        return _.assign($rule.copy(), {_and: _.concat($rule._and, rules) });
+        return _.assign($rule.copy(), {_and: $rule._and.concat(rules)});
     }
 
+    $rule._format = null;   // Custom format
     $rule._and    = [];     // "and" chain
     $rule._or     = [];     // "or" chain
-    $rule._format = null;   // Custom format
 
+    // This is the internal function that returns true/false on pass/fail.
+    $rule.predicate = test;
+    
     return $rule;
 }
 
@@ -393,9 +425,10 @@ export const dateformat = function(format) {
         name: 'dateformat',
         data: {format},
         test: (value) => {
-            const parsedDate = parseDate(value, format, new Date());
+            let parsedDate = parseDate(value, format, new Date());
 
-            return isValidDate(parsedDate) && formatDate(parsedDate, format) === value.toString();
+            return isValidDate(parsedDate) 
+                && formatDate(parsedDate, format) === value.toString();
         },
     })
 }
@@ -629,8 +662,16 @@ export const number = rule({
 export const numeric = rule({
     name: 'numeric',
     test: (value) => {
-        return (_.isNumber(value) && ! _.isNaN(value))
-            || (value && _.isString(value) && ! _.isNaN(_.toNumber(value)));
+        if (_.isNumber(value) && ! _.isNaN(value)) {
+            return true;
+        }
+
+        // Attempt to convert from string to number.
+        if (value && _.isString(value) && ! _.isNaN(_.toNumber(value))) {
+            return true;
+        }
+
+        return false;
     },
 })
 

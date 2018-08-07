@@ -1,159 +1,296 @@
 import {assert, expect} from 'chai'
 import * as $ from '../../src/Validation/index.js'
-import permutation from 'array-permutation'
 
 describe('Rule', () => {
 
     describe('format', () => {
-        it('should allow overriding the default string format', () => {
-            expect($.email.format('nope!')('@email.com')).to.equal('nope!');
+        it('should allow overriding the default string format', (done) => {
+            $.email.format('nope!')('@email.com').then((result) => {
+                expect(result).to.equal('nope!');
+                done();
+            });
         })
 
-        it('should interpolate "value"', () => {
-            expect($.email.format('<%= value %>')('@email.com')).to.equal('@email.com');
+        it('should interpolate "value"', (done) => {
+            $.email.format('<%= value %>')('@email.com').then((result) => {
+                expect(result).to.equal('@email.com');
+                done();
+            });
         })
 
-        it('should not affect the rule it is called on', () => {
+        it('should not affect the rule it is called on', (done) => {
             let rule1 = $.email;
             let rule2 = $.email.format('A');
             let rule3 = rule2.format('B');
 
-            expect(rule1('nope!')).to.equal('Must be a valid email address');
-            expect(rule2('nope!')).to.equal('A');
-            expect(rule3('nope!')).to.equal('B');
+            Promise.all([
+                rule1('nope!'),
+                rule2('nope!'),
+                rule3('nope!'),
+            ]).then((results) => {
+                expect(results).to.deep.equal([
+                    'Must be a valid email address', 
+                    'A', 
+                    'B',
+                ]);
 
-            // Do it again to check side effects
-            expect(rule1('nope!')).to.equal('Must be a valid email address');
-            expect(rule2('nope!')).to.equal('A');
-            expect(rule3('nope!')).to.equal('B');
+                // Do it again to check side effects
+                Promise.all([
+                    rule1('nope!'),
+                    rule2('nope!'),
+                    rule3('nope!'),
+                ]).then((results) => {
+                    expect(results).to.deep.equal([
+                        'Must be a valid email address', 
+                        'A', 
+                        'B',
+                    ]);
+                    done();
+                });
+            });
         })
     })
 
-    describe('and', () => {
-        it('should cause a rule to only pass if its dependants also pass', () => {
-            let A = $.numeric;
-            let B = $.min(5);
-            let C = $.max(8);
+    describe('and', (done) => {
+        it('should cause a rule to only pass if its dependents also pass', () => {
+            let min5 = $.min(5);
+            let max8 = $.max(8);
 
-            for (let P of permutation([A, B, C])) {
-                expect(P[0].and(P[1]).and(P[2])( 4 )).to.equal('Must be greater than or equal to 5');
-                expect(P[0].and(P[1].and(P[2]))( 4 )).to.equal('Must be greater than or equal to 5');
+            Promise.all([
+                $.numeric.and(min5.and(max8))(4),    
+                $.numeric.and(min5).and(max8)(4),   
 
-                expect(P[0].and(P[1]).and(P[2])( 9 )).to.equal('Must be less than or equal to 8');
-                expect(P[0].and(P[1].and(P[2]))( 9 )).to.equal('Must be less than or equal to 8');
+                $.numeric.and(min5.and(max8))(9),   
+                $.numeric.and(min5).and(max8)(9),   
 
-                expect(P[0].and(P[1]).and(P[2])( 7 )).to.not.be.a('string');
-                expect(P[0].and(P[1].and(P[2]))( 7 )).to.not.be.a('string');
-            }
+                $.numeric.and(min5.and(max8))('a'), 
+                $.numeric.and(min5).and(max8)('a'), 
+
+            ]).then((results) => {
+                expect(results).to.deep.equal([ 
+                    'Must be greater than or equal to 5',
+                    'Must be greater than or equal to 5',
+                    
+                    'Must be less than or equal to 8',
+                    'Must be less than or equal to 8', 
+                    
+                    'Must be numeric',
+                    'Must be numeric' 
+                ]);
+            });
         })
 
-        it('should support recursive nesting', () => {
+        it('should support recursive nesting', (done) => {
             let rule = $.numeric.and($.min(5).and($.max(9)).or($.equal(0)));
 
-            expect(rule(5)).to.not.be.a('string');
-            expect(rule(6)).to.not.be.a('string');
-            expect(rule(0)).to.not.be.a('string');
-            expect(rule(8)).to.not.be.a('string');
-            expect(rule(9)).to.not.be.a('string');
-            expect(rule(10)).to.equal('Must be less than or equal to 9');
+            Promise.all([
+                rule(5),
+                rule(6),
+                rule(0),
+                rule(8),
+                rule(9),
+                rule(10),
+            ]).then((results) => {
+                expect(results).to.deep.equal([ 
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    'Must be less than or equal to 9',
+                ]);
+                done();
+            });
         })
 
-        it('should not affect the rule it is called on', () => {
+        it('should not affect the rule it is called on', (done) => {
             let rule1 = $.numeric;
             let rule2 = $.numeric.and($.min(5));
             let rule3 = rule2.and($.max(10));
 
-            expect(rule1(8)).to.not.be.string;
-            expect(rule2(3)).to.equal('Must be greater than or equal to 5');
-            expect(rule3(12)).to.equal('Must be less than or equal to 10');
+            let chain = [
+                rule1(8),
+                rule2(3),
+                rule3(12),
+            ];
 
-            // Do it again to check side effects
-            expect(rule1(8)).to.not.be.string;
-            expect(rule2(3)).to.equal('Must be greater than or equal to 5');
-            expect(rule3(12)).to.equal('Must be less than or equal to 10');
+            let expected = [
+                undefined,
+                'Must be greater than or equal to 5',
+                'Must be less than or equal to 10',
+            ];
+
+            Promise.all(chain).then((results) => {
+                expect(results).to.deep.equal(expected);
+
+                // Do it again to check side effects
+                Promise.all(chain).then((results) => {
+                    expect(results).to.deep.equal(expected);
+                    done();
+                });
+            });
         })
 
-        it('should allow multiple formats across a chain', () => {
+        it('should allow multiple formats across a chain', (done) => {
             let rule = $.numeric.format('N').and($.max(5).format('M'));
 
-            expect(rule('g')).to.equal('N');
-            expect(rule(8)).to.equal('M');
-            expect(rule(4)).to.not.be.a('string');
+            Promise.all([
+                rule('g'),
+                rule(8),
+                rule(4),
+            ]).then((results) => {
+                expect(results).to.deep.equal([
+                    'N',
+                    'M',
+                    undefined,
+                ]);
+                done();
+            });
         })
 
-        it('should use parent rule\'s format if an "and" returns false', () => {
+        it('should use parent rule\'s format if an "and" returns false', (done) => {
             let rule = $.numeric.and((v) => (v == 2));
 
-            expect(rule('g')).to.equal('Must be numeric');
-            expect(rule(3)).to.equal('Must be numeric');
-            expect(rule(2)).to.not.be.a('string');
+            Promise.all([
+                rule(1),
+                rule(2),
+            ]).then((results) => {
+                expect(results).to.deep.equal([
+                    'Must be numeric',
+                    undefined,
+                ]);
+                done();
+            });
         })
 
-        it('should use a chained string return as message', () => {
-            let rule = $.numeric.and((v) => (v != 2 ? 'nope!' : 'okay'));
+        it('should use a chained string return as message', (done) => {
+            let rule = $.numeric.and((v) => (v == 2 ? 'okay' : 'nope'));
 
-            expect(rule('g')).to.equal('Must be numeric');
-            expect(rule(3)).to.equal('nope!');
-            expect(rule(2)).to.equal('okay');
+            Promise.all([
+                rule('g'),
+                rule(2),
+                rule(3),
+            ]).then((results) => {
+                expect(results).to.deep.equal([
+                    'Must be numeric',
+                    'okay',
+                    'nope',
+                ]);
+                done();
+            });
         })
     })
 
     describe('or', () => {
-        it('should cause a rule to pass if any of its dependants pass', () => {
+        it('should cause a rule to pass if any of its dependants pass', (done) => {
             let A = $.numeric;
             let B = $.email;
             let C = $.isnull;
 
-            for (let P of permutation([A, B, C])) {
-                expect(P[0].or(P[1]).or(P[2])( 'nope!' )).to.be.a('string');
-                expect(P[0].or(P[1].or(P[2]))( 'nope!' )).to.be.a('string');
+            Promise.all([
+                $.numeric.or($.email).or($.isnull)(1),
+                $.numeric.or($.email).or($.isnull)('email@domain.com'),
+                $.numeric.or($.email).or($.isnull)(null),
+                $.numeric.or($.email).or($.isnull)('x'),
 
-                expect(P[0].or(P[1]).or(P[2])( 2 )).to.not.be.a('string');
-                expect(P[0].or(P[1].or(P[2]))( 2 )).to.not.be.a('string');
-
-                expect(P[0].or(P[1]).or(P[2])( 'email@domain.com' )).to.not.be.a('string');
-                expect(P[0].or(P[1].or(P[2]))( 'email@domain.com' )).to.not.be.a('string');
-
-                expect(P[0].or(P[1]).or(P[2])( null )).to.not.be.a('string');
-                expect(P[0].or(P[1].or(P[2]))( null )).to.not.be.a('string');
-            }
+            ]).then((results) => {
+                expect(results).to.deep.equal([
+                    undefined,
+                    undefined,
+                    undefined,
+                    'Must be numeric',
+                ]);
+                done();
+            });
         })
 
-        it('should support recursive nesting', () => {
-            let rule = $.email.or($.numeric.or($.isnull));
+        it('should support recursive nesting', (done) => {
+            let A = $.email.or($.numeric).or($.isnull);
+            let B = $.email.or($.numeric.or($.isnull));
 
-            expect(rule('email@domain.com')).to.not.be.a('string');
-            expect(rule(5)).to.not.be.a('string');
-            expect(rule(null)).to.not.be.a('string');
-            expect(rule('')).to.equal('Must be a valid email address');
+            Promise.all([
+                A('email@domain.com'),
+                B('email@domain.com'),
+                A(5),
+                B(5),
+                A(null),
+                B(null),
+                A('x'),
+                B('x'),
+
+            ]).then((results) => {
+                expect(results).to.deep.equal([ 
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    'Must be a valid email address',
+                    'Must be a valid email address',
+                ]);
+                done();
+            });
         })
 
-        it('should not affect the rule it is called on', () => {
+        it('should not affect the rule it is called on', (done) => {
             let rule1 = $.numeric;
             let rule2 = $.numeric.or($.email);
             let rule3 = rule2.or($.isnull);
 
-            expect(rule1(8)).to.not.be.string;
-            expect(rule2('#')).to.equal('Must be numeric');
-            expect(rule3(NaN)).to.equal('Must be numeric');
+            let chain = [
+                rule1(null), // Fail
+                rule2(null), // Fail
+                rule3(null), // Pass
 
-            // // Do it again to check side effects
-            expect(rule1(8)).to.not.be.string;
-            expect(rule2('#')).to.equal('Must be numeric');
-            expect(rule3(NaN)).to.equal('Must be numeric');
+                rule1('email@domain.com'), // Fail
+                rule2('email@domain.com'), // Pass
+                rule3('email@domain.com'), // Pass
+            ];
+
+            let expected = [
+                'Must be numeric',
+                'Must be numeric',
+                undefined,
+
+                'Must be numeric',
+                undefined,
+                undefined,
+            ];
+
+            Promise.all(chain).then((results) => {
+                expect(results).to.deep.equal(expected);
+
+                // Do it again to check side effects
+                Promise.all(chain).then((results) => {
+                    expect(results).to.deep.equal(expected);
+                    done();
+                });
+            });
         })
     })
 
-    describe('and/or', () => {
-        it('should support combined recursive nesting', () => {
+    describe('and/or', (done) => {
+        it('should support combined recursive nesting', (done) => {
             let rule = $.email.or($.numeric.and($.max(5).or($.equals(8))));
 
-            expect(rule('email@domain.com')).to.not.be.a('string');
-            expect(rule(4)).to.not.be.a('string');
-            expect(rule(8)).to.not.be.a('string');
+            Promise.all([
+                rule('email@domain.com'),
+                rule('email_domain'),
+                rule(4),
+                rule(8),
+                rule(9),
 
-            expect(rule('email_domain')).to.be.a('string');
-            expect(rule(9)).to.be.a('string');
+            ]).then((results) => {
+                expect(results).to.deep.equal([
+                    undefined,
+                    'Must be a valid email address',
+                    undefined,
+                    undefined,
+                    'Must be a valid email address'
+                ]);
+                done();
+            });
         })
     })
 })

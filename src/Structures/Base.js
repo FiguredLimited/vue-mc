@@ -216,9 +216,10 @@ class Base {
      * @returns {Object} An object consisting of all route string replacements.
      */
     getRouteReplacements(route, parameters = {}) {
-        const replace = {};
+        let replace = {};
+
         let pattern = this.getRouteParameterPattern();
-        pattern = new RegExp(pattern instanceof RegExp ? pattern.source : pattern, 'g');
+            pattern = new RegExp(pattern instanceof RegExp ? pattern.source : pattern, 'g');
 
         for (let parameter; (parameter = pattern.exec(route)) !== null; ) {
             replace[parameter[0]] = parameters[parameter[1]];
