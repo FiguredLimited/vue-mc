@@ -12,26 +12,21 @@ const STRINGS    = ['', '0', '1', 'true', 'false', new String(''), new String('a
 const NON_STRING = [true, false, null, 0, 1, -1, NaN, undefined, Infinity, {}, []];
 
 /**
- * Test a rule against some values, passing the expectation to the callback.
- */
-const test = ($rule, values, model, callback) => {
-    _.each(_.castArray(values), (value) => {
-        callback(expect($rule(value, '__attribute__', model), `"${value}"`));
-    });
-}
-
-/**
  * The given rule should PASS for all given values.
  */
-const pass = ($rule, values, model = {}) => {
-    test($rule, values, model, (expect) => expect.to.not.be.a('string'));
+const pass = (rule, values, model = {}) => {
+    _.each(_.castArray(values), (value) => {
+        expect(rule.predicate(value, '', model), _.toString(value)).to.be.true;
+    });
 }
 
 /**
  * The given rule should FAIL for all given values.
  */
-const fail = ($rule, values, model = {}) => {
-    test($rule, values, model, (expect) => expect.to.be.a('string'));
+const fail = (rule, values, model = {}) => {
+    _.each(_.castArray(values), (value) => {
+        expect(rule.predicate(value, '', model), _.toString(value)).to.be.false;
+    });
 }
 
 describe('Rules', () => {
@@ -558,7 +553,7 @@ describe('Rules', () => {
 
     describe('not', () => {
         it('should fail for values to be excluded', () => {
-            let rule = $.number.and($.not(3, 5, 7));
+            let rule = $.not(3, 5, 7);
 
             pass(rule, [1, 2, 4, 6, 8]);
             fail(rule, [3, 5, 7]);
