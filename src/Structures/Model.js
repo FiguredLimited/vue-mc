@@ -351,14 +351,17 @@ class Model extends Base {
 
     /**
      * Assigns all given model data to the model's attributes and reference.
-     * This will also fill any gaps with the model's default attribute.
+     * This will also fill any gaps using the model's default attributes.
      *
      * @param {Object} attributes
      *
      * @returns {Object} The attributes that were assigned to the model.
      */
     assign(attributes) {
-        this.set(_.defaultsDeep({}, attributes, _.cloneDeep(this.defaults())));
+        let defaults = _.cloneDeep(this.defaults());
+        let updates  = _.defaults({}, attributes, this._attributes, defaults);
+
+        this.set(updates);
         this.sync();
     }
 

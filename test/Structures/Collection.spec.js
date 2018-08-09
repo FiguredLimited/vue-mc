@@ -4,11 +4,11 @@ import {Model, Collection} from '../../src/index.js'
 import {email, string} from '../../src/Validation/index.js'
 import * as _ from 'lodash';
 
-moxios.delay = 1;
+moxios.delay = 0;
 
 function expectRequestToBeSkipped(request, done) {
     let error = new Error("Request was not skipped");
-    let delay = 2;
+    let delay = 1;
 
     request.then(() => done(error)).catch(() => done(error));
     _.delay(done, delay);
