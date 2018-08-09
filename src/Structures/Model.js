@@ -358,10 +358,7 @@ class Model extends Base {
      * @returns {Object} The attributes that were assigned to the model.
      */
     assign(attributes) {
-        let defaults = _.cloneDeep(this.defaults());
-        let updates  = _.defaults({}, attributes, this._attributes, defaults);
-
-        this.set(updates);
+        this.set(_.defaults({}, attributes, _.cloneDeep(this.defaults())));
         this.sync();
     }
 
@@ -866,7 +863,7 @@ class Model extends Base {
         // It's not a requirement to respond with a complete dataset,
         // eg. a response to a patch request might return partial data.
         } else if (_.isPlainObject(data)) {
-            this.assign(data);
+            this.assign(_.defaults({}, data, this._attributes));
 
         // There is some data, but it's not an object, so we can assume that the
         // response only returned an identifier for this model.
