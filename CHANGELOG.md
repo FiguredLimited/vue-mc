@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file.
 This project follows [Semantic Versioning](http://semver.org/)
 
+## [0.3.0] - 2018-08-13
+- Model attributes are now merged with response data, rather than replaced.
+- Use date-fns instead of moment.js for date validation. @Dylan-Chapman
+- `fetch` now accepts options. @throrin19
+- Collection now has a `toArray` method. @throrin19
+- Fixed RegExp flag assignment issues on IE. (Jiri Peterek)
+
+## [0.2.4] - 2018-02-04
+- Fix a bug where reactivity is lost after `reset()` or `sync()`
+- Fix getters being called during the `autobind` phase
+- Rename `getPaginationQueryParameters` to `getPaginationQuery`
+
 ## [0.2.3] - 2017-11-13
 - Add `getRoute` method
 
