@@ -2904,6 +2904,7 @@ describe('Model', () => {
             expect(clone.attributes).to.deep.equal(m.attributes);
             expect(clone.getOptions()).to.deep.equal(m.getOptions());
             expect(clone.collections).to.deep.equal(m.collections);
+            expect(clone.$).to.deep.equal(m.$);
             expect(clone._uid).to.not.equal(m._uid);
         })
     })
