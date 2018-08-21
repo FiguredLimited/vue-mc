@@ -2895,4 +2895,17 @@ describe('Model', () => {
             let m = new Model();
         })
     })
+
+    describe('clone', () => {
+        it('should return a clone of the model', () => {
+            const m = new Model({data: 1});
+            const clone = m.clone();
+
+            expect(clone.attributes).to.deep.equal(m.attributes);
+            expect(clone.getOptions()).to.deep.equal(m.getOptions());
+            expect(clone.collections).to.deep.equal(m.collections);
+            expect(clone.$).to.deep.equal(m.$);
+            expect(clone._uid).to.not.equal(m._uid);
+        })
+    })
 })

@@ -149,7 +149,7 @@ class Model extends Base {
         let clone = new (this.constructor)();
 
         // Make sure that the clone belongs to the same collections.
-        clone.registerCollection(this._collections);
+        clone.registerCollection(this.collections);
 
         // Make sure that the clone has the same existing options.
         clone.setOptions(this.getOptions());
