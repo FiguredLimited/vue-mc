@@ -149,7 +149,7 @@ class Model extends Base {
         let clone = new (this.constructor)();
 
         // Make sure that the clone belongs to the same collections.
-        clone.registerCollection(this._collections);
+        clone.registerCollection(this.collections);
 
         // Make sure that the clone has the same existing options.
         clone.setOptions(this.getOptions());
@@ -351,14 +351,14 @@ class Model extends Base {
 
     /**
      * Assigns all given model data to the model's attributes and reference.
-     * This will also fill any gaps with the model's default attribute.
+     * This will also fill any gaps using the model's default attributes.
      *
      * @param {Object} attributes
      *
      * @returns {Object} The attributes that were assigned to the model.
      */
     assign(attributes) {
-        this.set(_.defaultsDeep({}, attributes, _.cloneDeep(this.defaults())));
+        this.set(_.defaults({}, attributes, _.cloneDeep(this.defaults())));
         this.sync();
     }
 
@@ -871,7 +871,7 @@ class Model extends Base {
         // It's not a requirement to respond with a complete dataset,
         // eg. a response to a patch request might return partial data.
         } else if (_.isPlainObject(data)) {
-            this.assign(data);
+            this.assign(_.defaults({}, data, this._attributes));
 
         // There is some data, but it's not an object, so we can assume that the
         // response only returned an identifier for this model.

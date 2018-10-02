@@ -1861,6 +1861,39 @@ describe('Model', () => {
     })
 
     describe('save', () => {
+        it('should always update partially', (done) => {
+            let M = class extends Model {
+                defaults() { return {a: 1, b: 2}}
+                routes() { return {save: '/collection/save'}}
+            }
+
+            let m = new M();
+            m.a = 3;
+            m.b = 4;
+
+            moxios.withMock(() => {
+                expect(m.$.a).to.equal(1);
+                expect(m.$.b).to.equal(2);
+
+                m.save().then((response) => {
+                    expect(m.$.a).to.equal(8);  // Updated
+                    expect(m.$.b).to.equal(4);  // Not the default
+                    expect(m.$.c).to.equal(9);  // Synced as new attribute
+                    done();
+                })
+
+                moxios.wait(() => {
+                    moxios.requests.mostRecent().respondWith({
+                        status: 200,
+                        response: {
+                            a: 8,
+                            c: 9 // Something new?
+                        }
+                    })
+                })
+            })
+        })
+
         it('should handle successful save with empty return', (done) => {
             let M = class extends Model {
                 defaults() { return {a: 1, b: 2}}
@@ -2998,6 +3031,19 @@ describe('Model', () => {
     describe('toJSON', () => {
         it('should return the model\'s attributes by default', () => {
             let m = new Model();
+        })
+    })
+
+    describe('clone', () => {
+        it('should return a clone of the model', () => {
+            const m = new Model({data: 1});
+            const clone = m.clone();
+
+            expect(clone.attributes).to.deep.equal(m.attributes);
+            expect(clone.getOptions()).to.deep.equal(m.getOptions());
+            expect(clone.collections).to.deep.equal(m.collections);
+            expect(clone.$).to.deep.equal(m.$);
+            expect(clone._uid).to.not.equal(m._uid);
         })
     })
 })
