@@ -510,11 +510,11 @@ class Base {
      * @returns {Promise}
      */
     fetch(options = {}) {
-        let config = () => _.defaults(options, {
-            url:     this.getFetchURL(),
-            method:  this.getFetchMethod(),
-            params:  this.getFetchQuery(),
-            headers: this.getFetchHeaders(),
+        let config = () => ({
+            url     : this.getFetchURL(),
+            method  : this.getFetchMethod(),
+            params  : _.assign({}, this.getFetchQuery(), options.params),
+            headers : _.assign({}, this.getFetchHeaders(), options.headers),
         });
 
         return this.request(
@@ -527,15 +527,19 @@ class Base {
 
     /**
      * Persists data to the database/API.
+     *
+     * @param {options}             Save options
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
      * @returns {Promise}
      */
-    save() {
+    save(options = {}) {
         let config = () => ({
-            url:     this.getSaveURL(),
-            method:  this.getSaveMethod(),
-            data:    this.getSaveData(),
-            params:  this.getSaveQuery(),
-            headers: this.getSaveHeaders(),
+            url     : this.getSaveURL(),
+            method  : this.getSaveMethod(),
+            data    : this.getSaveData(),
+            params  : _.assign({}, this.getSaveQuery(), options.params),
+            headers : _.assign({}, this.getSaveHeaders(), options.headers),
         });
 
         return this.request(
@@ -548,15 +552,19 @@ class Base {
 
     /**
      * Removes model or collection data from the database/API.
+     *
+     * @param {options}             Delete options
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
      * @returns {Promise}
      */
-    delete() {
+    delete(options = {}) {
         let config = () => ({
-            url:     this.getDeleteURL(),
-            method:  this.getDeleteMethod(),
-            data:    this.getDeleteBody(),
-            params:  this.getDeleteQuery(),
-            headers: this.getDeleteHeaders(),
+            url     : this.getDeleteURL(),
+            method  : this.getDeleteMethod(),
+            data    : this.getDeleteBody(),
+            params  : _.assign({}, this.getDeleteQuery(), options.params),
+            headers : _.assign({}, this.getDeleteHeaders(), options.headers),
         });
 
         return this.request(
