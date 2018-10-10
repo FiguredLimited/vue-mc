@@ -880,7 +880,16 @@ class Collection extends Base {
      * @returns {Array} The data to use for saving.
      */
     getSaveData() {
-        return _.map(this.getSavingModels(), _.method('getSaveData'));
+        return _.reduce(this.getSavingModels(), (saveData, model) => {
+            if (model.isNew() || !model.shouldPatch()) {
+                saveData.push(model.getSaveData());
+            } else {
+                // For each modified model, get the save data, and add the ID
+                saveData.push(Object.assign(Object.assign({}, model.getSaveData()), {id: model.id}));
+            }
+    
+            return saveData;
+        }, []);
     }
 
     /**
