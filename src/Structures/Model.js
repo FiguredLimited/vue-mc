@@ -822,10 +822,9 @@ class Model extends Base {
      * @returns {Object} The data to send to the server when saving this model.
      */
     getSaveData() {
-
         // Only use changed attributes if patching.
         if (this.isExisting() && this.shouldPatch()) {
-            return _.pick(this._attributes, this.changed());
+            return _.pick(this._attributes, this.changed(), this.getOption('identifier'));
         }
 
         return this._attributes;
