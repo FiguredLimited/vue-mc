@@ -3047,7 +3047,7 @@ describe('Model', () => {
         })
     })
 
-    describe.only('getSaveData', () => {
+    describe('getSaveData', () => {
         it('should always include the identifier if the model is being patched', () => {
             const m = new Model({id: 1, data: 2});
             m.data = 3;
