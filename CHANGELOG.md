@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project follows [Semantic Versioning](http://semver.org/)
 
+## [0.4.0] - 2018-10-17
+- Change Model.getSaveData to always include the id if patching. @BehindTheMath
+- Add params/headers to fetch, save and delete functions. @throrin19
+- Fix and add more tests for Model.clone() @BehindTheMath
+- Minor changes to collection filter.
+- Collection clearState now sets loading to false.
+- Validation now uses promises and supports async rules.
+
 ## [0.3.0] - 2018-08-13
 - Model attributes are now merged with response data, rather than replaced.
 - Use date-fns instead of moment.js for date validation. @Dylan-Chapman

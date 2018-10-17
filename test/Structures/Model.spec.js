@@ -2458,7 +2458,7 @@ describe('Model', () => {
 
         it('should use changed attributes only when patching', (done) => {
             let m = new class extends Model {
-                defaults() { return {id: 1, name: 'Fred'}}
+                defaults() { return {id: 1, name: 'Fred', age: 20}}
                 routes() { return {save: '/collection/save/{id}'}}
                 shouldPatch() { return true; }
             }
@@ -2470,7 +2470,7 @@ describe('Model', () => {
 
                 moxios.wait(() => {
                     let request = moxios.requests.mostRecent();
-                    expect(request.config.data).to.equal('{"name":"John"}');
+                    expect(JSON.parse(request.config.data)).to.deep.equal({id: 1, name: "John"});
                     done();
                 })
             })
