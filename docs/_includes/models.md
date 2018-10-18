@@ -943,7 +943,17 @@ receive a `response` which could be `null` if a request was cancelled. The `reje
 callback will receive an `error` which should always be set.
 
 {% highlight js %}
-model.save().then((response) => {
+
+// These are the default options, which will be merged with those provided.
+let options = {
+    url     : this.getSaveURL(),
+    method  : this.getSaveMethod(),
+    data    : this.getSaveData(),
+    params  : this.getSaveQuery(),
+    headers : this.getSaveHeaders(),
+};
+
+model.save(options).then((response) => {
     // Handle success here
 }).catch((error) => {
     // Handle failure here
