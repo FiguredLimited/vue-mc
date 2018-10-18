@@ -1031,20 +1031,45 @@ the request is successful.
 You can also create custom requests to perform custom actions.
 
 {% highlight js %}
-let config = {
-    // url
-    // method
-    // data
-    // params
-    // headers
-};
+class Channel {
+    ...
 
-return this.getRequest(config).send().then(() => {
+    options() {
+        return {
+            methods: {
+                subscribe: 'POST',
+            }
+        }
+    }
+    
+    routes() {
+        return {
+            subscribe: 'channel.subscribe.user',
+        }
+    }
+
+    subscribe(user) {
+        let method = this.getOption('methods.subscribe');
+        let route  = this.getRoute('subscribe');
+        let params = this.getRouteParameters();
+        let url    = this.getURL(route, params);
+        let data   = {user: user.id},
+        
+        return this.getRequest({method, url, data}).send();
+    }
+}
+
+let channel = new Channel({id: 1});
+let user    = new User({id: 1});
+
+channel.subscribe(user).then(() => {
     // Handle success here
 }).catch((error) => {
     // Handle failure here
 });
 {% endhighlight %}
+
+`getRouteParameters` will return the model's attributes by default, but you can adjust this in the custom request method or override the method in your model. It should return an object to be used for route parameter interpolation. 
 
 ### Events {#model-request-events}
 Events for `save`, `fetch`, and `delete` will be emitted on the model after
