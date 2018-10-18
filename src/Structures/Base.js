@@ -294,13 +294,6 @@ class Base {
     }
 
     /**
-     * @returns {Object} Headers to use when making a save request.
-     */
-    getSaveHeaders() {
-        return {};
-    }
-
-    /**
      * @returns {Object} Headers to use when making any request.
      */
     getDefaultHeaders() {
@@ -308,17 +301,24 @@ class Base {
     }
 
     /**
+     * @returns {Object} Headers to use when making a save request.
+     */
+    getSaveHeaders() {
+        return this.getDefaultHeaders();
+    }
+
+    /**
      * @returns {Object} Headers to use when making a fetch request.
      */
     getFetchHeaders() {
-        return {};
+        return this.getDefaultHeaders();
     }
 
     /**
      * @returns {Object} Headers to use when making a delete request.
      */
     getDeleteHeaders() {
-        return {};
+        return this.getDefaultHeaders();
     }
 
     /**
@@ -480,9 +480,6 @@ class Base {
                     config = config();
                 }
 
-                // Apply the default headers.
-                _.defaults(config.headers, this.getDefaultHeaders());
-
                 // Make the request.
                 return this.getRequest(config)
                     .send()
@@ -491,12 +488,11 @@ class Base {
                         resolve(response);
                     })
                     .catch((error) => {
+                        console.log("on errro!");
                         onFailure(error);
                         reject(error);
                     })
-
-                    // Failure fallback, for errors that occur in `onFailure`.
-                    .catch(reject);
+                    .catch(reject); // For errors that occur in `onFailure`.
             }).catch(reject);
         })
     }
@@ -505,16 +501,19 @@ class Base {
      * Fetches data from the database/API.
      *
      * @param {options}             Fetch options
+     * @param {options.method}      Fetch HTTP method
+     * @param {options.url}         Fetch URL
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
+     * 
      * @returns {Promise}
      */
     fetch(options = {}) {
-        let config = () => ({
+        let config = () => _.defaults(options, {
             url     : this.getFetchURL(),
             method  : this.getFetchMethod(),
-            params  : _.assign({}, this.getFetchQuery(), options.params),
-            headers : _.assign({}, this.getFetchHeaders(), options.headers),
+            params  : this.getFetchQuery(),
+            headers : this.getFetchHeaders(),
         });
 
         return this.request(
@@ -529,17 +528,21 @@ class Base {
      * Persists data to the database/API.
      *
      * @param {options}             Save options
+     * @param {options.method}      Save HTTP method
+     * @param {options.url}         Save URL
+     * @param {options.data}        Save data
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
+     * 
      * @returns {Promise}
      */
     save(options = {}) {
-        let config = () => ({
+        let config = () => _.defaults(options, {
             url     : this.getSaveURL(),
             method  : this.getSaveMethod(),
             data    : this.getSaveData(),
-            params  : _.assign({}, this.getSaveQuery(), options.params),
-            headers : _.assign({}, this.getSaveHeaders(), options.headers),
+            params  : this.getSaveQuery(),
+            headers : this.getSaveHeaders(),
         });
 
         return this.request(
@@ -551,20 +554,60 @@ class Base {
     }
 
     /**
+     * Converts given data to FormData for uploading.
+     * 
+     * @param  {Object} data 
+     * @returns {FormData}
+     */
+    convertObjectToFormData(data) {
+        let form = new FormData();
+
+        _.each(data, (value, key) => {
+            form.append(key, value)
+        });
+
+        return form;
+    }
+
+    /**
+     * Persists data to the database/API using FormData.
+     *
+     * @param {options}             Save options
+     * @param {options.method}      Save HTTP method
+     * @param {options.url}         Save URL
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
+     * 
+     * @returns {Promise}
+     */
+    upload(options = {}) {
+        let data = _.defaultTo(options.data, this.getSaveData());
+
+        let config = () => _.assign(options, {
+            data: convertObjectToFormData(data),
+        });
+
+        return this.save(config);
+    }
+
+    /**
      * Removes model or collection data from the database/API.
      *
      * @param {options}             Delete options
+     * @param {options.method}      Delete HTTP method
+     * @param {options.url}         Delete URL
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
+     * 
      * @returns {Promise}
      */
     delete(options = {}) {
-        let config = () => ({
+        let config = () => _.defaults(options, {
             url     : this.getDeleteURL(),
             method  : this.getDeleteMethod(),
             data    : this.getDeleteBody(),
-            params  : _.assign({}, this.getDeleteQuery(), options.params),
-            headers : _.assign({}, this.getDeleteHeaders(), options.headers),
+            params  : this.getDeleteQuery(),
+            headers : this.getDeleteHeaders(),
         });
 
         return this.request(
