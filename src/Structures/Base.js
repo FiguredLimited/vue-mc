@@ -584,7 +584,7 @@ class Base {
         let data = _.defaultTo(options.data, this.getSaveData());
 
         let config = () => _.assign(options, {
-            data: convertObjectToFormData(data),
+            data: this.convertObjectToFormData(data),
         });
 
         return this.save(config);
