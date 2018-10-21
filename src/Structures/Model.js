@@ -613,7 +613,6 @@ class Model extends Base {
             return Promise.reject(new Error(`'${attribute}' is not defined`));
         }
         
-        let errors  = [];
         let value   = this.get(attribute);
         let rules   = this.getValidateRules(attribute);
         let tasks   = rules.map((rule) => rule(value, attribute, this));
