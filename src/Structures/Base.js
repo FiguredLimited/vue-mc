@@ -390,7 +390,7 @@ class Base {
     isBackendValidationError(error) {
 
         // The error must have a response for it to be a validation error.
-        if ( ! _.invoke(error, 'getResponse', false)) {
+        if ( ! _.invoke(error, 'getResponse')) {
             return false;
         }
 
