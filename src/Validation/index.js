@@ -165,20 +165,10 @@ export const rule = function(config) {
                 if (_.isString(result)) {
                     return result;
                 }
-
-                // If the function simply returned `false`, we need to fall back
-                // to the parent rule's error message, so we indicate that the
-                // rule didn't pass validation, and break out of the chain.
-                if (result === false) {
-                    valid = false;
-                    break;
-                }
             }
 
             // Either there weren't any "and" rules or they all passed.
-            if (valid) {
-                return true;
-            }
+            return true;
 
         // This rule's acceptance criteria was not met, but there is a chance
         // that a rule in the "or" chain's might pass.
@@ -188,7 +178,7 @@ export const rule = function(config) {
 
                 // A rule should either return true in the event of a general
                 // "pass", or nothing at all. A failure would have to be a
-                // string message (usually from another rule) or `false`.
+                // string message (usually from another rule).
                 if (result === true || _.isUndefined(result)) {
                     return true;
                 }

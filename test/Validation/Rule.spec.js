@@ -81,14 +81,6 @@ describe('Rule', () => {
             expect(rule(4)).to.not.be.a('string');
         })
 
-        it('should use parent rule\'s format if an "and" returns false', () => {
-            let rule = $.numeric.and((v) => (v == 2));
-
-            expect(rule('g')).to.equal('Must be numeric');
-            expect(rule(3)).to.equal('Must be numeric');
-            expect(rule(2)).to.not.be.a('string');
-        })
-
         it('should use a chained string return as message', () => {
             let rule = $.numeric.and((v) => (v != 2 ? 'nope!' : 'okay'));
 
