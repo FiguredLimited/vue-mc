@@ -488,7 +488,6 @@ class Base {
                         resolve(response);
                     })
                     .catch((error) => {
-                        console.log("on errro!");
                         onFailure(error);
                         reject(error);
                     })

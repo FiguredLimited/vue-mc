@@ -18,7 +18,7 @@ import {
 /**
  * @type {number} How long moxios has to wait before handling a request.
  */
-moxios.delay = 1;
+moxios.delay = 10;
 
 /**
  * Checks that a request was skipped.
