@@ -9,8 +9,9 @@ and will be updated to show more use cases later on. Feel free to help out. :)
 # sudo npm install -g yarn
 yarn
 
-# Create the local database
+# Create the local database and migrate
 touch database/database.sqlite
+php artisan migrate
 ```
 
 #### Build
