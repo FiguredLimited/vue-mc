@@ -14,12 +14,10 @@ const BASE = {
 		resolve(),
 		commonjs(),
 		babel({
+			exclude: ['node_modules/**/*'],
 			babelrc: false,
-			plugins: ["external-helpers"],
-			presets: [["es2015", {modules: false}]],
-			exclude: [
-				'node_modules/**'
-			]
+			plugins: [],
+			presets: [["@babel/preset-env", {modules: false}]],
 		}),
 	]
 }

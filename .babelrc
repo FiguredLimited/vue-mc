@@ -1,4 +1,5 @@
 {
+  "plugins": ["istanbul"],
   "presets": [
     ["env", {
       "targets": {
@@ -6,7 +7,4 @@
       }
     }]
   ],
-  "plugins": [
-      "istanbul", "transform-decorators-legacy"
-  ]
 }

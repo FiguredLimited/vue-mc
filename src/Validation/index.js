@@ -9,8 +9,49 @@ import isISO8601        from 'validator/lib/isISO8601'
 import isJSON           from 'validator/lib/isJSON'
 import isURL            from 'validator/lib/isURL'
 import isUUID           from 'validator/lib/isUUID'
-import * as _           from 'lodash';
-import { format as formatDate, isAfter as isAfterDate, isBefore as isBeforeDate, isValid as isValidDate, parse as parseDate, toDate } from "date-fns";
+import {
+    assign,
+    concat,
+    deburr,
+    each,
+    get,
+    gt as greaterThan,
+    gte as greaterOrEqualTo,
+    includes,
+    isArray,
+    isBoolean,
+    isEmpty,
+    isEqual,
+    isFinite,
+    isFunction,
+    isInteger,
+    isNaN,
+    isNil,
+    isNull,
+    isNumber,
+    isObject,
+    isString,
+    isUndefined,
+    lt as lessThan,
+    lte as lessOrEqualTo,
+    pick,
+    set,
+    size,
+    split,
+    stubTrue,
+    template,
+    toLower,
+    toNumber,
+} from 'lodash'
+
+import {
+    format   as formatDate,
+    isAfter  as isAfterDate,
+    isBefore as isBeforeDate,
+    isValid  as isValidDate,
+    parse    as parseDate,
+    toDate   as toDate,
+} from "date-fns";
 
 // We want to set the messages a superglobal so that imports across files
 // reference the same messages object.
@@ -44,17 +85,17 @@ export const messages =
      * @param {string} locale
      */
     locale(locale) {
-        this.$locale = _.toLower(locale);
+        this.$locale = toLower(locale);
     }
 
     /**
      * Registers a language pack.
      */
     register(bundle) {
-        let locale = _.toLower(bundle.locale);
+        let locale = toLower(bundle.locale);
 
-        _.each(_.get(bundle, 'messages', {}), (message, name) => {
-            _.set(this.$locales, [locale, name], _.template(message));
+        each(get(bundle, 'messages', {}), (message, name) => {
+            set(this.$locales, [locale, name], template(message));
         });
     }
 
@@ -65,19 +106,19 @@ export const messages =
      * @param {string} format
      */
     set(name, format, locale) {
-        let template = _.isString(format) ? _.template(format) : format;
+        let $template = isString(format) ? template(format) : format;
 
         // Use the given locale.
         if (locale) {
-            _.set(this.$locales, [locale, name], template);
+            set(this.$locales, [locale, name], $template);
 
         // Otherwise use the active locale.
         } else if (this.$locale) {
-            _.set(this.$locales, [this.$locale, name], template);
+            set(this.$locales, [this.$locale, name], $template);
 
         // Otherwise fall back to the default locale.
         } else {
-            _.set(this.$locales, [this.$fallback, name], template);
+            set(this.$locales, [this.$fallback, name], $template);
         }
     }
 
@@ -94,9 +135,9 @@ export const messages =
         // Attempt to find the name using the active locale, falling back to the
         // active locale's language, and finally falling back to the default.
         let template =
-            _.get(this.$locales, [this.$locale, name],
-            _.get(this.$locales, [_.split(this.$locale, '-')[0], name],
-            _.get(this.$locales, [this.$fallback, name])));
+            get(this.$locales, [this.$locale, name],
+            get(this.$locales, [split(this.$locale, '-')[0], name],
+            get(this.$locales, [this.$fallback, name])));
 
         // Fall back to a blank string so that we don't potentially
         // leak message names or context data into the template.
@@ -142,9 +183,9 @@ export const messages =
  * @returns {Function} Validation rule.
  */
 export const rule = function(config) {
-    let name = _.get(config, 'name');
-    let data = _.get(config, 'data', {});
-    let test = _.get(config, 'test', _.stubTrue);
+    let name = get(config, 'name');
+    let data = get(config, 'data', {});
+    let test = get(config, 'test', stubTrue);
 
     /**
      * This is the function that is called when using this rule.
@@ -162,7 +203,7 @@ export const rule = function(config) {
 
                 // If any of the chained rules return a string, we know that
                 // that rule has failed, and therefore this chain is invalid.
-                if (_.isString(result)) {
+                if (isString(result)) {
                     return result;
                 }
             }
@@ -179,7 +220,7 @@ export const rule = function(config) {
                 // A rule should either return true in the event of a general
                 // "pass", or nothing at all. A failure would have to be a
                 // string message (usually from another rule).
-                if (result === true || _.isUndefined(result)) {
+                if (result === true || isUndefined(result)) {
                     return true;
                 }
             }
@@ -190,10 +231,10 @@ export const rule = function(config) {
 
         // Add the invalid value to the message context, which is made available
         // to all rules by default. This allows for ${value} interpolation.
-        _.assign(data, {attribute, value });
+        assign(data, {attribute, value });
 
         // This would be a custom format explicitly set on this rule.
-        let format = _.get($rule, '_format');
+        let format = get($rule, '_format');
 
         // Use the default message if an explicit format isn't set.
         if ( ! format) {
@@ -201,8 +242,8 @@ export const rule = function(config) {
         }
 
         // Replace the custom format with a template if it's still a string.
-        if (_.isString(format)) {
-            $rule._format = format = _.template(format);
+        if (isString(format)) {
+            $rule._format = format = template(format);
         }
 
         return format(data);
@@ -213,7 +254,7 @@ export const rule = function(config) {
      *                     setting a custom format doesn't modify the base rule.
      */
     $rule.copy = () => {
-        return _.assign(rule({name, test, data }), _.pick($rule, [
+        return assign(rule({name, test, data }), pick($rule, [
             '_format',
             '_and',
             '_or',
@@ -226,7 +267,7 @@ export const rule = function(config) {
      * @param {string|Function} format
      */
     $rule.format = (format) => {
-        return _.assign($rule.copy(), {_format: format });
+        return assign($rule.copy(), {_format: format });
     };
 
     /**
@@ -236,7 +277,7 @@ export const rule = function(config) {
      * @param {Function|Function[]} rules One or more functions to add to the chain.
      */
     $rule.or = (rules) => {
-        return _.assign($rule.copy(), {_or: _.concat($rule._or, rules) });
+        return assign($rule.copy(), {_or: concat($rule._or, rules) });
     };
 
     /**
@@ -246,7 +287,7 @@ export const rule = function(config) {
      * @param {Function|Function[]} rules One or more functions to add to the chain.
      */
     $rule.and = (rules) => {
-        return _.assign($rule.copy(), {_and: _.concat($rule._and, rules) });
+        return assign($rule.copy(), {_and: concat($rule._and, rules) });
     }
 
     $rule._and    = [];     // "and" chain
@@ -277,7 +318,7 @@ export const after = function(date) {
 export const alpha = rule({
     name: 'alpha',
     test: (value) => {
-        return _.isString(value) && isAlpha(_.deburr(value));
+        return isString(value) && isAlpha(deburr(value));
     },
 })
 
@@ -287,7 +328,7 @@ export const alpha = rule({
 export const alphanumeric = rule({
     name: 'alphanumeric',
     test: (value) => {
-        return _.isString(value) && isAlphanumeric(_.deburr(value));
+        return isString(value) && isAlphanumeric(deburr(value));
     },
 })
 
@@ -296,7 +337,7 @@ export const alphanumeric = rule({
  */
 export const array = rule({
     name: 'array',
-    test: _.isArray,
+    test: isArray,
 })
 
 
@@ -305,7 +346,7 @@ export const array = rule({
  */
 export const ascii = rule({
     name: 'ascii',
-    test: (value) => _.isString(value) && /^[\x00-\x7F]+$/.test(value),
+    test: (value) => isString(value) && /^[\x00-\x7F]+$/.test(value),
 })
 
 /**
@@ -313,7 +354,7 @@ export const ascii = rule({
  */
 export const base64 = rule({
     name: 'base64',
-    test: (value) => _.isString(value) && isBase64(value),
+    test: (value) => isString(value) && isBase64(value),
 })
 
 /**
@@ -331,18 +372,18 @@ export const before = function(date) {
  * Checks if a value is between a given minimum or maximum, inclusive by default.
  */
 export const between = function(min, max, inclusive = true) {
-    let _min = +(_.isString(min) ? toDate(min) : min);
-    let _max = +(_.isString(max) ? toDate(max) : max);
+    let _min = +(isString(min) ? toDate(min) : min);
+    let _max = +(isString(max) ? toDate(max) : max);
 
     return rule({
         data: {min, max},
         name: inclusive ? 'between_inclusive' : 'between',
         test: (value) => {
-            let _value = +(_.isString(value) ? toDate(value) : value);
+            let _value = +(isString(value) ? toDate(value) : value);
 
             return inclusive
-                ? _.gte(_value, _min) && _.lte(_value, _max)
-                : _.gt (_value, _min) && _.lt (_value, _max);
+                ? greaterOrEqualTo(_value, _min) && lessOrEqualTo(_value, _max)
+                : greaterThan(_value, _min)      && lessThan (_value, _max);
         },
     })
 }
@@ -352,7 +393,7 @@ export const between = function(min, max, inclusive = true) {
  */
 export const boolean = rule({
     name: 'boolean',
-    test: _.isBoolean,
+    test: isBoolean,
 })
 
 
@@ -361,7 +402,7 @@ export const boolean = rule({
  */
 export const creditcard = rule({
     name: 'creditcard',
-    test: (value) => _.isString(value) && isCreditCard(value),
+    test: (value) => isString(value) && isCreditCard(value),
 })
 
 /**
@@ -395,7 +436,7 @@ export const dateformat = function(format) {
  */
 export const defined = rule({
     name: 'defined',
-    test: (value) => ! _.isUndefined(value),
+    test: (value) => ! isUndefined(value),
 })
 
 /**
@@ -403,7 +444,7 @@ export const defined = rule({
  */
 export const email = rule({
     name: 'email',
-    test: (value) => _.isString(value) && isEmail(value),
+    test: (value) => isString(value) && isEmail(value),
 })
 
 /**
@@ -413,7 +454,7 @@ export const email = rule({
  */
 export const empty = rule({
     name: 'empty',
-    test: _.isEmpty,
+    test: isEmpty,
 })
 
 /**
@@ -430,7 +471,7 @@ export const equals = function(other) {
     return rule({
         name: 'equals',
         data: {other},
-        test: (value) => _.isEqual(value, other),
+        test: (value) => isEqual(value, other),
     })
 }
 
@@ -441,7 +482,7 @@ export const gt = function(min) {
     return rule({
         name: 'gt',
         data: {min},
-        test: (value) => _.gt(value, min),
+        test: (value) => greaterThan(value, min),
     })
 }
 
@@ -452,7 +493,7 @@ export const gte = function(min) {
     return rule({
         name: 'gte',
         data: {min},
-        test: (value) => _.gte(value, min),
+        test: (value) => greaterOrEqualTo(value, min),
     })
 }
 
@@ -461,7 +502,7 @@ export const gte = function(min) {
  */
 export const integer = rule({
     name: 'integer',
-    test: _.isInteger,
+    test: isInteger,
 })
 
 /**
@@ -469,7 +510,7 @@ export const integer = rule({
  */
 export const ip = rule({
     name: 'ip',
-    test: (value) => _.isString(value) && isIP(value),
+    test: (value) => isString(value) && isIP(value),
 })
 
 /**
@@ -485,7 +526,7 @@ export const isblank = rule({
  */
 export const isnil = rule({
     name: 'isnil',
-    test: _.isNil,
+    test: isNil,
 })
 
 /**
@@ -493,7 +534,7 @@ export const isnil = rule({
  */
 export const isnull = rule({
     name: 'isnull',
-    test: _.isNull,
+    test: isNull,
 })
 
 /**
@@ -501,7 +542,7 @@ export const isnull = rule({
  */
 export const iso8601 = rule({
     name: 'iso8601',
-    test: (value) => _.isString(value) && isISO8601(value),
+    test: (value) => isString(value) && isISO8601(value),
 })
 
 /**
@@ -509,7 +550,7 @@ export const iso8601 = rule({
  */
 export const json = rule({
     name: 'json',
-    test: (value) => _.isString(value) && isJSON(value),
+    test: (value) => isString(value) && isJSON(value),
 })
 
 /**
@@ -521,11 +562,11 @@ export const json = rule({
 export const length = function(min, max) {
 
     // No maximum means the value must be *at least* the minimum.
-    if (_.isUndefined(max)) {
+    if (isUndefined(max)) {
         return rule({
             name: 'length',
             data: {min, max},
-            test: (value) => _.size(value) >= min,
+            test: (value) => size(value) >= min,
         })
     }
 
@@ -534,7 +575,7 @@ export const length = function(min, max) {
         name: 'length_between',
         data: {min, max},
         test: (value) => {
-            let length = _.size(value);
+            let length = size(value);
             return length >= min && length <= max;
         },
     })
@@ -547,7 +588,7 @@ export const lt = function(max) {
     return rule({
         name: 'lt',
         data: {max},
-        test: (value) => _.lt(value, max),
+        test: (value) => lessThan(value, max),
     })
 }
 
@@ -558,7 +599,7 @@ export const lte = function(max) {
     return rule({
         name: 'lte',
         data: {max},
-        test: (value) => _.lte(value, max),
+        test: (value) => lessOrEqualTo(value, max),
     })
 }
 
@@ -592,7 +633,7 @@ export const min = function(min) {
  */
 export const negative = rule({
     name: 'negative',
-    test: (value) => _.toNumber(value) < 0,
+    test: (value) => toNumber(value) < 0,
 })
 
 /**
@@ -601,7 +642,7 @@ export const negative = rule({
 export const not = function(...values) {
     return rule({
         name: 'not',
-        test: (value) => ! _.includes(values, value),
+        test: (value) => ! includes(values, value),
     })
 }
 
@@ -610,7 +651,7 @@ export const not = function(...values) {
  */
 export const number = rule({
     name: 'number',
-    test: (value) => _.isFinite(value),
+    test: (value) => isFinite(value),
 })
 
 /**
@@ -619,8 +660,8 @@ export const number = rule({
 export const numeric = rule({
     name: 'numeric',
     test: (value) => {
-        return (_.isNumber(value) && ! _.isNaN(value))
-            || (value && _.isString(value) && ! _.isNaN(_.toNumber(value)));
+        return (isNumber(value) && ! isNaN(value))
+            || (value && isString(value) && ! isNaN(toNumber(value)));
     },
 })
 
@@ -630,9 +671,9 @@ export const numeric = rule({
 export const object = rule({
     name: 'object',
     test: (value) => {
-        return   _.isObject(value)
-            && ! _.isArray(value)
-            && ! _.isFunction(value);
+        return   isObject(value)
+            && ! isArray(value)
+            && ! isFunction(value);
     },
 })
 
@@ -641,7 +682,7 @@ export const object = rule({
  */
 export const positive = rule({
     name: 'positive',
-    test: (value) => _.toNumber(value) > 0,
+    test: (value) => toNumber(value) > 0,
 })
 
 /**
@@ -649,7 +690,7 @@ export const positive = rule({
  */
 export const required = rule({
     name: 'required',
-    test: (value) => ! (_.isNil(value) || value === ''),
+    test: (value) => ! (isNil(value) || value === ''),
 })
 
 /**
@@ -659,7 +700,7 @@ export const same = function(other) {
     return rule({
         name: 'same',
         data: {other},
-        test: (value, attribute, model) => _.isEqual(value, model.get(other)),
+        test: (value, attribute, model) => isEqual(value, model.get(other)),
     })
 }
 
@@ -668,7 +709,7 @@ export const same = function(other) {
  */
 export const string = rule({
     name: 'string',
-    test: _.isString,
+    test: isString,
 })
 
 /**
@@ -676,7 +717,7 @@ export const string = rule({
  */
 export const url = rule({
     name: 'url',
-    test: (value) => _.isString(value) && isURL(value),
+    test: (value) => isString(value) && isURL(value),
 })
 
 /**
@@ -684,5 +725,5 @@ export const url = rule({
  */
 export const uuid = rule({
     name: 'uuid',
-    test: (value) => _.isString(value) && isUUID(value),
+    test: (value) => isString(value) && isUUID(value),
 })

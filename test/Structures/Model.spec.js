@@ -455,8 +455,8 @@ describe('Model', () => {
 
             outer.validate().then((errors) => {
                 expect(validated).to.equal(true);
-                expect(errors).to.deep.equal({ 
-                    inner: [{ 
+                expect(errors).to.deep.equal({
+                    inner: [{
                         a: ['Must be a valid email address']
                     }]
                 });
@@ -478,8 +478,8 @@ describe('Model', () => {
             let outer = new Model({inner});
 
             outer.validate().then((errors) => {
-                expect(errors).to.deep.equal({ 
-                    inner: [{ 
+                expect(errors).to.deep.equal({
+                    inner: [{
                         a: ['Must be a valid email address']
                     }]
                 });
@@ -648,7 +648,7 @@ describe('Model', () => {
                 });
             });
 
-            
+
         })
 
         it('should fail when validating an attribute that does not exist', (done) => {
@@ -691,8 +691,8 @@ describe('Model', () => {
                     }
                 }
             }({
-                a: 'not_an_email', 
-                b: 'not_numeric', 
+                a: 'not_an_email',
+                b: 'not_numeric',
                 c: 'not_numeric',
             });
 
@@ -2501,14 +2501,14 @@ describe('Model', () => {
 
         it('should honour validation rules that return a promise', (done) => {
             let m = new class extends Model {
-                defaults() { 
+                defaults() {
                     return {
-                        a: null, 
+                        a: null,
                         b: null,
                         c: null,
                     }
                 }
-                routes() { 
+                routes() {
                     return {
                         save: '/collection/save/{id}'
                     }
@@ -2539,12 +2539,12 @@ describe('Model', () => {
 
             m.validate().then((result) => {
                 expect(result).to.deep.equal({
-                    b: ['B'], 
-                    c: ['C'], 
+                    b: ['B'],
+                    c: ['C'],
                     a: ['A1', 'A2'],
                 });
                 done();
-            }); 
+            });
         })
 
         it('should pass if an attribute passes a validation rule', (done) => {
@@ -2643,11 +2643,17 @@ describe('Model', () => {
         it('should mutate on save if option is enabled', (done) => {
             let M = class extends Model {
                 onSave() {
-                    super.onSave();
+                    let proxy = super.onSave();
                     expect(m.a).to.equal('5');
                     done();
 
-                    return false;
+                    return proxy;
+                }
+
+                routes() {
+                    return {
+                        save: '',
+                    }
                 }
 
                 options() {
@@ -2673,7 +2679,7 @@ describe('Model', () => {
 
             let m = new M();
 
-            m.save();
+            m.save().catch((error) => {});
         })
 
         it('should not mutate on save if option is disabled', () => {

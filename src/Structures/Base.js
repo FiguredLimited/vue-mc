@@ -1,7 +1,23 @@
-import Request      from '../HTTP/Request.js'
 import Vue          from 'vue'
-import * as _       from 'lodash'
+import Request      from '../HTTP/Request.js'
 import { autobind } from '../utils.js'
+import {
+    assign,
+    defaults,
+    defaultsDeep,
+    defaultTo,
+    each,
+    get,
+    invoke,
+    isFunction,
+    map,
+    reduce,
+    replace,
+    set,
+    split,
+    trim,
+    uniqueId,
+} from 'lodash'
 
 const REQUEST_CONTINUE  = 0;
 const REQUEST_REDUNDANT = 1;
@@ -18,7 +34,7 @@ class Base {
         // Define an automatic unique ID. This is primarily to distinguish
         // between multiple instances of the same name and data.
         Object.defineProperty(this, '_uid', {
-            value:        _.uniqueId(),
+            value:        uniqueId(),
             enumerable:   false,
             configurable: false,
             writable:     false,
@@ -83,18 +99,18 @@ class Base {
      * @param {Object} context  The context of the event, passed to listeners.
      */
     emit(event, context = {}) {
-        let listeners = _.get(this._listeners, event);
+        let listeners = get(this._listeners, event);
 
         if ( ! listeners) {
             return;
         }
 
         // Create the context for the event.
-        context = _.defaults({}, context, this.getDefaultEventContext());
+        context = defaults({}, context, this.getDefaultEventContext());
 
         // Run through each listener. If any of them return false, stop the
         // iteration and mark that the event wasn't handled by all listeners.
-        _.each(listeners, (listener) => listener(context));
+        each(listeners, (listener) => listener(context));
     }
 
     /**
@@ -106,9 +122,9 @@ class Base {
      * @param {function} listener   The event listener, accepts context.
      */
     on(event, listener) {
-        let events = _.map(_.split(event, ','), _.trim);
+        let events = map(split(event, ','), trim);
 
-        _.each(events, (event) => {
+        each(events, (event) => {
             this._listeners[event] = this._listeners[event] || [];
             this._listeners[event].push(listener);
         });
@@ -153,13 +169,13 @@ class Base {
     }
 
     /**
-     * @param {Array|string} path     Option path resolved by `_.get`
+     * @param {Array|string} path     Option path resolved by `get`
      * @param {*}            fallback Fallback value if the option is not set.
      *
      * @returns {*} The value of the given option path.
      */
     getOption(path, fallback = null) {
-        return _.get(this._options, path, fallback);
+        return get(this._options, path, fallback);
     }
 
     /**
@@ -176,7 +192,7 @@ class Base {
      * @param {*}      value
      */
     setOption(path, value) {
-        _.set(this._options, path, value);
+        set(this._options, path, value);
     }
 
     /**
@@ -186,7 +202,7 @@ class Base {
      * @param {...Object} options One or more objects of options.
      */
     setOptions(...options) {
-        Vue.set(this, '_options', _.defaultsDeep(
+        Vue.set(this, '_options', defaultsDeep(
             {},
             ...options,                 // Given options
             this.options(),             // Instance defaults
@@ -200,7 +216,7 @@ class Base {
      * @return {Object}
      */
     getOptions() {
-        return _.defaultTo(this._options, {});
+        return defaultTo(this._options, {});
     }
 
     /**
@@ -238,8 +254,8 @@ class Base {
             let replacements = this.getRouteReplacements(route, parameters);
 
             // Replace all route parameters with their replacement values.
-            return _.reduce(replacements, (result, value, parameter) => {
-                return _.replace(result, parameter, value);
+            return reduce(replacements, (result, value, parameter) => {
+                return replace(result, parameter, value);
             }, route);
         }
     }
@@ -381,7 +397,7 @@ class Base {
      * @returns {number} The HTTP status code that indicates a validation error.
      */
     getValidationErrorStatus() {
-        return _.defaultTo(this.getOption('validationErrorStatus'), 422);
+        return defaultTo(this.getOption('validationErrorStatus'), 422);
     }
 
     /**
@@ -390,7 +406,7 @@ class Base {
     isBackendValidationError(error) {
 
         // The error must have a response for it to be a validation error.
-        if ( ! _.invoke(error, 'getResponse')) {
+        if ( ! invoke(error, 'getResponse')) {
             return false;
         }
 
@@ -404,7 +420,7 @@ class Base {
      * @return {string|undefined} Route value by key.
      */
     getRoute(key, fallback) {
-        let route = _.get(this.routes(), key, _.get(this.routes(), fallback));
+        let route = get(this.routes(), key, get(this.routes(), fallback));
 
         if ( ! route) {
             throw new Error(`Invalid or missing route`);
@@ -476,7 +492,7 @@ class Base {
                 // Support passing the request configuration as a function, to allow
                 // for deferred resolution of certain values that may have changed
                 // during the call to "onRequest".
-                if (_.isFunction(config)) {
+                if (isFunction(config)) {
                     config = config();
                 }
 
@@ -504,11 +520,11 @@ class Base {
      * @param {options.url}         Fetch URL
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
-     * 
+     *
      * @returns {Promise}
      */
     fetch(options = {}) {
-        let config = () => _.defaults(options, {
+        let config = () => defaults(options, {
             url     : this.getFetchURL(),
             method  : this.getFetchMethod(),
             params  : this.getFetchQuery(),
@@ -532,11 +548,11 @@ class Base {
      * @param {options.data}        Save data
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
-     * 
+     *
      * @returns {Promise}
      */
     save(options = {}) {
-        let config = () => _.defaults(options, {
+        let config = () => defaults(options, {
             url     : this.getSaveURL(),
             method  : this.getSaveMethod(),
             data    : this.getSaveData(),
@@ -554,14 +570,14 @@ class Base {
 
     /**
      * Converts given data to FormData for uploading.
-     * 
-     * @param  {Object} data 
+     *
+     * @param  {Object} data
      * @returns {FormData}
      */
     convertObjectToFormData(data) {
         let form = new FormData();
 
-        _.each(data, (value, key) => {
+        each(data, (value, key) => {
             form.append(key, value)
         });
 
@@ -576,13 +592,13 @@ class Base {
      * @param {options.url}         Save URL
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
-     * 
+     *
      * @returns {Promise}
      */
     upload(options = {}) {
-        let data = _.defaultTo(options.data, this.getSaveData());
+        let data = defaultTo(options.data, this.getSaveData());
 
-        let config = () => _.assign(options, {
+        let config = () => assign(options, {
             data: this.convertObjectToFormData(data),
         });
 
@@ -597,11 +613,11 @@ class Base {
      * @param {options.url}         Delete URL
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
-     * 
+     *
      * @returns {Promise}
      */
     delete(options = {}) {
-        let config = () => _.defaults(options, {
+        let config = () => defaults(options, {
             url     : this.getDeleteURL(),
             method  : this.getDeleteMethod(),
             data    : this.getDeleteBody(),
