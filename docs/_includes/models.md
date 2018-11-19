@@ -107,7 +107,7 @@ task2.getOption('editable'); // false
 {
     ...
 
-    "methods" {
+    "methods": {
         "fetch":  "GET",
         "save":   "POST",
         "update": "POST",
