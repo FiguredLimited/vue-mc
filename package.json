@@ -15,6 +15,12 @@
         "structures",
         "validation"
     ],
+    "files": [
+        "src",
+        "validation",
+        "vue-mc.js",
+        "vue-mc.es.js"
+    ],
     "bugs": {
         "url": "https://github.com/FiguredLimited/vue-mc/issues"
     },
