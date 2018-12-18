@@ -12,14 +12,10 @@ export default class Request {
      * @returns {Promise}
      */
     send() {
-        return new Promise((resolve, reject) => {
-            axios.request(this.config)
-                .then((response) => {
-                    return resolve(new Response(response));
-                })
-                .catch((error) => {
-                    return reject(new RequestError(error, new Response(error.response)));
-                })
+        return axios.request(this.config).then((response) => {
+            return new Response(response);
+        }).catch((error) => {
+            throw new RequestError(error, new Response(error.response));
         });
     }
 }

@@ -3,6 +3,7 @@ import {assert, expect} from 'chai'
 import {Model, Collection} from '../../src/index.js'
 import ValidationError  from '../../src/Errors/ValidationError.js'
 import * as _ from 'lodash';
+import * as util from 'util';
 import {
     boolean,
     email,
@@ -17,14 +18,14 @@ import {
 /**
  * @type {number} How long moxios has to wait before handling a request.
  */
-moxios.delay = 0;
+moxios.delay = 10;
 
 /**
  * Checks that a request was skipped.
  */
 function expectRequestToBeSkipped(request, done) {
     let error = new Error("Request was not skipped");
-    let delay = 1;
+    let delay = 2;
 
     request.then(() => done(error)).catch(() => done(error));
     _.delay(done, delay);
@@ -34,6 +35,14 @@ function expectRequestToBeSkipped(request, done) {
  * Unit tests for Model.js
  */
 describe('Model', () => {
+
+    beforeEach(function () {
+      moxios.install()
+    })
+
+    afterEach(function () {
+      moxios.uninstall()
+    })
 
     describe('autobind', () => {
         it('should not invoke getters and setters when instantiated', (done) => {
@@ -421,16 +430,17 @@ describe('Model', () => {
 
     describe('validate', () => {
 
-        it('should validate a nested model', () => {
+        it('should validate a nested model', (done) => {
             let validated = false;
 
-            let n = new class extends Model {
+            let inner = new class extends Model {
                 defaults() {
                     return {
                         a: 1,
                     }
                 }
                 validate() {
+                    // Mark that we've validated this model.
                     validated = true;
                     return super.validate();
                 }
@@ -441,38 +451,47 @@ describe('Model', () => {
                 }
             }
 
-            let m = new Model({n});
+            let outer = new Model({inner});
 
-            expect(m.validate()).to.equal(false);
-            expect(m.errors).to.be.empty;
-            expect(validated).to.equal(true);
-            expect(n.errors).to.deep.equal({a: [
-                'Must be a valid email address'
-           ]});
+            outer.validate().then((errors) => {
+                expect(validated).to.equal(true);
+                expect(errors).to.deep.equal({
+                    inner: [{
+                        a: ['Must be a valid email address']
+                    }]
+                });
+                expect(inner.errors).to.deep.equal({a: ['Must be a valid email address']});
+                done();
+            });
         })
 
-        it('should fail if a nested model fails its validation', () => {
-            let A = class extends Model {
+        it('should fail if a nested model fails its validation', (done) => {
+            let inner = new class extends Model {
+                defaults() {
+                    return {a: 1}
+                }
                 validation() {
                     return {a: email}
                 }
             }
 
-            let m = new class extends Model {
-                defaults() {
-                    return {
-                        a: new A({a: 5}),
-                    }
-                }
-            }
+            let outer = new Model({inner});
 
-            expect(m.validate()).to.equal(false);
+            outer.validate().then((errors) => {
+                expect(errors).to.deep.equal({
+                    inner: [{
+                        a: ['Must be a valid email address']
+                    }]
+                });
+                expect(outer.inner.errors).to.deep.equal({a: ['Must be a valid email address']});
+                done();
+            })
         })
 
-        it('should not validate a nested model if option is disabled', () => {
+        it('should not validate a nested model if option is disabled', (done) => {
             let validated = false;
 
-            let n = new class extends Model {
+            let inner = new class extends Model {
                 defaults() {
                     return {
                         a: 1,
@@ -489,13 +508,16 @@ describe('Model', () => {
                 }
             }
 
-            let m = new Model({n});
-            m.setOption('validateRecursively', false);
+            let outer = new Model({inner});
+            outer.setOption('validateRecursively', false);
 
-            expect(m.validate()).to.equal(true);
-            expect(m.errors).to.be.empty;
-            expect(validated).to.equal(false);
-            expect(n.errors).to.be.empty;
+            outer.validate().then((errors) => {
+                expect(errors).to.be.empty;
+                expect(outer.errors).to.be.empty;
+                expect(inner.errors).to.be.empty;
+                expect(validated).to.equal(false);
+                done();
+            });
         })
 
         it('should throw if `false` is given as attribute', (done) => {
@@ -512,14 +534,37 @@ describe('Model', () => {
                 }
             }
 
-            try {
-                m.validate(false);
-            } catch (e) {
+            m.validate(false).then(() => {
+                done('Promise should not have been resolved');
+            }).catch((error) => {
+                expect(error.message).to.equal('Invalid argument for validation attributes');
                 done();
-            }
+            })
         })
 
-        it('should validate a single attribute', () => {
+        it('should throw if undefined attribute is given', (done) => {
+            let m = new class extends Model {
+                defaults() {
+                    return {
+                        a: 5,
+                    }
+                }
+                validation() {
+                    return {
+                        a: email,
+                    }
+                }
+            }
+
+            m.validate('b').then(() => {
+                done('Promise should not have been resolved');
+            }).catch((error) => {
+                expect(error.message).to.equal("'b' is not defined");
+                done();
+            })
+        })
+
+        it('should validate a single attribute', (done) => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -535,30 +580,45 @@ describe('Model', () => {
             }({a: 'not_an_email', b: 'not_numeric'});
 
             expect(m.errors).to.be.empty;
-            expect(m.validate('a')).to.equal(false);
-            expect(m.errors).to.deep.equal({a: ['Must be a valid email address']});
+
+            m.validate('a').then((errors) => {
+                expect(errors).to.deep.equal({a: ['Must be a valid email address']});
+                expect(m.errors).to.deep.equal(errors);
+                done();
+            });
         })
 
-        it('should honour the `useFirstErrorOnly` option', () => {
+        it('should honour the `useFirstErrorOnly` option', (done) => {
             let m = new class extends Model {
-                options() {
-                    return {
-                        validateOnChange: true,
-                        useFirstErrorOnly: true,
-                    }
-                }
                 validation() {
                     return {
-                        a: email,
+                        a: [email, numeric],
                     }
                 }
-            }({a: 'not_an_email'});
+            }({a: 'not_an_email_or_numeric'});
 
-            expect(m.validate('a')).to.equal(false);
-            expect(m.errors).to.deep.equal({a: 'Must be a valid email address'});
+            m.setOption('useFirstErrorOnly', false);
+            m.validate().then((errors) => {
+                expect(m.errors.a).to.have.lengthOf(2);
+                expect(m._errors.a).to.have.lengthOf(2);
+                expect(errors.a).to.have.lengthOf(2);
+
+            }).then(() => {
+                m.setOption('useFirstErrorOnly', true);
+                expect(m.errors.a).to.be.a('string');
+                expect(m._errors.a).to.have.lengthOf(2); // internal
+
+                m.validate().then((errors) => {
+                    expect(m.errors.a).to.be.a('string');
+                    expect(errors.a).to.be.a('string');
+                    expect(m._errors.a).to.have.lengthOf(2); // internal
+
+                    done();
+                })
+            })
         })
 
-        it('should validate a single attribute that passes', () => {
+        it('should validate a single attribute that passes', (done) => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -574,11 +634,24 @@ describe('Model', () => {
             }({a: 'not_an_email', b: 5});
 
             expect(m.errors).to.be.empty;
-            expect(m.validate('b')).to.equal(true);
-            expect(m.errors).to.deep.equal({});
+
+            m.validate('b').then((errors) => {
+                expect(errors).to.be.empty;
+                expect(m.errors).to.deep.equal({});
+
+                m.validate().then((errors) => {
+                    expect(errors).to.not.be.empty;
+                    expect(m.errors).to.deep.equal({
+                        a: ["Must be a valid email address"],
+                    });
+                    done();
+                });
+            });
+
+
         })
 
-        it('should return true when validating an attribute that does not exist', () => {
+        it('should fail when validating an attribute that does not exist', (done) => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -594,11 +667,16 @@ describe('Model', () => {
             }({a: 'not_an_email', b: 'not_numeric'});
 
             expect(m.errors).to.be.empty;
-            expect(m.validate('c')).to.equal(true);
-            expect(m.errors).to.deep.equal({});
+
+            m.validate('c').then((errors) => {
+                done('Promise should not have been resolved');
+            }).catch((error) => {
+                expect(error.message).to.equal("'c' is not defined");
+                done();
+            })
         })
 
-        it('should validate an array of attributes', () => {
+        it('should validate an array of attributes', (done) => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -609,19 +687,26 @@ describe('Model', () => {
                     return {
                         a: email,
                         b: numeric,
+                        c: numeric,
                     }
                 }
-            }({a: 'not_an_email', b: 'not_numeric'});
+            }({
+                a: 'not_an_email',
+                b: 'not_numeric',
+                c: 'not_numeric',
+            });
 
             expect(m.errors).to.be.empty;
-            expect(m.validate(['a', 'b'])).to.equal(false);
-            expect(m.errors).to.deep.equal({
-                a: ['Must be a valid email address'],
-                b: ['Must be numeric'],
+
+            m.validate(['a', 'c']).then((errors) => {
+                expect(Object.keys(errors)).to.deep.equal(["a", "c"]);
+                expect(Object.keys(m.errors)).to.deep.equal(["a", "c"]);
+                expect(Object.keys(m._errors)).to.deep.equal(["a", "c"]);
+                done();
             });
         })
 
-        it('should validate all attributes if none given', () => {
+        it('should validate all attributes if none given', (done) => {
             let m = new class extends Model {
                 options() {
                     return {
@@ -637,14 +722,16 @@ describe('Model', () => {
             }({a: 'not_an_email', b: 'not_numeric'});
 
             expect(m.errors).to.be.empty;
-            expect(m.validate()).to.equal(false);
-            expect(m.errors).to.deep.equal({
-                a: ['Must be a valid email address'],
-                b: ['Must be numeric'],
+
+            m.validate().then((errors) => {
+                expect(Object.keys(errors)).to.deep.equal(["a", "b"]);
+                expect(Object.keys(m.errors)).to.deep.equal(["a", "b"]);
+                expect(Object.keys(m._errors)).to.deep.equal(["a", "b"]);
+                done();
             });
         })
 
-        it('should validate the docuementation example', () => {
+        it('should validate the documentation example', (done) => {
             let Task = class extends Model {
                 defaults() {
                     return {
@@ -665,19 +752,23 @@ describe('Model', () => {
             let task = new Task();
             expect(task.errors).to.be.empty;
 
-            expect(task.validate()).to.equal(false);
-            expect(task.errors).to.deep.equal({
-                "name": [
-                    "Required"
-                ],
-            });
+            task.validate().then((errors) => {
+                expect(errors).to.deep.equal({"name": ["Required"]});
+                expect(task.errors).to.deep.equal({"name": ["Required"]});
+                expect(task._errors).to.deep.equal({"name": ["Required"]});
 
-            task.set({name: 'Example'});
-            expect(task.validate()).to.equal(true);
-            expect(task.errors).to.be.empty;
+                task.set({name: 'Example'});
+                task.validate().then((errors) => {
+                    expect(errors).to.be.empty;
+                    expect(task.errors).to.be.empty;
+                    expect(task._errors).to.be.empty;
+
+                    done();
+                })
+            });
         })
 
-        it('should pass the attribute name to the message context', () => {
+        it('should pass the attribute name to the message context', (done) => {
             let m = new class extends Model {
                 defaults() {
                     return {
@@ -692,12 +783,10 @@ describe('Model', () => {
             }
 
             m.name = 5;
-            expect(m.validate()).to.equal(false);
-            expect(m.errors).to.deep.equal({
-                "name": [
-                    "Can name be a string, please?"
-                ],
-            });
+            m.validate().then((errors) => {
+                expect(m.errors).to.deep.equal({"name": ["Can name be a string, please?"]});
+                done();
+            })
         })
     })
 
@@ -1483,6 +1572,7 @@ describe('Model', () => {
 
                 moxios.wait(() => {
                     let request = moxios.requests.mostRecent();
+
                     expect(request.url).to.equal('/collection/fetch/1');
 
                     request.respondWith({
@@ -2368,7 +2458,7 @@ describe('Model', () => {
 
         it('should use changed attributes only when patching', (done) => {
             let m = new class extends Model {
-                defaults() { return {id: 1, name: 'Fred'}}
+                defaults() { return {id: 1, name: 'Fred', age: 20}}
                 routes() { return {save: '/collection/save/{id}'}}
                 shouldPatch() { return true; }
             }
@@ -2380,7 +2470,7 @@ describe('Model', () => {
 
                 moxios.wait(() => {
                     let request = moxios.requests.mostRecent();
-                    expect(request.config.data).to.equal('{"name":"John"}');
+                    expect(JSON.parse(request.config.data)).to.deep.equal({id: 1, name: "John"});
                     done();
                 })
             })
@@ -2399,10 +2489,62 @@ describe('Model', () => {
             })
         })
 
-        it('should pass if no validation rules are configured', () => {
+        it('should pass if no validation rules are configured', (done) => {
             let m = new Model();
-            expect(m.validate()).to.equal(true);
-            expect(m.errors).to.be.empty;
+            m.validate().then((errors) => {
+                expect(errors).to.be.empty;
+                expect(m.errors).to.be.empty;
+                expect(m._errors).to.be.empty;
+                done();
+            })
+        })
+
+        it('should honour validation rules that return a promise', (done) => {
+            let m = new class extends Model {
+                defaults() {
+                    return {
+                        a: null,
+                        b: null,
+                        c: null,
+                    }
+                }
+                routes() {
+                    return {
+                        save: '/collection/save/{id}'
+                    }
+                }
+                validation() {
+                    return {
+                        a: [
+                            (value, attribute, model) => {
+                                return new Promise((resolve, reject) => {
+                                    setTimeout(() => resolve("A1"), 50);
+                                });
+                            },
+                            () => {
+                                return "A2";
+                            },
+                        ],
+                        b: (value, attribute, model) => {
+                            return new Promise((resolve, reject) => {
+                                resolve("B");
+                            });
+                        },
+                        c: (value, attribute, model) => {
+                            return "C";
+                        },
+                    }
+                }
+            }
+
+            m.validate().then((result) => {
+                expect(result).to.deep.equal({
+                    b: ['B'],
+                    c: ['C'],
+                    a: ['A1', 'A2'],
+                });
+                done();
+            });
         })
 
         it('should pass if an attribute passes a validation rule', (done) => {
@@ -2421,8 +2563,6 @@ describe('Model', () => {
                 m.save().then((response) => {
                     expect(m.errors).to.be.empty;
                     done();
-                }).catch((error) => {
-
                 });
 
                 moxios.wait(() => {
@@ -2503,11 +2643,17 @@ describe('Model', () => {
         it('should mutate on save if option is enabled', (done) => {
             let M = class extends Model {
                 onSave() {
-                    super.onSave();
+                    let proxy = super.onSave();
                     expect(m.a).to.equal('5');
                     done();
 
-                    return false;
+                    return proxy;
+                }
+
+                routes() {
+                    return {
+                        save: '',
+                    }
                 }
 
                 options() {
@@ -2533,9 +2679,7 @@ describe('Model', () => {
 
             let m = new M();
 
-            m.save().catch((error) => {
-                console.log(error);
-            });
+            m.save().catch((error) => {});
         })
 
         it('should not mutate on save if option is disabled', () => {
@@ -2893,6 +3037,33 @@ describe('Model', () => {
     describe('toJSON', () => {
         it('should return the model\'s attributes by default', () => {
             let m = new Model();
+        })
+    })
+
+    describe('clone', () => {
+        it('should return a clone of the model', () => {
+            const m = new Model({data: 1});
+            const clone = m.clone();
+
+            expect(clone.attributes).to.deep.equal(m.attributes);
+            expect(clone.getOptions()).to.deep.equal(m.getOptions());
+            expect(clone.collections).to.deep.equal(m.collections);
+            expect(clone.$).to.deep.equal(m.$);
+            expect(clone._uid).to.not.equal(m._uid);
+        })
+    })
+
+    describe('getSaveData', () => {
+        it('should always include the identifier if the model is being patched', () => {
+            const m = new Model({id: 1, data: 2});
+            m.data = 3;
+            m.setOption('patch', true);
+            const saveData = m.getSaveData();
+
+            expect(saveData).to.deep.equal({
+                id: 1,
+                data: 3,
+            });
         })
     })
 })

@@ -1,7 +1,27 @@
-import Request      from '../HTTP/Request.js'
 import Vue          from 'vue'
-import * as _       from 'lodash'
+import Request      from '../HTTP/Request.js'
 import { autobind } from '../utils.js'
+import {
+    assign,
+    defaults,
+    defaultsDeep,
+    defaultTo,
+    each,
+    get,
+    invoke,
+    isFunction,
+    map,
+    reduce,
+    replace,
+    set,
+    split,
+    trim,
+    uniqueId,
+} from 'lodash'
+
+const REQUEST_CONTINUE  = 0;
+const REQUEST_REDUNDANT = 1;
+const REQUEST_SKIP      = 2;
 
 /**
  * Base class for all things common between Model and Collection.
@@ -14,7 +34,7 @@ class Base {
         // Define an automatic unique ID. This is primarily to distinguish
         // between multiple instances of the same name and data.
         Object.defineProperty(this, '_uid', {
-            value:        _.uniqueId(),
+            value:        uniqueId(),
             enumerable:   false,
             configurable: false,
             writable:     false,
@@ -79,18 +99,18 @@ class Base {
      * @param {Object} context  The context of the event, passed to listeners.
      */
     emit(event, context = {}) {
-        let listeners = _.get(this._listeners, event);
+        let listeners = get(this._listeners, event);
 
         if ( ! listeners) {
             return;
         }
 
         // Create the context for the event.
-        context = _.defaults({}, context, this.getDefaultEventContext());
+        context = defaults({}, context, this.getDefaultEventContext());
 
         // Run through each listener. If any of them return false, stop the
         // iteration and mark that the event wasn't handled by all listeners.
-        _.each(listeners, (listener) => listener(context));
+        each(listeners, (listener) => listener(context));
     }
 
     /**
@@ -102,9 +122,9 @@ class Base {
      * @param {function} listener   The event listener, accepts context.
      */
     on(event, listener) {
-        let events = _.map(_.split(event, ','), _.trim);
+        let events = map(split(event, ','), trim);
 
-        _.each(events, (event) => {
+        each(events, (event) => {
             this._listeners[event] = this._listeners[event] || [];
             this._listeners[event].push(listener);
         });
@@ -149,13 +169,13 @@ class Base {
     }
 
     /**
-     * @param {Array|string} path     Option path resolved by `_.get`
+     * @param {Array|string} path     Option path resolved by `get`
      * @param {*}            fallback Fallback value if the option is not set.
      *
      * @returns {*} The value of the given option path.
      */
     getOption(path, fallback = null) {
-        return _.get(this._options, path, fallback);
+        return get(this._options, path, fallback);
     }
 
     /**
@@ -172,7 +192,7 @@ class Base {
      * @param {*}      value
      */
     setOption(path, value) {
-        _.set(this._options, path, value);
+        set(this._options, path, value);
     }
 
     /**
@@ -182,7 +202,7 @@ class Base {
      * @param {...Object} options One or more objects of options.
      */
     setOptions(...options) {
-        Vue.set(this, '_options', _.defaultsDeep(
+        Vue.set(this, '_options', defaultsDeep(
             {},
             ...options,                 // Given options
             this.options(),             // Instance defaults
@@ -196,7 +216,7 @@ class Base {
      * @return {Object}
      */
     getOptions() {
-        return _.defaultTo(this._options, {});
+        return defaultTo(this._options, {});
     }
 
     /**
@@ -234,8 +254,8 @@ class Base {
             let replacements = this.getRouteReplacements(route, parameters);
 
             // Replace all route parameters with their replacement values.
-            return _.reduce(replacements, (result, value, parameter) => {
-                return _.replace(result, parameter, value);
+            return reduce(replacements, (result, value, parameter) => {
+                return replace(result, parameter, value);
             }, route);
         }
     }
@@ -290,13 +310,6 @@ class Base {
     }
 
     /**
-     * @returns {Object} Headers to use when making a save request.
-     */
-    getSaveHeaders() {
-        return {};
-    }
-
-    /**
      * @returns {Object} Headers to use when making any request.
      */
     getDefaultHeaders() {
@@ -304,17 +317,24 @@ class Base {
     }
 
     /**
+     * @returns {Object} Headers to use when making a save request.
+     */
+    getSaveHeaders() {
+        return this.getDefaultHeaders();
+    }
+
+    /**
      * @returns {Object} Headers to use when making a fetch request.
      */
     getFetchHeaders() {
-        return {};
+        return this.getDefaultHeaders();
     }
 
     /**
      * @returns {Object} Headers to use when making a delete request.
      */
     getDeleteHeaders() {
-        return {};
+        return this.getDefaultHeaders();
     }
 
     /**
@@ -377,7 +397,7 @@ class Base {
      * @returns {number} The HTTP status code that indicates a validation error.
      */
     getValidationErrorStatus() {
-        return _.defaultTo(this.getOption('validationErrorStatus'), 422);
+        return defaultTo(this.getOption('validationErrorStatus'), 422);
     }
 
     /**
@@ -386,7 +406,7 @@ class Base {
     isBackendValidationError(error) {
 
         // The error must have a response for it to be a validation error.
-        if ( ! _.invoke(error, 'getResponse', false)) {
+        if ( ! invoke(error, 'getResponse')) {
             return false;
         }
 
@@ -400,7 +420,7 @@ class Base {
      * @return {string|undefined} Route value by key.
      */
     getRoute(key, fallback) {
-        let route = _.get(this.routes(), key, _.get(this.routes(), fallback));
+        let route = get(this.routes(), key, get(this.routes(), fallback));
 
         if ( ! route) {
             throw new Error(`Invalid or missing route`);
@@ -457,66 +477,58 @@ class Base {
      */
     request(config, onRequest, onSuccess, onFailure) {
         return new Promise((resolve, reject) => {
+            return onRequest().then((status) => {
+                switch (status) {
+                    case REQUEST_CONTINUE:
+                        break;
+                    case REQUEST_SKIP:
+                        return;
+                    case REQUEST_REDUNDANT: // Skip, but consider it a success.
+                        onSuccess(null);
+                        resolve(null);
+                        return;
+                }
 
-            let check = onRequest();
+                // Support passing the request configuration as a function, to allow
+                // for deferred resolution of certain values that may have changed
+                // during the call to "onRequest".
+                if (isFunction(config)) {
+                    config = config();
+                }
 
-            // Request should be skipped but the promise should not be resolved.
-            if (check === false) {
-                return;
-            }
-
-            // Request should be skipped but should be considered successful.
-            if (check === true) {
-                onSuccess(null);
-                return resolve(null);
-            }
-
-            // Support passing the request configuration as a function, to allow
-            // for deferred resolution of certain values that may have changed
-            // during the call to "onRequest".
-            if (_.isFunction(config)) {
-                config = config();
-            }
-
-            // Apply the default headers.
-            _.defaults(config.headers, this.getDefaultHeaders());
-
-            // Make the request.
-            return this.getRequest(config).send()
-
-                // Success
-                .then((response) => {
-                    onSuccess(response);
-                    return resolve(response);
-                })
-
-                // Failure
-                .catch((error) => {
-                    onFailure(error);
-                    return reject(error);
-                })
-
-                // Failure fallback, for errors that occur in `onFailure`.
-                .catch((error) => {
-                    return reject(error);
-                });
-        });
+                // Make the request.
+                return this.getRequest(config)
+                    .send()
+                    .then((response) => {
+                        onSuccess(response);
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        onFailure(error);
+                        reject(error);
+                    })
+                    .catch(reject); // For errors that occur in `onFailure`.
+            }).catch(reject);
+        })
     }
 
     /**
      * Fetches data from the database/API.
      *
      * @param {options}             Fetch options
+     * @param {options.method}      Fetch HTTP method
+     * @param {options.url}         Fetch URL
      * @param {options.params}      Query params
      * @param {options.headers}     Query headers
+     *
      * @returns {Promise}
      */
     fetch(options = {}) {
-        let config = () => _.defaults(options, {
-            url:     this.getFetchURL(),
-            method:  this.getFetchMethod(),
-            params:  this.getFetchQuery(),
-            headers: this.getFetchHeaders(),
+        let config = () => defaults(options, {
+            url     : this.getFetchURL(),
+            method  : this.getFetchMethod(),
+            params  : this.getFetchQuery(),
+            headers : this.getFetchHeaders(),
         });
 
         return this.request(
@@ -529,15 +541,23 @@ class Base {
 
     /**
      * Persists data to the database/API.
+     *
+     * @param {options}             Save options
+     * @param {options.method}      Save HTTP method
+     * @param {options.url}         Save URL
+     * @param {options.data}        Save data
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
+     *
      * @returns {Promise}
      */
-    save() {
-        let config = () => ({
-            url:     this.getSaveURL(),
-            method:  this.getSaveMethod(),
-            data:    this.getSaveData(),
-            params:  this.getSaveQuery(),
-            headers: this.getSaveHeaders(),
+    save(options = {}) {
+        let config = () => defaults(options, {
+            url     : this.getSaveURL(),
+            method  : this.getSaveMethod(),
+            data    : this.getSaveData(),
+            params  : this.getSaveQuery(),
+            headers : this.getSaveHeaders(),
         });
 
         return this.request(
@@ -549,16 +569,60 @@ class Base {
     }
 
     /**
-     * Removes model or collection data from the database/API.
+     * Converts given data to FormData for uploading.
+     *
+     * @param  {Object} data
+     * @returns {FormData}
+     */
+    convertObjectToFormData(data) {
+        let form = new FormData();
+
+        each(data, (value, key) => {
+            form.append(key, value)
+        });
+
+        return form;
+    }
+
+    /**
+     * Persists data to the database/API using FormData.
+     *
+     * @param {options}             Save options
+     * @param {options.method}      Save HTTP method
+     * @param {options.url}         Save URL
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
+     *
      * @returns {Promise}
      */
-    delete() {
-        let config = () => ({
-            url:     this.getDeleteURL(),
-            method:  this.getDeleteMethod(),
-            data:    this.getDeleteBody(),
-            params:  this.getDeleteQuery(),
-            headers: this.getDeleteHeaders(),
+    upload(options = {}) {
+        let data = defaultTo(options.data, this.getSaveData());
+
+        let config = () => assign(options, {
+            data: this.convertObjectToFormData(data),
+        });
+
+        return this.save(config);
+    }
+
+    /**
+     * Removes model or collection data from the database/API.
+     *
+     * @param {options}             Delete options
+     * @param {options.method}      Delete HTTP method
+     * @param {options.url}         Delete URL
+     * @param {options.params}      Query params
+     * @param {options.headers}     Query headers
+     *
+     * @returns {Promise}
+     */
+    delete(options = {}) {
+        let config = () => defaults(options, {
+            url     : this.getDeleteURL(),
+            method  : this.getDeleteMethod(),
+            data    : this.getDeleteBody(),
+            params  : this.getDeleteQuery(),
+            headers : this.getDeleteHeaders(),
         });
 
         return this.request(
@@ -569,5 +633,9 @@ class Base {
         );
     }
 }
+
+Base.REQUEST_CONTINUE  = REQUEST_CONTINUE;
+Base.REQUEST_REDUNDANT = REQUEST_REDUNDANT;
+Base.REQUEST_SKIP      = REQUEST_SKIP;
 
 export default Base;
