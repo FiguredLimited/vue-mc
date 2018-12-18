@@ -25,8 +25,8 @@ const BASE = {
 const MAIN = _.assign({}, BASE, {
 	input: 'src/index.js',
 	output: [
-		{ file: pkg.main,    format: 'cjs', sourcemap: 'inline' },
-		{ file: pkg.module,  format: 'es', sourcemap: 'inline' }
+		{ file: pkg.main,    format: 'cjs' },
+		{ file: pkg.module,  format: 'es' }
 	],
 })
 
