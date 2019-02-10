@@ -1,7 +1,7 @@
 /**
  * Binds all methods of a class instance to itself.
  */
-export const autobind = function(instance) {
+export const autobind = function(instance: any): void {
     for (let obj = instance; obj; obj = Object.getPrototypeOf(obj)) {
 
         // We're the end of the inheritance chain if we've reached 'Object'.
@@ -9,15 +9,15 @@ export const autobind = function(instance) {
             return;
         }
 
-        let names = Object.getOwnPropertyNames(obj);
+        let names: string[] = Object.getOwnPropertyNames(obj);
 
         // Bind each function to the instance.
         for (let i = 0; i < names.length; i++) {
-            let name = names[i];
+            let name: string = names[i];
 
             // No need to bind getters, as attempting to access them would also
             // invoke them which is something we don't want to do here.
-            if (Object.getOwnPropertyDescriptor(obj, name).get) {
+            if (Object.getOwnPropertyDescriptor(obj, name)!.get) {
                 continue;
             }
 
@@ -33,4 +33,4 @@ export const autobind = function(instance) {
             }
         }
     }
-}
+};

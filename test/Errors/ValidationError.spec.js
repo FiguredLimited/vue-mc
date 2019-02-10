@@ -1,5 +1,5 @@
 import {assert, expect} from 'chai'
-import ValidationError from '../../src/Errors/ValidationError.js'
+import ValidationError from '../../src/Errors/ValidationError'
 
 describe('ValidationError', () => {
 

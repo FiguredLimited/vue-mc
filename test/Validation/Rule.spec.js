@@ -1,5 +1,5 @@
 import {assert, expect} from 'chai'
-import * as $ from '../../src/Validation/index.js'
+import * as $ from '../../src/Validation/index'
 import permutation from 'array-permutation'
 
 describe('Rule', () => {

@@ -8,6 +8,9 @@
             "experimentalObjectRestSpread": true
         }
     },
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "extends": ["plugin:@typescript-eslint/recommended"],
     "rules": {
         "comma-dangle": ["error", {
             "arrays": "always-multiline",
@@ -34,7 +37,6 @@
         "no-sparse-arrays": "warn",
         "no-unreachable": "warn",
         "use-isnan": "warn",
-        "valid-jsdoc": "warn",
         "valid-typeof": "warn",
         "curly": ["warn","all"],
         "eqeqeq": ["warn","smart"],
@@ -46,12 +48,17 @@
         "yoda": ["warn","never",{}],
         "comma-spacing": ["warn",{"before":false,"after":true}],
         "eol-last": "warn",
-        "indent": ["warn",4],
+        "indent": ["warn", 4, {
+            "SwitchCase": 1
+        }],
         "space-infix-ops": "warn",
         "spaced-comment": ["warn","always"],
         "arrow-spacing": ["warn",{"before":true,"after":true}],
         "constructor-super": "warn",
         "no-const-assign": "warn",
-        "no-var": "error"
+        "no-var": "error",
+        "@typescript-eslint/explicit-member-accessibility": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-non-null-assertion": "off"
     }
 }

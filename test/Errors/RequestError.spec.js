@@ -1,6 +1,6 @@
 import {assert, expect} from 'chai'
-import RequestError from '../../src/Errors/RequestError.js'
-import Response from '../../src/HTTP/Response.js'
+import RequestError from '../../src/Errors/RequestError'
+import Response from '../../src/HTTP/Response'
 
 describe('RequestError', () => {
     describe('getError', () => {
