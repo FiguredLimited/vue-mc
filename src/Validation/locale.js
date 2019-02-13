@@ -152,7 +152,7 @@ export const pt_br = {
 }
 
 /**
- * Dutch - The Netherlands (Default)
+ * Dutch - The Netherlands
  */
 export const nl_nl = {
     locale: 'nl-NL',
