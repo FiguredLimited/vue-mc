@@ -152,7 +152,7 @@ export const pt_br = {
 }
 
 /**
- * Dutch - The Netherlands (Default)
+ * Dutch - The Netherlands
  */
 export const nl_nl = {
     locale: 'nl-NL',
@@ -199,6 +199,57 @@ export const nl_nl = {
         string: 'Moet een string zijn',
         url: 'Moet een geldige URL zijn',
         uuid: 'Moet een geldige UUID zijn',
+    },
+}
+
+/**
+ * Polish - Poland
+ */
+export const pl_pl = {
+    locale: 'pl-PL',
+    messages: {
+        after: 'Musi być datą późniejszą od ${date}',
+        alpha: 'Musi zawierać jedynie litery',
+        alphanumeric: 'Musi zawierać jedynie litery i cyfry',
+        array: 'Musi być tablicą',
+        ascii: 'Musi zawierać tylko znaki ASCII',
+        base64: 'Musi być kodowane w Base64',
+        before: 'Musi być datą wcześniejszą od ${date}',
+        between: 'Musi być pomiędzy ${min}, a ${max}',
+        between_inclusive: 'Musi być pomiędzy ${min}, a ${max} włącznie',
+        boolean: 'Musi mieć wartość prawda albo fałsz',
+        creditcard: 'Musi być poprawnym numerem karty kredytowej',
+        date: 'Musi być poprawną datą',
+        dateformat: 'Data musi być w formacie "${format}"',
+        defined: 'Pole wymagane',
+        email: 'Musi być poprawnym adresem e-mail',
+        empty: 'Musi być puste',
+        equals: 'Musi wynosić ${other}',
+        gt: 'Musi być większe od ${min}',
+        gte: 'Musi być większe lub równe od ${min}',
+        integer: 'Musi być liczbą całkowitą',
+        ip: 'Musi być poprawnym adresem IP',
+        isblank: 'Nie może być puste',
+        isnil: 'Pole wymagane',
+        isnull: 'Pole wymagane',
+        iso8601: 'Musi być datą w formacie ISO8601',
+        json: 'Musi być poprawnym ciągiem znaków JSON',
+        length: 'Musi mieć długość co najmniej ${min} znaków',
+        length_between: 'Musi mieć długość pomiędzy ${min}, a ${max} znaków',
+        lt: 'Musi być mniejsze od ${max}',
+        lte: 'Musi być mniejsze lub równe od ${max}',
+        match: 'Musi być zgodne z "${pattern}"',
+        negative: 'Musi być liczbą ujemną',
+        not: 'Nie może być ${value}',
+        number: 'Musi być numerem',
+        numeric: 'Musi być liczbą',
+        object: 'Musi być obiektem',
+        positive: 'Musi być liczbą dodatnią',
+        required: 'Pole wymagane',
+        same: 'Musi mieć taką samą wartość jak pole "${other}"',
+        string: 'Musi być ciągiem znaków',
+        url: 'Musi być poprawnym adresem URL',
+        uuid: 'Musi być poprawnym identyfikatorem UUID',
     },
 }
 
