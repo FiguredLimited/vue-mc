@@ -175,8 +175,9 @@ when the model is saved successfully, and when constructed.
 ### Active attributes {#model-data-access-active}
 
 You can access the active state directly on the instance, or with the `get(attribute, default)` method which
-allows you to specify a default value to fall back on if the attribute does not exist. It's safe to set
-the value of an existing attribute direcly, or you can use `set(attribute, value)`.
+allows you to specify a default value to fall back on if the attribute does not exist. 
+
+It's safe to set the value of an existing attribute directly, or you can use `set(attribute, value)`. Multiple attributes may be updated by passing an object to `set()`.
 
 **Important**: You must use `set` if you're setting an attribute that doesn't exist on the model yet.
 
@@ -198,6 +199,9 @@ task.name = 'Write better tests';
 
 // Set an attribute that doesn't exist on the model.
 task.set('alias', 'Tests');
+
+// Set multiple attributes
+task.set({ name: 'My Task', description: 'Do something'});
 
 {% endhighlight %}
 
