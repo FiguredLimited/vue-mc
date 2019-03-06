@@ -4,38 +4,36 @@ import Model            from './Model.js'
 import ResponseError    from '../Errors/ResponseError.js'
 import ValidationError  from '../Errors/ValidationError.js'
 import ProxyResponse    from '../HTTP/ProxyResponse.js'
-import {
-    countBy,
-    defaultsDeep,
-    each,
-    filter,
-    find,
-    findIndex,
-    first,
-    get,
-    has,
-    isArray,
-    isEmpty,
-    isFunction,
-    isNil,
-    isObject,
-    isPlainObject,
-    join,
-    keyBy,
-    last,
-    map,
-    max,
-    merge,
-    method,
-    reduce,
-    set,
-    size,
-    sortBy,
-    sumBy,
-    toSafeInteger,
-    unset,
-    values,
-} from 'lodash'
+import countBy from 'lodash/countBy'
+import defaultsDeep from 'lodash/defaultsDeep'
+import each from 'lodash/each'
+import filter from 'lodash/filter'
+import find from 'lodash/find'
+import findIndex from 'lodash/findIndex'
+import first from 'lodash/first'
+import get from 'lodash/get'
+import has from 'lodash/has'
+import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import isNil from 'lodash/isNil'
+import isObject from 'lodash/isObject'
+import isPlainObject from 'lodash/isPlainObject'
+import join from 'lodash/join'
+import keyBy from 'lodash/keyBy'
+import last from 'lodash/last'
+import map from 'lodash/map'
+import max from 'lodash/max'
+import merge from 'lodash/merge'
+import method from 'lodash/method'
+import reduce from 'lodash/reduce'
+import set from 'lodash/set'
+import size from 'lodash/size'
+import sortBy from 'lodash/sortBy'
+import sumBy from 'lodash/sumBy'
+import toSafeInteger from 'lodash/toSafeInteger'
+import unset from 'lodash/unset'
+import values from 'lodash/values'
 
     /**
  * Used as a marker to indicate that pagination is not enabled.

@@ -9,40 +9,38 @@ import isISO8601        from 'validator/lib/isISO8601'
 import isJSON           from 'validator/lib/isJSON'
 import isURL            from 'validator/lib/isURL'
 import isUUID           from 'validator/lib/isUUID'
-import {
-    assign,
-    concat,
-    deburr,
-    each,
-    get,
-    gt as greaterThan,
-    gte as greaterOrEqualTo,
-    includes,
-    isArray,
-    isBoolean,
-    isEmpty,
-    isEqual,
-    isFinite,
-    isFunction,
-    isInteger,
-    isNaN,
-    isNil,
-    isNull,
-    isNumber,
-    isObject,
-    isString,
-    isUndefined,
-    lt as lessThan,
-    lte as lessOrEqualTo,
-    pick,
-    set,
-    size,
-    split,
-    stubTrue,
-    template,
-    toLower,
-    toNumber,
-} from 'lodash'
+import assign from 'lodash/assign'
+import concat from 'lodash/concat'
+import deburr from 'lodash/deburr'
+import each from 'lodash/each'
+import get from 'lodash/get'
+import greaterThan from 'lodash/gt'
+import greaterOrEqualTo from 'lodash/gte'
+import includes from 'lodash/includes'
+import isArray from 'lodash/isArray'
+import isBoolean from 'lodash/isBoolean'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import isFinite from 'lodash/isFinite'
+import isFunction from 'lodash/isFunction'
+import isInteger from 'lodash/isInteger'
+import isNaN from 'lodash/isNaN'
+import isNil from 'lodash/isNil'
+import isNull from 'lodash/isNull'
+import isNumber from 'lodash/isNumber'
+import isObject from 'lodash/isObject'
+import isString from 'lodash/isString'
+import isUndefined from 'lodash/isUndefined'
+import lessThan from 'lodash/lt'
+import lessOrEqualTo from 'lodash/lte'
+import pick from 'lodash/pick'
+import set from 'lodash/set'
+import size from 'lodash/size'
+import split from 'lodash/split'
+import stubTrue from 'lodash/stubTrue'
+import template from 'lodash/template'
+import toLower from 'lodash/toLower'
+import toNumber from 'lodash/toNumber'
 
 import {
     format   as formatDate,

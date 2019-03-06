@@ -1,23 +1,21 @@
 import Vue          from 'vue'
 import Request      from '../HTTP/Request.js'
 import { autobind } from '../utils.js'
-import {
-    assign,
-    defaults,
-    defaultsDeep,
-    defaultTo,
-    each,
-    get,
-    invoke,
-    isFunction,
-    map,
-    reduce,
-    replace,
-    set,
-    split,
-    trim,
-    uniqueId,
-} from 'lodash'
+import assign from 'lodash/assign'
+import defaults from 'lodash/defaults'
+import defaultsDeep from 'lodash/defaultsDeep'
+import defaultTo from 'lodash/defaultTo'
+import each from 'lodash/each'
+import get from 'lodash/get'
+import invoke from 'lodash/invoke'
+import isFunction from 'lodash/isFunction'
+import map from 'lodash/map'
+import reduce from 'lodash/reduce'
+import replace from 'lodash/replace'
+import set from 'lodash/set'
+import split from 'lodash/split'
+import trim from 'lodash/trim'
+import uniqueId from 'lodash/uniqueId'
 
 const REQUEST_CONTINUE  = 0;
 const REQUEST_REDUNDANT = 1;

@@ -3,36 +3,34 @@ import Base             from './Base.js'
 import Collection       from './Collection.js'
 import ResponseError    from '../Errors/ResponseError.js'
 import ValidationError  from '../Errors/ValidationError.js'
-import {
-    castArray,
-    cloneDeep,
-    defaults,
-    defaultTo,
-    each,
-    filter,
-    first,
-    flow,
-    get,
-    has,
-    head,
-    invert,
-    isArray,
-    isEmpty,
-    isEqual,
-    isFunction,
-    isNil,
-    isObject,
-    isObjectLike,
-    isPlainObject,
-    isString,
-    isUndefined,
-    keys,
-    mapValues,
-    merge,
-    once,
-    pick,
-    values,
-} from 'lodash'
+import castArray from 'lodash/castArray'
+import cloneDeep from 'lodash/cloneDeep'
+import defaults from 'lodash/defaults'
+import defaultTo from 'lodash/defaultTo'
+import each from 'lodash/each'
+import filter from 'lodash/filter'
+import first from 'lodash/first'
+import flow from 'lodash/flow'
+import get from 'lodash/get'
+import has from 'lodash/has'
+import head from 'lodash/head'
+import invert from 'lodash/invert'
+import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import isFunction from 'lodash/isFunction'
+import isNil from 'lodash/isNil'
+import isObject from 'lodash/isObject'
+import isObjectLike from 'lodash/isObjectLike'
+import isPlainObject from 'lodash/isPlainObject'
+import isString from 'lodash/isString'
+import isUndefined from 'lodash/isUndefined'
+import keys from 'lodash/keys'
+import mapValues from 'lodash/mapValues'
+import merge from 'lodash/merge'
+import once from 'lodash/once'
+import pick from 'lodash/pick'
+import values from 'lodash/values'
 
 /**
  * Reserved keywords that can't be used for attribute or option names.

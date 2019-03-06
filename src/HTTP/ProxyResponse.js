@@ -1,4 +1,5 @@
-import { defaultTo, toSafeInteger } from 'lodash'
+import defaultTo from 'lodash/defaultTo'
+import toSafeInteger  from 'lodash/toSafeInteger'
 
 export default class ProxyResponse {
 
