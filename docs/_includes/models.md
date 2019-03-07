@@ -107,7 +107,7 @@ task2.getOption('editable'); // false
 {
     ...
 
-    "methods" {
+    "methods": {
         "fetch":  "GET",
         "save":   "POST",
         "update": "POST",
@@ -817,7 +817,11 @@ validation.messages.register(pack);
 |--------+---------------------|
 | en_us  | English (US)        |
 |--------+---------------------|
+| id_id  | Indonesian          |
+|--------+---------------------|
 | nl_nl  | Dutch               |
+|--------+---------------------|
+| pl_PL  | Polish              |
 |--------+---------------------|
 | pt_br  | Portuguese (Brazil) |
 |--------+---------------------|
