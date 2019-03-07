@@ -1,6 +1,4 @@
-<p align="center">
-  <img width="150" src="https://vuemc.io/assets/images/logo.png" />
-</p>
+<img width="150" src="https://vuemc.io/assets/images/logo.png" />
 
 # Models and Collections for Vue.js
 
