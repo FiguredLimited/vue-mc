@@ -1,6 +1,6 @@
 <center>
 <h1>Models and Collections for Vue.js</h1>
-![](https://vuemc.io/assets/images/logo.png)
+<img src="https://vuemc.io/assets/images/logo.png" />
 </center>
 
 [![Build Status](https://img.shields.io/travis/FiguredLimited/vue-mc.svg?style=flat-square&branch=master)](https://travis-ci.org/FiguredLimited/vue-mc)
