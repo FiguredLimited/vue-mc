@@ -1,5 +1,7 @@
-# Models and Collections for Vue.js
-
+<center>
+<h1>Models and Collections for Vue.js</h1>
+![](https://vuemc.io/assets/images/logo.png)
+</center>
 [![Build Status](https://img.shields.io/travis/FiguredLimited/vue-mc.svg?style=flat-square&branch=master)](https://travis-ci.org/FiguredLimited/vue-mc)
 [![Coverage](https://img.shields.io/codecov/c/github/FiguredLimited/vue-mc/master.svg?style=flat-square)](https://codecov.io/gh/FiguredLimited/vue-mc)
 [![Latest Version](https://img.shields.io/npm/v/vue-mc.svg?style=flat-square)](https://www.npmjs.com/package/vue-mc)
