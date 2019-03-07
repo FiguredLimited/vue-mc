@@ -1,7 +1,8 @@
-<center>
-<h1>Models and Collections for Vue.js</h1>
-<img src="https://vuemc.io/assets/images/logo.png" />
-</center>
+<p align="center">
+  <h1>Models and Collections for Vue.js</h1>
+  <img width="200" src="https://vuemc.io/assets/images/logo.png" />
+</p>
+
 
 [![Build Status](https://img.shields.io/travis/FiguredLimited/vue-mc.svg?style=flat-square&branch=master)](https://travis-ci.org/FiguredLimited/vue-mc)
 [![Coverage](https://img.shields.io/codecov/c/github/FiguredLimited/vue-mc/master.svg?style=flat-square)](https://codecov.io/gh/FiguredLimited/vue-mc)
