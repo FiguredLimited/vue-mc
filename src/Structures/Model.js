@@ -41,7 +41,7 @@ const RESERVED = invert([
     '_attributes',
     '_collections',
     '_computed',
-	'_mutations',
+    '_mutations',
     '_errors',
     '_listeners',
     '_reference',
@@ -155,7 +155,8 @@ class Model extends Base {
         // Assign all given model data to the model's attributes and reference.
         this.assign(attributes);
 
-        this.applyComputedProperties()
+        // Register all computed properties
+        this.registerComputed();
 
         // Register the given collection (if any) to the model. This is so that
         // the model can be added to the collection automatically when it is
@@ -306,14 +307,6 @@ class Model extends Base {
 	 */
     compileMutators() {
         this._mutations = mapValues(this.mutations(), (m) => flow(m));
-    }
-
-    /**
-	 * Compiles all mutations into pipelines that can be executed quickly.
-	 */
-    applyComputedProperties() {
-        this._computed = mapValues(this.computed(), m => isFunction(m) ? flow(m) : m);
-        this.registerComputed()
     }
 
     /**
@@ -479,12 +472,14 @@ class Model extends Base {
 	    return get(this._computed, attribute, () => {})
     }
 
-	/**
+    /**
      *
      * TODO (sifex): Cache computed properties using dependency tracker, or see if you can use Vue's
      * TODO: https://www.skyronic.com/blog/vuejs-internals-computed-properties
 	 */
-	registerComputed() {
+    registerComputed() {
+        this._computed = mapValues(this.computed(), m => m);
+
         each(this._computed, (value, attribute) => {
 	        // Protect against unwillingly using an attribute name that already
 	        // exists as an internal property or method name.
