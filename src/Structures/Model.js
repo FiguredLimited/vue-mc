@@ -141,7 +141,7 @@ class Model extends Base {
         Vue.set(this, '_reference',   {});  // Saved attribute state.
         Vue.set(this, '_attributes',  {});  // Active attribute state.
         Vue.set(this, '_mutations',   {});  // Mutator cache.
-	    Vue.set(this, '_computed',    {});  // Computed properties.
+        Vue.set(this, '_computed',    {});  // Computed properties.
         Vue.set(this, '_errors',      {});  // Validation errors.
 
         this.clearState();
@@ -228,15 +228,15 @@ class Model extends Base {
     }
 
     /**
-	 * @returns {Object} Attribute mutations keyed by attribute name.
-	 */
+     * @returns {Object} Attribute mutations keyed by attribute name.
+     */
     mutations() {
         return {};
     }
 
     /**
-	 * @returns {Object} Attribute computations keyed by attribute name.
-	 */
+     * @returns {Object} Attribute computations keyed by attribute name.
+     */
     computed() {
         return {};
     }
@@ -303,8 +303,8 @@ class Model extends Base {
     }
 
     /**
-	 * Compiles all mutations into pipelines that can be executed quickly.
-	 */
+     * Compiles all mutations into pipelines that can be executed quickly.
+     */
     compileMutators() {
         this._mutations = mapValues(this.mutations(), (m) => flow(m));
     }
@@ -465,45 +465,45 @@ class Model extends Base {
     }
 
     /**
-	 * Mutates either specific attributes or all attributes if none provided. // TODO
-	 * @param {string|string[]|undefined} attribute
-	 */
+     * Mutates either specific attributes or all attributes if none provided. // TODO
+     * @param {string|string[]|undefined} attribute
+     */
     compute(attribute) {
-	    return get(this._computed, attribute, () => {})
+        return get(this._computed, attribute, () => {})
     }
 
     /**
      *
      * TODO (sifex): Cache computed properties using dependency tracker, or see if you can use Vue's
      * TODO: https://www.skyronic.com/blog/vuejs-internals-computed-properties
-	 */
+     */
     registerComputed() {
         this._computed = mapValues(this.computed(), m => m);
 
         each(this._computed, (value, attribute) => {
-	        // Protect against unwillingly using an attribute name that already
-	        // exists as an internal property or method name.
-	        if (has(RESERVED, attribute)) {
-		        throw new Error(`Can't use reserved attribute name '${attribute}'`);
-	        }
+            // Protect against unwillingly using an attribute name that already
+            // exists as an internal property or method name.
+            if (has(RESERVED, attribute)) {
+                throw new Error(`Can't use reserved attribute name '${attribute}'`);
+            }
 
-	        // Protect against unwillingly using an attribute name that already
-	        // exists as an internal property or method name.
-	        if (has(this._attributes, attribute)) {
-		        throw new Error(`Can't override existing attribute '${attribute}'`);
-	        }
+            // Protect against unwillingly using an attribute name that already
+            // exists as an internal property or method name.
+            if (has(this._attributes, attribute)) {
+                throw new Error(`Can't override existing attribute '${attribute}'`);
+            }
 
-	        if (isFunction(value)) {
-		        // Create dynamic accessors and mutations so that we can update the
-		        // model directly while also keeping the model attributes in sync.
-		        Object.defineProperty(this, attribute, {
-			        get: this.compute(attribute),
+            if (isFunction(value)) {
+                // Create dynamic accessors and mutations so that we can update the
+                // model directly while also keeping the model attributes in sync.
+                Object.defineProperty(this, attribute, {
+                    get: this.compute(attribute),
                     set: () => { console.warn('You cannot set a computed property without a setter.') },
-		        });
-	        } else if (isObject(value)) {
-		        Object.defineProperty(this, attribute, value);
-	        } else {
-		        throw new Error(`Computed property '${attribute}' must either be a function or a getter/setter object.`);
+                });
+            } else if (isObject(value)) {
+                Object.defineProperty(this, attribute, value);
+            } else {
+                throw new Error(`Computed property '${attribute}' must either be a function or a getter/setter object.`);
             }
         })
     }
