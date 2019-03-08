@@ -155,7 +155,7 @@ class Model extends Base {
         // Assign all given model data to the model's attributes and reference.
         this.assign(attributes);
 
-        // Register all computed properties
+        // Register all computed properties.
         this.registerComputed();
 
         // Register the given collection (if any) to the model. This is so that
@@ -235,7 +235,7 @@ class Model extends Base {
     }
 
     /**
-     * @returns {Object} Attribute computations keyed by attribute name.
+     * @returns {Object} Attribute computations keyed by name.
      */
     computed() {
         return {};
@@ -465,7 +465,7 @@ class Model extends Base {
     }
 
     /**
-     * Mutates either specific attributes or all attributes if none provided. // TODO
+     * Computes an attribute or returns undefined
      * @param {string|string[]|undefined} attribute
      */
     compute(attribute) {
@@ -473,34 +473,34 @@ class Model extends Base {
     }
 
     /**
-     *
-     * TODO (sifex): Cache computed properties using dependency tracker, or see if you can use Vue's
-     * TODO: https://www.skyronic.com/blog/vuejs-internals-computed-properties
+     * Registers all computed properties globally
      */
     registerComputed() {
         this._computed = mapValues(this.computed(), m => m);
 
         each(this._computed, (value, attribute) => {
-            // Protect against unwillingly using an attribute name that already
+            // Protect against unknowingly using an attribute name that already
             // exists as an internal property or method name.
             if (has(RESERVED, attribute)) {
                 throw new Error(`Can't use reserved attribute name '${attribute}'`);
             }
 
-            // Protect against unwillingly using an attribute name that already
-            // exists as an internal property or method name.
+            // Protect against unknowingly using an attribute name that already
+            // exists as an attribute.
             if (has(this._attributes, attribute)) {
                 throw new Error(`Can't override existing attribute '${attribute}'`);
             }
 
             if (isFunction(value)) {
-                // Create dynamic accessors and mutations so that we can update the
-                // model directly while also keeping the model attributes in sync.
+                // Create dynamic accessors so that we can access the computed
+                // property directly..
                 Object.defineProperty(this, attribute, {
                     get: this.compute(attribute),
                     set: () => { console.warn('You cannot set a computed property without a setter.') },
                 });
             } else if (isObject(value)) {
+	            // Leave access open to allow getters as well as setters such that
+	            // you're able to interface with attributes through a function.
                 Object.defineProperty(this, attribute, value);
             } else {
                 throw new Error(`Computed property '${attribute}' must either be a function or a getter/setter object.`);
@@ -548,7 +548,7 @@ class Model extends Base {
      */
     registerAttribute(attribute) {
 
-        // Protect against unwillingly using an attribute name that already
+        // Protect against unknowingly using an attribute name that already
         // exists as an internal property or method name.
         if (has(RESERVED, attribute)) {
             throw new Error(`Can't use reserved attribute name '${attribute}'`);
