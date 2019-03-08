@@ -36,7 +36,6 @@
     "dependencies": {
         "axios": "^0.18.0",
         "date-fns": "^2.0.0-alpha.25",
-        "jekyll": "^3.0.0-beta1",
         "lodash": "^4.17.11",
         "validator": "^10.9.0",
         "vue": "2.5.17"
