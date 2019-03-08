@@ -274,6 +274,44 @@ mutations() {
 
 See [options](#model-options) that determine when mutations should be applied.
 
+
+## Computed properties {#model-computed-properties}
+
+Similar to Vue, `vue-mc` also implements computed properties to help you better define ways to present your attributes, without having to add unnecessary data to your model, especially handy when you don't want to save certain attributes to your server.
+
+You can access computed properties exactly the same as attributes.
+
+{% highlight js %}
+// Setup our computed property
+class User extends Model {
+    computed () {
+        return {
+            full_name: () => this.first_name + ' ' + this.last_name
+        }
+    }
+}
+
+let user = new User({ first_name: 'Tim', last_name: 'Apple' });
+user.full_name; // 'Tim Apple'
+{% endhighlight %}
+
+### Computed Setter
+
+Computed properties are by default getter-only, but you can also provide a setter when you need it:
+
+{% highlight js %}
+computed () {
+    return {
+        price: {
+            get: () => parseFloat(this.cost / 100).toFixed(2),
+            set: (dollars) => { this.cost = parseInt(dollars * 100) }
+        }
+    }
+}
+
+{% endhighlight %}
+
+
 ## Validation {#model-validation}
 
 There are already some awesome validation libraries for Vue such as

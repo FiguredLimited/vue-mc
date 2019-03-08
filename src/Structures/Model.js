@@ -487,12 +487,18 @@ class Model extends Base {
 		        throw new Error(`Can't use reserved attribute name '${attribute}'`);
 	        }
 
+	        // Protect against unwillingly using an attribute name that already
+	        // exists as an internal property or method name.
+	        if (has(this._attributes, attribute)) {
+		        throw new Error(`Can't override existing attribute '${attribute}'`);
+	        }
+
 	        if (isFunction(value)) {
 		        // Create dynamic accessors and mutations so that we can update the
 		        // model directly while also keeping the model attributes in sync.
 		        Object.defineProperty(this, attribute, {
 			        get: this.compute(attribute),
-                    set: () => { throw new Error(`Cannot set computed property '${attribute}'`) },
+                    set: () => { console.warn('You cannot set a computed property without a setter.') },
 		        });
 	        } else if (isObject(value)) {
 		        Object.defineProperty(this, attribute, value);

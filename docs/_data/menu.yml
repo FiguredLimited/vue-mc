@@ -58,6 +58,10 @@ Models:
         path: '/#model-mutations'
         meta: []
     -
+        name: 'Computed Properties'
+        path: '/#model-computed-properties'
+        meta: []
+    -
         name: 'Validation'
         path: '/#model-validation'
         meta:

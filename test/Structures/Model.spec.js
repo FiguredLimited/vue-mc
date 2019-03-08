@@ -838,6 +838,23 @@ describe('Model', () => {
 		    expect(m.price).to.equal(parseFloat(1.00).toFixed(2));
 		    expect(m.cost).to.equal(100);
 	    })
+
+	    it('should throw an error as computed property might override existing attribute', () => {
+		    let m = class extends Model {
+		        defaults() {
+		            return {
+		                test: '',
+		            }
+                }
+			    computed() {
+				    return {
+					    test: () => '',
+				    }
+			    }
+		    };
+
+		    expect(() => new m()).to.throw(Error)
+	    })
     })
 
     describe('set', () => {
