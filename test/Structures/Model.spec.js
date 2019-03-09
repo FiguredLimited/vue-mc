@@ -817,6 +817,7 @@ describe('Model', () => {
                 }
             }({ cost: 1 }, null);
 
+            m.price = 'asd' // Should just console warn
 	        expect(m.price).to.equal(100);
 	        expect(m.cost).to.equal(1);
         })
@@ -839,7 +840,19 @@ describe('Model', () => {
 		    expect(m.cost).to.equal(100);
 	    })
 
-	    it('should throw an error as computed property might override existing attribute', () => {
+	    it('should throw an error as computed property is using reserved word', () => {
+		    let m = class extends Model {
+			    computed() {
+				    return {
+					    _attributes: () => '',
+				    }
+			    }
+		    };
+
+		    expect(() => new m()).to.throw(Error)
+	    })
+
+	    it('should throw an error as computed is overriding an existing attribute', () => {
 		    let m = class extends Model {
 		        defaults() {
 		            return {
@@ -849,6 +862,18 @@ describe('Model', () => {
 			    computed() {
 				    return {
 					    test: () => '',
+				    }
+			    }
+		    };
+
+		    expect(() => new m()).to.throw(Error)
+	    })
+
+	    it('should throw an error as computed property is not a object getter / setter or a getter function', () => {
+		    let m = class extends Model {
+			    computed() {
+				    return {
+					    test: null
 				    }
 			    }
 		    };
