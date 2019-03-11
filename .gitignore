@@ -5,6 +5,7 @@
 /node_modules
 /package-lock.json
 /vendor
+/yarn-error.log
 
 # Compiled files
 /validation
