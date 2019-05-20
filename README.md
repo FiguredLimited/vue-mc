@@ -1,4 +1,4 @@
-<img align="left" width="120" src="https://vuemc.io/assets/images/logo.png" />
+<img align="left" width="100" src="https://vuemc.io/assets/images/logo.png" />
 
 # Models and Collections for Vue.js
 
