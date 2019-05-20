@@ -1013,10 +1013,7 @@ class Model extends Base {
         this.addToAllCollections();
 
         this.emit('save.success', {error: null});
-        
-        if (action) {
-          this.emit(action, {error: null})  
-        }
+        this.emit(action, {error: null})
     }
 
     /**
