@@ -1,5 +1,6 @@
-<img align="left" height="100" src="https://vuemc.io/assets/images/logo.png" />
-
+<p>
+  <img align="left" height="100" src="https://vuemc.io/assets/images/logo.png" />
+</p>
 # Models and Collections for Vue.js
 
 [![Build Status](https://img.shields.io/travis/FiguredLimited/vue-mc.svg?style=flat-square&branch=master)](https://travis-ci.org/FiguredLimited/vue-mc)
