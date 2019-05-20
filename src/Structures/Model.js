@@ -989,6 +989,14 @@ class Model extends Base {
      * @param {Object|null} response
      */
     onSaveSuccess(response) {
+        let responseData = response.getData()
+
+        // Find if it's a create or update action
+        let action = 'update';
+        
+        if (response.getStatus() === 201 || ( ! this.saved('id') && (isPlainObject(responseData) && get(responseData, 'id')))) {
+            action = 'create'
+        }
 
         // Clear errors because the request was successful.
         this.clearErrors();
@@ -1004,7 +1012,11 @@ class Model extends Base {
         // Automatically add to all registered collections.
         this.addToAllCollections();
 
-        this.emit('save', {error: null});
+        this.emit('save.success', {error: null});
+        
+        if (action) {
+          this.emit(action, {error: null})  
+        }
     }
 
     /**
@@ -1052,8 +1064,8 @@ class Model extends Base {
         } else {
             this.onFatalSaveFailure(error);
         }
-
-        this.emit('save', {error});
+        
+        this.$emit('save.failure', { error: error })
     }
 
     /**
@@ -1122,6 +1134,8 @@ class Model extends Base {
      * @returns {boolean} `false` if the request should not be made.
      */
     onSave() {
+        this.$emit('save', { error: null })
+        
         return new Promise((resolve, reject) => {
 
             // Don't save if we're already busy saving this model.
