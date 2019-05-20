@@ -1013,7 +1013,7 @@ class Model extends Base {
         this.addToAllCollections();
 
         this.emit('save.success', {error: null});
-        this.emit(action, {error: null})
+        this.emit(action, {error: null});
     }
 
     /**
@@ -1062,7 +1062,7 @@ class Model extends Base {
             this.onFatalSaveFailure(error);
         }
         
-        this.emit('save.failure', { error: error })
+        this.emit('save.failure', { error: error });
     }
 
     /**
@@ -1131,7 +1131,7 @@ class Model extends Base {
      * @returns {boolean} `false` if the request should not be made.
      */
     onSave() {
-        this.emit('save', { error: null })
+        this.emit('save', { error: null });
         
         return new Promise((resolve, reject) => {
 
