@@ -989,21 +989,22 @@ class Model extends Base {
      * @param {Object|null} response
      */
     onSaveSuccess(response) {
-        let responseData = response.getData()
-
-        // Find if it's a create or update action
-        let action = 'update';
-        
-        if (response.getStatus() === 201 || ( ! this.saved('id') && (isPlainObject(responseData) && get(responseData, 'id')))) {
-            action = 'create'
-        }
+        let action;
 
         // Clear errors because the request was successful.
         this.clearErrors();
 
-        // Update this model with the data that was returned in the response.
         if (response) {
-            this.update(response.getData());
+            let responseData = response.getData()
+
+            // Find if it's a create or update action
+            action = 'update';
+            if (response.getStatus() === 201 || ( ! this.saved('id') && (isPlainObject(responseData) && get(responseData, 'id')))) {
+                action = 'create'
+            }
+
+            // Update this model with the data that was returned in the response.
+            this.update(responseData);
         }
 
         Vue.set(this, 'saving', false);
@@ -1013,7 +1014,10 @@ class Model extends Base {
         this.addToAllCollections();
 
         this.emit('save.success', {error: null});
-        this.emit(action, {error: null});
+
+        if (action) {
+            this.emit(action, {error: null});
+        }
     }
 
     /**
