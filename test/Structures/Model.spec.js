@@ -2064,7 +2064,7 @@ describe('Model', () => {
             m.saving = true;
             expect(m.saving).to.equal(true);
 
-            m.on('save', () => {
+            m.on('save.success', () => {
                 throw 'Did not expect to handle save event';
             });
 
@@ -2076,7 +2076,7 @@ describe('Model', () => {
                 routes() { return {save: '/collection/save'}}
             }
 
-            m.on('save', () => {
+            m.on('save.failure', () => {
                 done();
             });
 
