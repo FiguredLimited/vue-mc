@@ -38,7 +38,7 @@
         "date-fns": "^2.0.0-alpha.25",
         "lodash": "^4.17.11",
         "validator": "^10.9.0",
-        "vue": "2.5.17"
+        "vue": "^2.5.17"
     },
     "devDependencies": {
         "@babel/core": "^7.1.6",
