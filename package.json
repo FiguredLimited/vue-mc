@@ -1,6 +1,6 @@
 {
     "name": "vue-mc",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "",
     "license": "MIT",
     "main": "vue-mc.js",
@@ -34,28 +34,28 @@
         "url": "https://github.com/rtheunissen"
     },
     "dependencies": {
-        "axios": "^0.18.0",
-        "date-fns": "^2.0.0-alpha.25",
+        "axios": "0.19.0",
+        "date-fns": "^2.0.0-beta.4",
         "lodash": "^4.17.11",
-        "validator": "^10.9.0",
-        "vue": "2.5.17"
+        "validator": "11.1.0",
+        "vue": "^2.5.17"
     },
     "devDependencies": {
         "@babel/core": "^7.1.6",
         "@babel/preset-env": "^7.1.6",
         "@babel/register": "^7.0.0",
-        "babel-preset-env": "^1.7.0",
         "array-permutation": "^0.2.0",
         "babel-plugin-istanbul": "^5.1.0",
+        "babel-preset-env": "^1.7.0",
         "chai": "^4.2.0",
-        "eslint": "5.9.0",
-        "mocha": "^5.2.0",
+        "eslint": "^6.1.0",
+        "mocha": "^6.2.0",
         "moxios": "^0.4.0",
-        "nyc": "13.1.0",
-        "rollup": "^0.67.1",
+        "nyc": "^14.1.1",
+        "rollup": "^1.19.2",
         "rollup-plugin-babel": "^4.0.3",
-        "rollup-plugin-commonjs": "^9.2.0",
-        "rollup-plugin-node-resolve": "^3.4.0"
+        "rollup-plugin-commonjs": "^10.0.2",
+        "rollup-plugin-node-resolve": "^5.2.0"
     },
     "scripts": {
         "build": "rollup -c",
