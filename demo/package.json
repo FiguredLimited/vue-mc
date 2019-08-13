@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "cross-env": "^5.1.1",
-    "element-theme-default": "^1.4.9",
-    "element-ui": "^2.0.3",
-    "laravel-mix": "^1.6.1",
-    "lodash": "^4.17.4",
-    "vue": "^2.5.3",
+    "cross-env": "^5.2.0",
+    "element-theme-default": "^1.4.13",
+    "element-ui": "^2.11.1",
+    "laravel-mix": "4.1.2",
+    "lodash": "^4.17.15",
+    "vue": "^2.6.10",
     "vue-mc": "0.2.2"
   },
   "scripts": {
