@@ -1,21 +1,25 @@
-import Vue          from 'vue'
-import Request      from '../HTTP/Request.js'
-import { autobind } from '../utils.js'
-import assign       from 'lodash/assign'
-import defaults     from 'lodash/defaults'
-import defaultsDeep from 'lodash/defaultsDeep'
-import defaultTo    from 'lodash/defaultTo'
-import each         from 'lodash/each'
-import get          from 'lodash/get'
-import invoke       from 'lodash/invoke'
-import isFunction   from 'lodash/isFunction'
-import map          from 'lodash/map'
-import reduce       from 'lodash/reduce'
-import replace      from 'lodash/replace'
-import set          from 'lodash/set'
-import split        from 'lodash/split'
-import trim         from 'lodash/trim'
-import uniqueId     from 'lodash/uniqueId'
+import Vue              from 'vue'
+import { autobind }     from '../utils.js'
+import Request          from '../HTTP/Request.js'
+import Response         from '../HTTP/Response.js'
+import RequestError     from '../Errors/RequestError.js'
+import ResponseError    from '../Errors/ResponseError.js'
+import ValidationError  from '../Errors/ValidationError.js'
+import assign           from 'lodash/assign'
+import defaults         from 'lodash/defaults'
+import defaultsDeep     from 'lodash/defaultsDeep'
+import defaultTo        from 'lodash/defaultTo'
+import each             from 'lodash/each'
+import get              from 'lodash/get'
+import invoke           from 'lodash/invoke'
+import isFunction       from 'lodash/isFunction'
+import map              from 'lodash/map'
+import reduce           from 'lodash/reduce'
+import replace          from 'lodash/replace'
+import set              from 'lodash/set'
+import split            from 'lodash/split'
+import trim             from 'lodash/trim'
+import uniqueId         from 'lodash/uniqueId'
 
 const REQUEST_CONTINUE  = 0;
 const REQUEST_REDUNDANT = 1;
@@ -461,8 +465,29 @@ class Base {
     /**
      * @returns {Request} A new `Request` using the given configuration.
      */
-    getRequest(config) {
+    createRequest(config) {
         return new Request(config);
+    }
+
+    /**
+     * Creates a request error based on a given existing error and optional response.
+     */
+    createRequestError(error, response) {
+        return new RequestError(error, response);
+    }
+
+    /**
+     * Creates a response error based on a given existing error and response.
+     */
+    createResponseError(error, response) {
+        return new ResponseError(error, response);
+    }
+
+    /**
+     * Creates a validation error using given errors and an optional message.
+     */
+    createValidationError(errors, message) {
+        return new ValidationError(errors, message);
     }
 
     /**
@@ -495,7 +520,8 @@ class Base {
                 }
 
                 // Make the request.
-                return this.getRequest(config)
+                return this
+                    .createRequest(config)
                     .send()
                     .then((response) => {
                         onSuccess(response);
@@ -522,12 +548,14 @@ class Base {
      * @returns {Promise}
      */
     fetch(options = {}) {
-        let config = () => defaults(options, {
-            url     : this.getFetchURL(),
-            method  : this.getFetchMethod(),
-            params  : this.getFetchQuery(),
-            headers : this.getFetchHeaders(),
-        });
+        let config = () => {
+            return {
+                url     : defaultTo(options.url,     this.getFetchURL()),
+                method  : defaultTo(options.method,  this.getFetchMethod()),
+                params  : defaults (options.params,  this.getFetchQuery()),
+                headers : defaults (options.headers, this.getFetchHeaders()),
+            };
+        };
 
         return this.request(
             config,
@@ -550,13 +578,15 @@ class Base {
      * @returns {Promise}
      */
     save(options = {}) {
-        let config = () => defaults(options, {
-            url     : this.getSaveURL(),
-            method  : this.getSaveMethod(),
-            data    : this.getSaveData(),
-            params  : this.getSaveQuery(),
-            headers : this.getSaveHeaders(),
-        });
+        let config = () => {
+            return {
+                url     : defaultTo(options.url,     this.getSaveURL()),
+                method  : defaultTo(options.method,  this.getSaveMethod()),
+                data    : defaultTo(options.data,    this.getSaveData()),
+                params  : defaults (options.params,  this.getSaveQuery()),
+                headers : defaults (options.headers, this.getSaveHeaders()),
+            };
+        };
 
         return this.request(
             config,
@@ -615,13 +645,15 @@ class Base {
      * @returns {Promise}
      */
     delete(options = {}) {
-        let config = () => defaults(options, {
-            url     : this.getDeleteURL(),
-            method  : this.getDeleteMethod(),
-            data    : this.getDeleteBody(),
-            params  : this.getDeleteQuery(),
-            headers : this.getDeleteHeaders(),
-        });
+        let config = () => {
+            return {
+                url     : defaultTo(options.url,     this.getDeleteURL()),
+                method  : defaultTo(options.method,  this.getDeleteMethod()),
+                data    : defaultTo(options.data,    this.getDeleteBody()),
+                params  : defaults (options.params,  this.getDeleteQuery()),
+                headers : defaults (options.headers, this.getDeleteHeaders()),
+            };
+        };
 
         return this.request(
             config,

@@ -520,6 +520,88 @@ describe('Model', () => {
             });
         })
 
+        it('should validate collections recursively with a mix of valid and invalid models', (done) => {
+            const InvalidModel = class extends Model {
+                defaults()   { return {a: 1} }
+                validation() { return {a: email} }
+            }
+            const ValidModel = class extends Model {
+                defaults()   { return {y: 1} }
+                validation() { return {} }
+            }
+ 
+            // A collection of some valid and some invalid models.
+            let c = new Collection([
+                new ValidModel,
+                new ValidModel,
+                new InvalidModel,
+            ]);
+
+            // A model that has an invalid property and an invalid nested validator.
+            let m = new class extends Model {
+                defaults() {
+                    return {
+                        x: 1,
+                        c: c,
+                    }
+                }
+                validation() {
+                    return {
+                        x: email,
+                    }
+                }
+            }
+
+            m.setOption('validateRecursively', true);
+            m.setOption('useFirstErrorOnly',   false);
+
+            m.validate().then((errors) => {
+                expect(errors).to.deep.equal({
+                    "c": [
+                        {},
+                        {},
+                        {
+                            "a": [
+                                "Must be a valid email address",
+                            ]
+                        }
+                    ],
+                    "x": [
+                      "Must be a valid email address",
+                    ]
+                });
+                
+                done();
+            })
+        })
+
+        it('should validate collections recursively without errors if a nested collection has only valid models', (done) => {
+            const ValidModel = class extends Model {
+                defaults()   { return {a: 1} }
+            }
+ 
+            // A collection of some valid and some invalid models.
+            let c = new Collection([
+                new ValidModel,
+                new ValidModel,
+            ]);
+
+            // A model that has a nested, valid collection.
+            let m = new class extends Model {
+                defaults() {
+                    return { c }
+                }
+            }
+
+            m.setOption('validateRecursively', true);
+            m.setOption('useFirstErrorOnly',   false);
+
+            m.validate().then((errors) => {
+                expect(errors).to.deep.equal({});
+                done();
+            })
+        })
+
         it('should throw if `false` is given as attribute', (done) => {
             let m = new class extends Model {
                 defaults() {

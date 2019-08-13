@@ -1,12 +1,12 @@
 import Vue             from 'vue'
 import Base            from './Base.js'
 import Model           from './Model.js'
-import ResponseError   from '../Errors/ResponseError.js'
 import ValidationError from '../Errors/ValidationError.js'
 import ProxyResponse   from '../HTTP/ProxyResponse.js'
 import countBy         from 'lodash/countBy'
 import defaultsDeep    from 'lodash/defaultsDeep'
 import each            from 'lodash/each'
+import every           from 'lodash/every'
 import filter          from 'lodash/filter'
 import find            from 'lodash/find'
 import findIndex       from 'lodash/findIndex'
@@ -257,7 +257,11 @@ class Collection extends Base {
      * @returns {Promise}
      */
     validate() {
-        return Promise.all(this.models.map((model) => model.validate()));
+        let validations = this.models.map((model) => model.validate());
+
+        return Promise.all(validations).then((errors) => {
+            return every(errors, isEmpty) ? [] : errors;
+        });
     }
 
     /**
@@ -734,18 +738,14 @@ class Collection extends Base {
             // There is no sensible alternative to an array here, so anyting else
             // is considered an exception that indicates an unexpected state.
             if ( ! isArray(saved)) {
-                throw new ResponseError(
-                    'Response data must be an array or empty',
-                    response);
+                throw this.createResponseError('Response data must be an array or empty', response);
             }
 
             // Check that the number of models returned in the response matches
             // the number of models that were saved. If these are not equal, it's
             // not possible to map saved data to the saving models.
             if (saved.length !== saving.length) {
-                throw new ResponseError(
-                    'Expected the same number of models in the response',
-                    response);
+                throw this.createResponseError('Expected the same number of models in the response', response);
             }
 
             // Update every model with its respective response data.
@@ -791,8 +791,7 @@ class Collection extends Base {
         // assumption that the array of errors returned in the response must have
         // the same number of elements as there are models being saved.
         if (errors.length !== models.length) {
-            throw new ResponseError(
-                'Array of errors must equal the number of models');
+            throw this.createResponseError('Array of errors must equal the number of models');
         }
 
         // Set every model's errors in a way that emulates how saving a model
@@ -861,8 +860,7 @@ class Collection extends Base {
         let errors = response.getValidationErrors();
 
         if ( ! isPlainObject(errors) && ! isArray(errors)) {
-            throw new ResponseError(
-                'Validation errors must be an object or array', response);
+            throw this.createResponseError('Validation errors must be an object or array', response);
         }
 
         this.setErrors(errors);
@@ -988,7 +986,7 @@ class Collection extends Base {
         // There is no sensible alternative to an array here, so anyting else
         // is considered an exception that indicates an unexpected state.
         if ( ! isArray(models)) {
-            throw new ResponseError('Expected an array of models in fetch response');
+            throw this.createResponseError('Expected an array of models in fetch response');
         }
 
         // Append via pagination.

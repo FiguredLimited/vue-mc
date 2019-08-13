@@ -41,15 +41,23 @@ import stubTrue         from 'lodash/stubTrue'
 import template         from 'lodash/template'
 import toLower          from 'lodash/toLower'
 import toNumber         from 'lodash/toNumber'
-
+import * as dates       from 'date-fns';
 import {
     format   as formatDate,
     isAfter  as isAfterDate,
     isBefore as isBeforeDate,
     isValid  as isValidDate,
-    parse    as parseDate,
-    toDate   as toDate,
-} from "date-fns";
+
+} from "date-fns"
+
+// Parses any given value as a date.
+const parseDate = (value, format) => {
+    if (isString(value)) {
+        return format ? dates.parse(value, format, new Date()) : dates.parseISO(value);
+    } else {
+        return dates.toDate(value);
+    }
+};
 
 // We want to set the messages a superglobal so that imports across files
 // reference the same messages object.
@@ -306,7 +314,7 @@ export const after = function(date) {
     return rule({
         name: 'after',
         data: {date},
-        test: (value) => isAfterDate(value, date),
+        test: (value) => isAfterDate(parseDate(value), parseDate(date)),
     })
 }
 
@@ -362,7 +370,7 @@ export const before = function(date) {
     return rule({
         name: 'before',
         data: {date},
-        test: (value) => isBeforeDate(value, date),
+        test: (value) => isBeforeDate(parseDate(value), parseDate(date)),
     })
 }
 
@@ -370,14 +378,14 @@ export const before = function(date) {
  * Checks if a value is between a given minimum or maximum, inclusive by default.
  */
 export const between = function(min, max, inclusive = true) {
-    let _min = +(isString(min) ? toDate(min) : min);
-    let _max = +(isString(max) ? toDate(max) : max);
+    let _min = +(isString(min) ? parseDate(min) : min);
+    let _max = +(isString(max) ? parseDate(max) : max);
 
     return rule({
         data: {min, max},
         name: inclusive ? 'between_inclusive' : 'between',
         test: (value) => {
-            let _value = +(isString(value) ? toDate(value) : value);
+            let _value = +(isString(value) ? parseDate(value) : value);
 
             return inclusive
                 ? greaterOrEqualTo(_value, _min) && lessOrEqualTo(_value, _max)
@@ -394,7 +402,6 @@ export const boolean = rule({
     test: isBoolean,
 })
 
-
 /**
  * Checks if a value is a valid credit card number.
  */
@@ -408,9 +415,10 @@ export const creditcard = rule({
  */
 export const date = rule({
     name: 'date',
-    test: (value) => isValidDate(toDate(value)),
+    test: (value) => {
+        return isValidDate(parseDate(value));
+    }
 })
-
 
 /**
  * Checks if a value matches the given date format.
@@ -422,9 +430,17 @@ export const dateformat = function(format) {
         name: 'dateformat',
         data: {format},
         test: (value) => {
-            const parsedDate = parseDate(value, format, new Date());
+            try {
+                return isValidDate(parseDate(value.toString(), format)) 
+                    && formatDate(parseDate(value.toString(), format), format) === value.toString();
 
-            return isValidDate(parsedDate) && formatDate(parsedDate, format) === value.toString();
+            } catch (error) {
+                if (error instanceof RangeError) {
+                    return false;
+                } else {
+                    throw error;
+                }
+            }
         },
     })
 }

@@ -503,17 +503,18 @@ describe('Collection', () => {
             });
         })
 
-        it('should pass with no models', () => {
+        it('should pass with no models', (done) => {
             let c  = new Collection();
             c.validate().then((errors) => {
                 expect(errors).to.be.empty;
+                done();
             });
         })
 
-        it('should pass with no models that have validation', (done) => {
+        it('should pass with no errors when no models are invalid', (done) => {
             let c = new Collection([{}, {}]);
             c.validate().then((errors) => {
-                expect(errors).to.deep.equal([{}, {}]);
+                expect(errors).to.be.empty;
                 done();
             });
         })
@@ -653,7 +654,28 @@ describe('Collection', () => {
             c.page(1);
             expect(c.getPage()).to.equal(1);
             expect(c.isPaginated()).to.equal(true);
+        })
 
+        it('should set page even if params are given', (done) => {
+            let c = new class extends Collection {
+                routes() { return { fetch: 'fetch/url/here' }}
+            }
+
+            moxios.withMock(() => {
+                c.page(1);
+                c.fetch({params: {a: 1}});
+
+                moxios.wait(() => {
+                    let request = moxios.requests.mostRecent();
+
+                    expect(request.config.params).to.deep.equal({
+                        a: 1,
+                        page: 1,
+                    });
+
+                    done();
+                })
+            })
         })
 
         it('should support setting the current page', () => {
@@ -2348,7 +2370,7 @@ describe('Collection', () => {
             let m1 = c.add({a: 1});
             let m2 = c.add({a: 2});
 
-            c.on('save', () => { done(); });
+            c.on('save', () => { done() });
 
             moxios.withMock(() => {
                 c.save();
@@ -2923,7 +2945,6 @@ describe('Collection', () => {
 
             moxios.withMock(() => {
                 c.fetch().then((response) => {
-                    // console.log(response);
                     expectRequestToBeSkipped(c.fetch(), done);
                 });
             

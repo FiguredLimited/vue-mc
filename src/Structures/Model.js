@@ -1,8 +1,6 @@
 import Vue             from 'vue'
 import Base            from './Base.js'
 import Collection      from './Collection.js'
-import ResponseError   from '../Errors/ResponseError.js'
-import ValidationError from '../Errors/ValidationError.js'
 import castArray       from 'lodash/castArray'
 import cloneDeep       from 'lodash/cloneDeep'
 import defaults        from 'lodash/defaults'
@@ -207,7 +205,7 @@ class Model extends Base {
      * Returns the model's identifier value.
      */
     identifier() {
-        return this.get(this.getOption('identifier'));
+        return this.saved(this.getOption('identifier'));
     }
 
     /**
@@ -546,12 +544,14 @@ class Model extends Base {
         let changed = defined && ! isEqual(previous, value);
 
         if (changed) {
-            this.emit('change', {attribute, previous, value});
-
+            
             // Validate on change only if it's not the first time it's set.
             if (this.getOption('validateOnChange')) {
                 Vue.nextTick(() => this.validateAttribute(attribute));
-            }
+            } 
+
+            // Emit the change event after 
+            this.emit('change', {attribute, previous, value});
         }
 
         return value;
@@ -652,6 +652,11 @@ class Model extends Base {
         }
 
         return Promise.all(tasks).then((errors) => {
+            
+            // Unpack a nested error set.
+            if (isArray(errors) && isArray(first(errors))) {
+                errors = first(errors);
+            }
 
             // Errors will always be messages or nested error objects.
             errors = filter(errors, (e) => isString(e) || isObject(e));
@@ -702,8 +707,7 @@ class Model extends Base {
             return Promise.all(tasks).then(() => $errors);
         }
 
-        return Promise.reject(
-            new Error("Invalid argument for validation attributes"));
+        return Promise.reject(new Error("Invalid argument for validation attributes"));
     }
 
     /**
@@ -759,7 +763,7 @@ class Model extends Base {
 
         // A fetch request must receive *some* data in return.
         if (isEmpty(attributes)) {
-            throw new ResponseError("No data in fetch response", response);
+            throw this.createResponseError("No data in fetch response", response);
         }
 
         this.assign(attributes);
@@ -1027,8 +1031,7 @@ class Model extends Base {
         let errors = error.getResponse().getValidationErrors();
 
         if ( ! isPlainObject(errors)) {
-            throw new ResponseError(
-                'Validation errors must be an object', error.getResponse());
+            throw this.createResponseError('Validation errors must be an object', error.getResponse());
         }
 
         this.setErrors(errors);
@@ -1164,7 +1167,7 @@ class Model extends Base {
                 }
 
                 Vue.set(this, 'saving', false);
-                reject(new ValidationError(this.errors));
+                reject(this.createValidationError(this.errors));
                 return;
             });
         });

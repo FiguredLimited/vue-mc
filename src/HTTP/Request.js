@@ -9,13 +9,28 @@ export default class Request {
     }
 
     /**
+     * Creates a custom response using a given Axios response.
+     */
+    createResponse(axiosResponse) {
+        return new Response(axiosResponse);
+    }
+
+    /**
+     * Creates a custom response error using a given Axios response error.
+     */
+    createError(axiosError) {
+        return new RequestError(axiosError, this.createResponse(axiosError.response));
+    }
+
+    /**
      * @returns {Promise}
      */
     send() {
-        return axios.request(this.config).then((response) => {
-            return new Response(response);
-        }).catch((error) => {
-            throw new RequestError(error, new Response(error.response));
-        });
+        return axios
+            .request(this.config)
+            .then(this.createResponse)
+            .catch((error) => {
+                throw this.createError(error);
+            });
     }
 }

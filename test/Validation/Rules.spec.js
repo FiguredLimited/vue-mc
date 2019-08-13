@@ -271,9 +271,24 @@ describe('Rules', () => {
             pass($.dateformat('MM/dd/yyyy'), '12/25/1995');
         })
 
-        it('should pass for a matching date timestamp format', () => {
+        it('should pass for a matching seconds timestamp format', () => {
+            pass($.dateformat('t'), '1565033384');
+            pass($.dateformat('t'),  1565033384);
+        })
+
+        it('should pass for a matching millis timestamp format', () => {
             pass($.dateformat('T'), '1504856445954');
             pass($.dateformat('T'),  1504856445954);
+        })
+
+        it('should pass for a millis timestamp without seconds format', () => {
+            pass($.dateformat('T'), '1504856445');
+            pass($.dateformat('T'),  1504856445);
+        })
+
+        it('should pass for a seconds timestamp with millis format', () => {
+            pass($.dateformat('t'), '1504856445954');
+            pass($.dateformat('t'),  1504856445954);
         })
 
         it('should fail for a valid date that does not use the exact format', () => {
