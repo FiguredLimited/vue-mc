@@ -2,6 +2,28 @@
 All notable changes to this project will be documented in this file.
 This project follows [Semantic Versioning](http://semver.org/)
 
+## [0.6.0] - 2019-08-15
+- Added Indonesian locale.
+- Added Polish locale.
+- Added German locale.
+- Added Persian locale.
+- Added Arabic locale.
+- Fix save events to reflect behavior described in the documentation.
+- Package dependency upgrades, relaxed Vue version requirement. #121
+- Lodash imported per module as needed to reduce build size.
+- Export Request, Response and RequestError to enable custom Axios instances.
+- Updated the demo.
+- Fix double devtools message. #120
+- Fix collection fetch with options override replacing pagination. #112
+- Fix `validateRecursively` always returning an error with collections. #92
+
+## [0.5.0] - 2018-11-15
+- Safer request option defaults
+- Added `upload` method.
+- Cleaned up duplicate dependencies.
+- Removed check for validation rule test returning false.
+- Upgrade some package dependencies.
+
 ## [0.4.0] - 2018-10-17
 - Change Model.getSaveData to always include the id if patching. @BehindTheMath
 - Add params/headers to fetch, save and delete functions. @throrin19
