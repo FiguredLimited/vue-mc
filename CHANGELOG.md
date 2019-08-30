@@ -16,6 +16,7 @@ This project follows [Semantic Versioning](http://semver.org/)
 - Fix double devtools message. #120
 - Fix collection fetch with options override replacing pagination. #112
 - Fix `validateRecursively` always returning an error with collections. #92
+- `getRequest` renamed to `createRequest`.
 
 ## [0.5.0] - 2018-11-15
 - Safer request option defaults
