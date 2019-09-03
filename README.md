@@ -1,5 +1,5 @@
 <p>
-  <img align="left" height="120" src="https://vuemc.io/assets/images/logo.png" />
+  <img align="left" height="120" src="http://vuemc.io/assets/images/logo.png" />
 </p>
 
 # Models and Collections for Vue.js
