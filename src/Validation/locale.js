@@ -201,6 +201,58 @@ export const fa_ir = {
         uuid: 'باید یک UUID معتبر باشد',
     },
 }
+
+/**
+ * French
+ */
+export const fr_fr = {
+    locale: 'fr-FR',
+    messages: {
+        after: 'Doit être après ${date}',
+        alpha: 'Ne peut utiliser que des lettres',
+        alphanumeric: 'Ne peut utiliser que des chiffres et des lettres',
+        array: 'Doit être un tableau',
+        ascii: 'Doit être ASCII',
+        base64: 'Doit être un Base64 valide',
+        before: 'Doit être avant le ${date}',
+        between: 'Doit être entre ${min} et ${max}',
+        between_inclusive: 'Doit être entre ${min} et ${max} compris',
+        boolean: 'MDoit être vrai ou faux',
+        creditcard: 'Doit être un numéro de carte de crédit valide',
+        date: 'Doit être une date valide',
+        dateformat: 'Doit utiliser le format "${format}"',
+        defined: 'Requis',
+        email: 'Doit être une adresse email valide',
+        empty: 'Doit être vide',
+        equals: 'Doit être égal(e) à ${other}',
+        gt: 'Doit être plus grand que ${min}',
+        gte: 'Doit être plus grand ou égal(e) à ${min}',
+        integer: 'Doit être un nombre entier',
+        ip: 'Doit être une adresse IP valide',
+        isblank: 'Ne doit pas être vide',
+        isnil: 'Requis',
+        isnull: 'Requis',
+        iso8601: 'Doit être une date ISO8601 valide',
+        json: 'Doit être un JSON valide',
+        length: 'Doit avoir une longueur d\'au moins ${min}',
+        length_between: 'Doit avoir une longueur entre  ${min} et ${max}',
+        lt: 'Doit être plus petit que ${max}',
+        lte: 'Doit être plus petit ou égal(e) à ${max}',
+        match: 'Doit correspondre à "${pattern}"',
+        negative: 'Doit être un nombre négatif',
+        not: 'Ne peut pas être ${value}',
+        number: 'Doit être un nombre',
+        numeric: 'Doit être numérique',
+        object: 'Doit être un object',
+        positive: 'Doit être un nombre positif',
+        required: 'Requis',
+        same: 'Doit avoir la même valeur que "${other}"',
+        string: 'Soit être une chaîne de caractères',
+        url: 'Doit être une adresse URL valide',
+        uuid: 'Doit être un UUID valide',
+    },
+}
+
 /**
  * Portuguese - Brazil
  */
