@@ -1073,7 +1073,7 @@ class Channel {
         let url    = this.getURL(route, params);
         let data   = {user: user.id},
         
-        return this.getRequest({method, url, data}).send();
+        return this.createRequest({method, url, data}).send();
     }
 }
 
