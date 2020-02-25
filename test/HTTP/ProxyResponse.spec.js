@@ -1,5 +1,5 @@
 import {assert, expect} from 'chai'
-import ProxyResponse from '../../src/HTTP/ProxyResponse.js'
+import ProxyResponse from '../../src/HTTP/ProxyResponse'
 
 describe('ProxyResponse', () => {
     describe('getData', () => {

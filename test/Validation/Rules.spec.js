@@ -1,6 +1,6 @@
 import {assert, expect} from 'chai'
 import * as _ from 'lodash';
-import * as $ from '../../src/Validation/index.js'
+import * as $ from '../../src/Validation/index'
 import {Model} from '../../src'
 
 /**

@@ -1,7 +1,7 @@
 import moxios from 'moxios'
 import {assert, expect} from 'chai'
-import {Model, Collection} from '../../src/index.js'
-import {email, string} from '../../src/Validation/index.js'
+import {Model, Collection} from '../../src/index'
+import {email, string} from '../../src/Validation/index'
 import * as _ from 'lodash';
 
 moxios.delay = 10;
@@ -15,7 +15,7 @@ function expectRequestToBeSkipped(request, done) {
 }
 
 /**
- * Unit tests for Collection.js
+ * Unit tests for Collection
  */
 describe('Collection', () => {
 
@@ -2947,7 +2947,7 @@ describe('Collection', () => {
                 c.fetch().then((response) => {
                     expectRequestToBeSkipped(c.fetch(), done);
                 });
-            
+
                 moxios.wait(() => {
                     moxios.requests.mostRecent().respondWith({
                         status: 200,

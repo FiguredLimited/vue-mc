@@ -1,35 +1,36 @@
-import Response     from './Response.js'
-import RequestError from '../Errors/RequestError.js'
-import axios        from 'axios'
+import Response                    from './Response';
+import RequestError                from '../Errors/RequestError';
+import axios, {AxiosRequestConfig, AxiosResponse, AxiosError} from 'axios';
 
 export default class Request {
+    config: AxiosRequestConfig;
 
-    constructor(config) {
+    constructor(config: AxiosRequestConfig) {
         this.config = config;
     }
 
     /**
      * Creates a custom response using a given Axios response.
      */
-    createResponse(axiosResponse) {
+    createResponse(axiosResponse?: AxiosResponse): Response {
         return new Response(axiosResponse);
     }
 
     /**
      * Creates a custom response error using a given Axios response error.
      */
-    createError(axiosError) {
+    createError(axiosError: AxiosError): RequestError {
         return new RequestError(axiosError, this.createResponse(axiosError.response));
     }
 
     /**
      * @returns {Promise}
      */
-    send() {
+    send(): Promise<Response> {
         return axios
             .request(this.config)
             .then(this.createResponse)
-            .catch((error) => {
+            .catch((error: AxiosError): never => {
                 throw this.createError(error);
             });
     }

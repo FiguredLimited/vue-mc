@@ -1,6 +1,6 @@
 import {assert, expect} from 'chai'
-import { messages } from '../../src/Validation/index.js'
-import { pt_br } from '../../src/Validation/locale.js'
+import { messages } from '../../src/Validation/index'
+import { pt_br } from '../../src/Validation/locale'
 
 describe('Messages', () => {
     describe('get', () => {

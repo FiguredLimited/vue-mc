@@ -1,20 +1,27 @@
+import Response from "../HTTP/Response";
+
 export default class RequestError {
-    constructor(error, response) {
+    message: string;
+    error: any;
+    response: Response;
+    stack?: string;
+
+    constructor(error: any, response: Response) {
         this.error    = error;
         this.response = response;
         this.stack    = (new Error()).stack;
         this.message  = error.message;
     }
 
-    toString() {
+    toString(): string {
         return this.message;
     }
 
-    getError() {
+    getError(): any {
         return this.error;
     }
 
-    getResponse() {
+    getResponse(): Response {
         return this.response;
     }
 }

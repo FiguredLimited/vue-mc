@@ -1,36 +1,50 @@
-import Vue              from 'vue'
-import { autobind }     from '../utils.js'
-import Request          from '../HTTP/Request.js'
-import Response         from '../HTTP/Response.js'
-import RequestError     from '../Errors/RequestError.js'
-import ResponseError    from '../Errors/ResponseError.js'
-import ValidationError  from '../Errors/ValidationError.js'
-import assign           from 'lodash/assign'
-import defaults         from 'lodash/defaults'
-import defaultsDeep     from 'lodash/defaultsDeep'
-import defaultTo        from 'lodash/defaultTo'
-import each             from 'lodash/each'
-import get              from 'lodash/get'
-import invoke           from 'lodash/invoke'
-import isFunction       from 'lodash/isFunction'
-import map              from 'lodash/map'
-import reduce           from 'lodash/reduce'
-import replace          from 'lodash/replace'
-import set              from 'lodash/set'
-import split            from 'lodash/split'
-import trim             from 'lodash/trim'
-import uniqueId         from 'lodash/uniqueId'
+import Vue from 'vue';
+import {autobind} from '../utils';
+import Request from '../HTTP/Request';
+import Response from '../HTTP/Response';
+import RequestError from '../Errors/RequestError';
+import ResponseError from '../Errors/ResponseError';
+import ValidationError, {Errors} from '../Errors/ValidationError';
 
-const REQUEST_CONTINUE  = 0;
-const REQUEST_REDUNDANT = 1;
-const REQUEST_SKIP      = 2;
+import assign from 'lodash/assign';
+import defaults from 'lodash/defaults';
+import defaultsDeep from 'lodash/defaultsDeep';
+import defaultTo from 'lodash/defaultTo';
+import each from 'lodash/each';
+import get from 'lodash/get';
+import invoke from 'lodash/invoke';
+import isFunction from 'lodash/isFunction';
+import map from 'lodash/map';
+import reduce from 'lodash/reduce';
+import replace from 'lodash/replace';
+import set from 'lodash/set';
+import split from 'lodash/split';
+import trim from 'lodash/trim';
+import uniqueId from 'lodash/uniqueId';
+
+import {AxiosRequestConfig, Method} from 'axios';
+import Model from './Model';
+import {BaseResponse} from '../HTTP/BaseResponse';
+
+export enum RequestOperation {
+    REQUEST_CONTINUE  = 0,
+    REQUEST_REDUNDANT = 1,
+    REQUEST_SKIP      = 2,
+}
 
 /**
  * Base class for all things common between Model and Collection.
  */
-class Base {
+abstract class Base {
+    static readonly REQUEST_CONTINUE  = RequestOperation.REQUEST_CONTINUE;
+    static readonly REQUEST_REDUNDANT = RequestOperation.REQUEST_REDUNDANT;
+    static readonly REQUEST_SKIP      = RequestOperation.REQUEST_SKIP;
 
-    constructor(options) {
+    readonly _uid!: string;
+    private readonly _listeners!: Record<string, Listener[]>;
+    private readonly _options!: Record<string, any>;
+
+    protected constructor(options: Options) {
         autobind(this);
 
         // Define an automatic unique ID. This is primarily to distinguish
@@ -52,7 +66,7 @@ class Base {
     /**
      * @returns {string} The class name of this instance.
      */
-    get $class() {
+    get $class(): string {
         return (Object.getPrototypeOf(this)).constructor.name;
     }
 
@@ -60,7 +74,7 @@ class Base {
      * Called after construction, this hook allows you to add some extra setup
      * logic without having to override the constructor.
      */
-    boot() {
+    boot(): void {
 
     }
 
@@ -71,7 +85,7 @@ class Base {
      *
      * @returns {Object}
      */
-    routes() {
+    routes(): Routes {
         return {};
     }
 
@@ -80,14 +94,14 @@ class Base {
      *
      * @returns {Object}
      */
-    getDefaultEventContext() {
-        return {target: this}
+    getDefaultEventContext(): {target: Base} {
+        return {target: this};
     }
 
     /**
      * @returns {string} Default string representation.
      */
-    toString() {
+    toString(): string {
         return `<${this.$class} #${this._uid}>`;
     }
 
@@ -100,8 +114,8 @@ class Base {
      * @param {string} event    The name of the event to emit.
      * @param {Object} context  The context of the event, passed to listeners.
      */
-    emit(event, context = {}) {
-        let listeners = get(this._listeners, event);
+    emit(event: string, context: Record<string, any> = {}): void {
+        let listeners: Listener[] = get(this._listeners, event);
 
         if ( ! listeners) {
             return;
@@ -112,7 +126,7 @@ class Base {
 
         // Run through each listener. If any of them return false, stop the
         // iteration and mark that the event wasn't handled by all listeners.
-        each(listeners, (listener) => listener(context));
+        each(listeners, (listener: Listener): void => listener(context));
     }
 
     /**
@@ -123,10 +137,10 @@ class Base {
      * @param {string}   event      The name of the event to listen for.
      * @param {function} listener   The event listener, accepts context.
      */
-    on(event, listener) {
-        let events = map(split(event, ','), trim);
+    on(event: string, listener: Listener): void {
+        let events: string[] = map(split(event, ','), trim);
 
-        each(events, (event) => {
+        each(events, (event: string): void => {
             this._listeners[event] = this._listeners[event] || [];
             this._listeners[event].push(listener);
         });
@@ -135,28 +149,28 @@ class Base {
     /**
      * @returns {Object} Parameters to use for replacement in route patterns.
      */
-    getRouteParameters() {
-        return {}
+    getRouteParameters(): Record<string, string> {
+        return {};
     }
 
     /**
      * @returns {RegExp|string} Pattern to match and group route parameters.
      */
-    getRouteParameterPattern() {
+    getRouteParameterPattern(): RegExp | string {
         return this.getOption('routeParameterPattern');
     }
 
     /**
      * @returns {RegExp} The default route parameter pattern.
      */
-    getDefaultRouteParameterPattern() {
+    getDefaultRouteParameterPattern(): RegExp {
         return /\{([^}]+)\}/;
     }
 
     /**
      * @returns {Object} This class' default options.
      */
-    getDefaultOptions() {
+    getDefaultOptions(): Options {
         return {
 
             // Default HTTP methods for requests.
@@ -167,7 +181,7 @@ class Base {
 
             // The HTTP status code to use for indicating a validation error.
             validationErrorStatus: 422,
-        }
+        };
     }
 
     /**
@@ -176,15 +190,15 @@ class Base {
      *
      * @returns {*} The value of the given option path.
      */
-    getOption(path, fallback = null) {
+    getOption(path: string | string[], fallback: any = null): any {
         return get(this._options, path, fallback);
     }
 
     /**
      * @returns {Object} This instance's default options.
      */
-    options() {
-        return {}
+    options(): Options {
+        return {};
     }
 
     /**
@@ -193,7 +207,7 @@ class Base {
      * @param {string} path
      * @param {*}      value
      */
-    setOption(path, value) {
+    setOption(path: string, value: any): void {
         set(this._options, path, value);
     }
 
@@ -203,7 +217,7 @@ class Base {
      *
      * @param {...Object} options One or more objects of options.
      */
-    setOptions(...options) {
+    setOptions(...options: Options[]): void {
         Vue.set(this, '_options', defaultsDeep(
             {},
             ...options,                 // Given options
@@ -217,7 +231,7 @@ class Base {
      *
      * @return {Object}
      */
-    getOptions() {
+    getOptions(): Options {
         return defaultTo(this._options, {});
     }
 
@@ -226,19 +240,19 @@ class Base {
      *
      * @returns {Function} Will be passed `route` and `parameters`
      */
-    getRouteResolver() {
+    getRouteResolver(): RouteResolver {
         return this.getDefaultRouteResolver();
     }
 
     /**
      * @returns {Object} An object consisting of all route string replacements.
      */
-    getRouteReplacements(route, parameters = {}) {
-        const replace = {};
-        let pattern = this.getRouteParameterPattern();
+    getRouteReplacements(route: string, parameters: Record<string, string> = {}): Record<string, string> {
+        const replace: Record<string, string> = {};
+        let pattern: string | RegExp = this.getRouteParameterPattern();
         pattern = new RegExp(pattern instanceof RegExp ? pattern.source : pattern, 'g');
 
-        for (let parameter; (parameter = pattern.exec(route)) !== null; ) {
+        for (let parameter: RegExpExecArray | null; (parameter = pattern.exec(route)) !== null; ) {
             replace[parameter[0]] = parameters[parameter[1]];
         }
 
@@ -251,98 +265,98 @@ class Base {
      *
      * @returns {Function}
      */
-    getDefaultRouteResolver() {
-        return (route, parameters = {}) => {
-            let replacements = this.getRouteReplacements(route, parameters);
+    getDefaultRouteResolver(): RouteResolver {
+        return (route, parameters: Record<string, string> = {}): string => {
+            let replacements: Record<string, string> = this.getRouteReplacements(route, parameters);
 
             // Replace all route parameters with their replacement values.
-            return reduce(replacements, (result, value, parameter) => {
+            return reduce(replacements, (result, value, parameter): string => {
                 return replace(result, parameter, value);
             }, route);
-        }
+        };
     }
 
     /**
      * @returns {Object} The data to send to the server when saving this model.
      */
-    getDeleteBody() {
+    getDeleteBody(): any {
         return {};
     }
 
     /**
      * @returns {Object} Query parameters that will be appended to the `fetch` URL.
      */
-    getFetchQuery() {
+    getFetchQuery(): Record<string, any> {
         return {};
     }
 
     /**
      * @returns {Object} Query parameters that will be appended to the `save` URL.
      */
-    getSaveQuery() {
+    getSaveQuery(): Record<string, any> {
         return {};
     }
 
     /**
      * @returns {Object} Query parameters that will be appended to the `delete` URL.
      */
-    getDeleteQuery() {
+    getDeleteQuery(): Record<string, any> {
         return {};
     }
 
     /**
      * @returns {string} The key to use when generating the `fetch` URL.
      */
-    getFetchRoute() {
+    getFetchRoute(): string {
         return this.getRoute('fetch');
     }
 
     /**
      * @returns {string} The key to use when generating the `save` URL.
      */
-    getSaveRoute() {
+    getSaveRoute(): string {
         return this.getRoute('save');
     }
 
     /**
      * @returns {string} The key to use when generating the `delete` URL.
      */
-    getDeleteRoute() {
+    getDeleteRoute(): string {
         return this.getRoute('delete');
     }
 
     /**
      * @returns {Object} Headers to use when making any request.
      */
-    getDefaultHeaders() {
+    getDefaultHeaders(): Record<string, any> {
         return {};
     }
 
     /**
      * @returns {Object} Headers to use when making a save request.
      */
-    getSaveHeaders() {
+    getSaveHeaders(): Record<string, any> {
         return this.getDefaultHeaders();
     }
 
     /**
      * @returns {Object} Headers to use when making a fetch request.
      */
-    getFetchHeaders() {
+    getFetchHeaders(): Record<string, any> {
         return this.getDefaultHeaders();
     }
 
     /**
      * @returns {Object} Headers to use when making a delete request.
      */
-    getDeleteHeaders() {
+    getDeleteHeaders(): Record<string, any> {
         return this.getDefaultHeaders();
     }
 
     /**
      * @returns {Object} Default HTTP methods.
      */
-    getDefaultMethods() {
+    getDefaultMethods(): object {
         return {
             fetch:  'GET',
             save:   'POST',
@@ -350,79 +364,79 @@ class Base {
             create: 'POST',
             patch:  'PATCH',
             delete: 'DELETE',
-        }
+        };
     }
 
     /**
      * @returns {string} HTTP method to use when making a save request.
      */
-    getSaveMethod() {
+    getSaveMethod(): Method {
         return this.getOption('methods.save');
     }
 
     /**
      * @returns {string} HTTP method to use when making a fetch request.
      */
-    getFetchMethod() {
+    getFetchMethod(): Method {
         return this.getOption('methods.fetch');
     }
 
     /**
      * @returns {string} HTTP method to use when updating a resource.
      */
-    getUpdateMethod() {
+    getUpdateMethod(): Method {
         return this.getOption('methods.update');
     }
 
     /**
      * @returns {string} HTTP method to use when patching a resource.
      */
-    getPatchMethod() {
+    getPatchMethod(): Method {
         return this.getOption('methods.patch');
     }
 
     /**
      * @returns {string} HTTP method to use when creating a resource.
      */
-    getCreateMethod() {
+    getCreateMethod(): Method {
         return this.getOption('methods.create');
     }
 
     /**
      * @returns {string} HTTP method to use when deleting a resource.
      */
-    getDeleteMethod() {
+    getDeleteMethod(): Method {
         return this.getOption('methods.delete');
     }
 
     /**
      * @returns {number} The HTTP status code that indicates a validation error.
      */
-    getValidationErrorStatus() {
+    getValidationErrorStatus(): number {
         return defaultTo(this.getOption('validationErrorStatus'), 422);
     }
 
     /**
      * @returns {boolean} `true` if the response indicates a validation error.
      */
-    isBackendValidationError(error) {
+    isBackendValidationError(error: RequestError | any): boolean {
 
         // The error must have a response for it to be a validation error.
         if ( ! invoke(error, 'getResponse')) {
             return false;
         }
 
-        let status  = error.getResponse().getStatus();
-        let invalid = this.getValidationErrorStatus();
+        let status: number  = (error as RequestError).getResponse().getStatus();
+        let invalid: number = this.getValidationErrorStatus();
 
-        return status == invalid;
+        return status === invalid;
     }
 
     /**
      * @return {string|undefined} Route value by key.
      */
-    getRoute(key, fallback) {
-        let route = get(this.routes(), key, get(this.routes(), fallback));
+    getRoute(key: string, fallback?: string): string {
+        let route: string | undefined = get(this.routes(), key, fallback ? get(this.routes(), fallback) : undefined);
 
         if ( ! route) {
             throw new Error(`Invalid or missing route`);
@@ -434,21 +448,21 @@ class Base {
     /**
      * @returns {string} The full URL to use when making a fetch request.
      */
-    getFetchURL() {
+    getFetchURL(): string {
         return this.getURL(this.getFetchRoute(), this.getRouteParameters());
     }
 
     /**
      * @returns {string} The full URL to use when making a save request.
      */
-    getSaveURL() {
+    getSaveURL(): string {
         return this.getURL(this.getSaveRoute(), this.getRouteParameters());
     }
 
     /**
      * @returns {string} The full URL to use when making a delete request.
      */
-    getDeleteURL() {
+    getDeleteURL(): string {
         return this.getURL(this.getDeleteRoute(), this.getRouteParameters());
     }
 
@@ -458,35 +472,35 @@ class Base {
      *
      * @returns {string} A URL that was generated using the given route key.
      */
-    getURL(route, parameters = {}) {
+    getURL(route: string, parameters: Record<string, any> = {}): string {
         return this.getRouteResolver()(route, parameters);
     }
 
     /**
      * @returns {Request} A new `Request` using the given configuration.
      */
-    createRequest(config) {
+    createRequest(config: AxiosRequestConfig): Request {
         return new Request(config);
     }
 
     /**
      * Creates a request error based on a given existing error and optional response.
      */
-    createRequestError(error, response) {
+    createRequestError(error: any, response: Response): RequestError {
         return new RequestError(error, response);
     }
 
     /**
      * Creates a response error based on a given existing error and response.
      */
-    createResponseError(error, response) {
+    createResponseError(error: any, response?: Response): ResponseError {
         return new ResponseError(error, response);
     }
 
     /**
      * Creates a validation error using given errors and an optional message.
      */
-    createValidationError(errors, message) {
+    createValidationError(errors: Errors | Errors[], message?: string): ValidationError {
         return new ValidationError(errors, message);
     }
 
@@ -498,15 +512,16 @@ class Base {
      * @param  {function}   onSuccess   Called when the request was successful.
      * @param  {function}   onFailure   Called when the request failed.
      */
-    request(config, onRequest, onSuccess, onFailure) {
-        return new Promise((resolve, reject) => {
-            return onRequest().then((status) => {
+    request(config: AxiosRequestConfig | (() => AxiosRequestConfig), onRequest: OnRequestCallback,
+            onSuccess: RequestSuccessCallback, onFailure: RequestFailureCallback): Promise<Response | null> {
+        return new Promise((resolve, reject): Promise<void> => {
+            return onRequest().then((status: RequestOperation | boolean): void | Promise<void> => {
                 switch (status) {
-                    case REQUEST_CONTINUE:
+                    case RequestOperation.REQUEST_CONTINUE:
                         break;
-                    case REQUEST_SKIP:
+                    case RequestOperation.REQUEST_SKIP:
                         return;
-                    case REQUEST_REDUNDANT: // Skip, but consider it a success.
+                    case RequestOperation.REQUEST_REDUNDANT: // Skip, but consider it a success.
                         onSuccess(null);
                         resolve(null);
                         return;
@@ -523,18 +538,22 @@ class Base {
                 return this
                     .createRequest(config)
                     .send()
-                    .then((response) => {
+                    .then((response): void => {
                         onSuccess(response);
                         resolve(response);
                     })
-                    .catch((error) => {
-                        onFailure(error);
+                    .catch((error: ResponseError): void => {
+                        onFailure(error, error.response);
                         reject(error);
                     })
                     .catch(reject); // For errors that occur in `onFailure`.
             }).catch(reject);
-        })
+        });
     }
+
+    abstract onFetch(): Promise<RequestOperation>;
+    abstract onFetchFailure(error: any, response: Response | undefined): void;
+    abstract onFetchSuccess(response: Response | null): void;
 
     /**
      * Fetches data from the database/API.
@@ -547,14 +566,14 @@ class Base {
      *
      * @returns {Promise}
      */
-    fetch(options = {}) {
-        let config = () => {
+    fetch(options: RequestOptions = {}): Promise<Response | null> {
+        let config = (): AxiosRequestConfig => {
             return {
-                url     : defaultTo(options.url,     this.getFetchURL()),
-                method  : defaultTo(options.method,  this.getFetchMethod()),
-                params  : defaults (options.params,  this.getFetchQuery()),
-                headers : defaults (options.headers, this.getFetchHeaders()),
-            };
+                url: defaultTo(options.url, this.getFetchURL()),
+                method: defaultTo(options.method, this.getFetchMethod()),
+                params: defaults(options.params, this.getFetchQuery()),
+                headers: defaults(options.headers, this.getFetchHeaders()),
+            }
         };
 
         return this.request(
@@ -564,6 +583,11 @@ class Base {
             this.onFetchFailure
         );
     }
+
+    abstract getSaveData(): Record<any, any>;
+    abstract onSave(): Promise<RequestOperation>;
+    abstract onSaveFailure(error: any, response: Response | undefined): void;
+    abstract onSaveSuccess(response: BaseResponse | null): void;
 
     /**
      * Persists data to the database/API.
@@ -577,15 +601,15 @@ class Base {
      *
      * @returns {Promise}
      */
-    save(options = {}) {
-        let config = () => {
+    save(options: RequestOptions = {}): Promise<Response | null> {
+        let config = (): AxiosRequestConfig => {
             return {
-                url     : defaultTo(options.url,     this.getSaveURL()),
-                method  : defaultTo(options.method,  this.getSaveMethod()),
-                data    : defaultTo(options.data,    this.getSaveData()),
-                params  : defaults (options.params,  this.getSaveQuery()),
-                headers : defaults (options.headers, this.getSaveHeaders()),
-            };
+                url: defaultTo(options.url, this.getSaveURL()),
+                method: defaultTo(options.method, this.getSaveMethod()),
+                data: defaultTo(options.data, this.getSaveData()),
+                params: defaultTo(options.params, this.getSaveQuery()),
+                headers: defaultTo(options.headers, this.getSaveHeaders()),
+            }
         };
 
         return this.request(
@@ -602,11 +626,11 @@ class Base {
      * @param  {Object} data
      * @returns {FormData}
      */
-    convertObjectToFormData(data) {
-        let form = new FormData();
+    convertObjectToFormData(data: Record<string, string | Blob>): FormData {
+        let form: FormData = new FormData();
 
-        each(data, (value, key) => {
-            form.append(key, value)
+        each(data, (value, key): void => {
+            form.append(key, value);
         });
 
         return form;
@@ -623,15 +647,19 @@ class Base {
      *
      * @returns {Promise}
      */
-    upload(options = {}) {
-        let data = defaultTo(options.data, this.getSaveData());
+    upload(options: Record<any, any> = {}): Promise<Response | null> {
+        let data: any = defaultTo(options.data, this.getSaveData());
 
-        let config = () => assign(options, {
+        let config: object = (): object => assign(options, {
             data: this.convertObjectToFormData(data),
         });
 
         return this.save(config);
     }
+
+    abstract onDelete(): Promise<RequestOperation>;
+    abstract onDeleteFailure(error: any, response: Response | undefined): void;
+    abstract onDeleteSuccess(response: Response | null): void;
 
     /**
      * Removes model or collection data from the database/API.
@@ -644,15 +672,15 @@ class Base {
      *
      * @returns {Promise}
      */
-    delete(options = {}) {
-        let config = () => {
+    delete(options: RequestOptions = {}): Promise<Response | null> {
+        let config = (): AxiosRequestConfig => {
             return {
-                url     : defaultTo(options.url,     this.getDeleteURL()),
-                method  : defaultTo(options.method,  this.getDeleteMethod()),
-                data    : defaultTo(options.data,    this.getDeleteBody()),
-                params  : defaults (options.params,  this.getDeleteQuery()),
-                headers : defaults (options.headers, this.getDeleteHeaders()),
-            };
+                url: defaultTo(options.url, this.getDeleteURL()),
+                method: defaultTo(options.method, this.getDeleteMethod()),
+                data: defaultTo(options.data, this.getDeleteBody()),
+                params: defaultTo(options.params, this.getDeleteQuery()),
+                headers: defaultTo(options.headers, this.getDeleteHeaders()),
+            }
         };
 
         return this.request(
@@ -664,8 +692,30 @@ class Base {
     }
 }
 
-Base.REQUEST_CONTINUE  = REQUEST_CONTINUE;
-Base.REQUEST_REDUNDANT = REQUEST_REDUNDANT;
-Base.REQUEST_SKIP      = REQUEST_SKIP;
-
 export default Base;
+
+export interface Options {
+    [key: string]: any;
+    model?: typeof Model;
+    methods?: Partial<Record<RequestType, HttpMethods>>;
+    routeParameterPattern?: RegExp;
+    // validationErrorStatus?: number;
+    useDeleteBody?: boolean;
+}
+
+export type Routes = Record<'fetch' | 'save' | 'delete' | string, string>;
+export type Listener = (context: Record<string, any>) => void;
+export type RouteResolver = (route: string, parameters: Record<string, string>) => string;
+export type RequestFailureCallback = (error: any, response: Response | undefined) => void;
+export type RequestSuccessCallback = (response: Response | null) => void;
+export type OnRequestCallback = () => Promise<number | boolean>;
+export type HttpMethods = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE' | string;
+export type RequestType = 'fetch' | 'save' | 'update' | 'create' | 'patch' | 'delete' | string;
+
+export interface RequestOptions {
+    url?: string;
+    method?: Method;
+    data?: any;
+    params?: Record<string, any>;
+    headers?: Record<string, any>;
+}
