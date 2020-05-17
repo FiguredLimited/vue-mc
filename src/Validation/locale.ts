@@ -611,6 +611,57 @@ export const de_de: Bundle = {
     },
 };
 
+/**
+ * Español - Latinoamérica
+ */
+export const es_es: Bundle = {
+    locale: 'es-ES',
+    messages: {
+        after: 'Debe ser posterior a $ {date}',
+        alpha: 'Debe contener solo letras',
+        alphanumeric: 'Debe contener letras y números',
+        array: 'Debe ser un array',
+        ascii: 'Debe ser ASCII',
+        base64: 'Debe ser Base64 válido',
+        before: 'Debe ser anterior a $ {date}',
+        between: 'Debe estar entre ${min} y ${max}',
+        between_inclusive: 'Debe estar entre ${min} y ${max}, inclusive',
+        boolean: 'Debe ser verdadero o falso',
+        creditcard: 'Debe ser un número de tarjeta de crédito válido',
+        date: 'Debe ser una fecha válida',
+        dateformat: 'Debe user el formato "${format}"',
+        defined: 'Campo obligatorio',
+        email: 'Debe ser una dirección de correo válida',
+        empty: 'Debe estar vacío',
+        equals: 'Debe ser igual a ${other}',
+        gt: 'Debe ser mayor a ${min}',
+        gte: 'Debe ser mayor o igual a ${min}',
+        integer: 'Debe ser un entero',
+        ip: 'Debe ser una direción IP válida',
+        isblank: 'debe estar en blanco',
+        isnil: 'Campo obligatorio',
+        isnull: 'Campo obligatorio',
+        iso8601: 'Debe ser una fecha ISO8601 válida',
+        json: 'Debe ser un JSON válido',
+        length: 'Debe tener un tamaño mínimo de ${min}',
+        length_between: 'Debe tener un tamaño entre ${min} y ${max}',
+        lt: 'Debe ser menor a ${max}',
+        lte: 'Deme ser menor o igual a ${max}',
+        match: 'Debe tener el formato "${pattern}"',
+        negative: 'Debe ser un número negativo',
+        not: 'No puede ser ${value}',
+        number: 'Debe ser un número',
+        numeric: 'Debe ser numérico',
+        object: 'Debe ser un objeto',
+        positive: 'Debe ser un número positivo',
+        required: 'Campo obligatorio',
+        same: 'Debe ser igual a "${other}"',
+        string: 'Debe ser una cadena de texto',
+        url: 'Debe ser una URL válida',
+        uuid: 'Debe ser un UUID válido',
+    },
+};
+
 export interface Bundle {
     locale: string;
     messages: Messages;
