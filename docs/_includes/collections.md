@@ -371,7 +371,7 @@ let config = {
     // headers
 };
 
-return this.getRequest(config).send().then(() => {
+return this.createRequest(config).send().then(() => {
     // Handle success here
 }).catch((error) => {
     // Handle failure here
